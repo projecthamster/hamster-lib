@@ -1,0 +1,58 @@
+*.py[cod]
+*~
+.python-version
+__pycache__
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# envdirs
+envs/*
+!envs/dev
+
+# Django
+kmncms/media/*
+!kmncms/media/.gitkeep
+kmncms/static_root/*
+!kmncms/static_root/.gitkeep
+
+# Logs
+*.log
+*.log.*
+pip-log.txt
+
+# Unit test / coverage reports
+.cache
+.coverage
+.tox
+htmlcov
+
+# Translations
+*.mo
+
+# Complexity
+output/*.html
+output/*/index.html
+
+# Bower and npm
+bower_components
+node_modules
+
+# Sphinx
+docs/_build
+!docs/_static/.gitkeep
