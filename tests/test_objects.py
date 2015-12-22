@@ -51,7 +51,8 @@ class TestActivity:
 
     def test_init_invalid(self, activity_init_invalid_values):
         """Test that init rejects all invalid values."""
-        pass
+        with pytest.raises(ValueError):
+            activity = Activity(**activity_init_invalid_values)
 
     def test_str_without_category(self, activity):
         activity.category = None

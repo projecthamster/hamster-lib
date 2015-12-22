@@ -73,18 +73,3 @@ class TestControler:
 
 
 
-    #def test_current_fact(self, controler, persistent_current_fact,
-    #        persistent_not_today_fact, persistent_today_fact):
-    #    """
-    #    We create some extra noise to make sure we realy just pick the
-    #    'current' fact
-
-    #    """
-    #    print(persistent_current_fact.start)
-    #    print(persistent_current_fact.end)
-    #    print(len(controler.facts.get_all()))
-    #    result = controler.current_fact
-    #    print(result)
-    #    assert 0
-
-
