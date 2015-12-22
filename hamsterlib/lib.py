@@ -19,14 +19,6 @@ NOTE:
     of working around that.
 """
 
-
-#config = {
-#    'unsorted_localized': "Unsorted",
-#    'store': 'dummy',
-#    'daystart': datetime.time(hour=0, minute=0, second=0),
-#    'dayend': datetime.time(hour=23, minute=59, second=59),
-#}
-
 class HamsterControl(object):
     """
     All mandatory config options are set as part of the contoler setup.
@@ -59,7 +51,7 @@ class HamsterControl(object):
     def __get_store(self, storetype):
         if storetype == 'sqlalchemy':
             from .backends.sqlalchemy import store
-            result = store.SQLAlchemyStore('sqlite:///:memory:')
+            result = store.SQLAlchemyStore(self.config['db-path'])
         else:
             raise KeyError(_("No valid storetype found."))
         return result
@@ -90,22 +82,6 @@ class HamsterControl(object):
 
         return logger
 
-
-
-
-    #@property
-    #def current_fact(self):
-    #    """If todays latest fact has no end date yet, it is considered
-    #    'currently ongoing', this property provides easy access to this fact.
-
-    #
-    #    Current fact is broken. And its a shit design. Also it does not play nice
-    #    with our concept of "todays facts".
-    #    """
-    #    facts = self.get_today_facts()
-    #    print(facts)
-    #    if facts and not facts[-1].end:
-    #        return facts[-1]
 
 
     def parse_raw_fact(self, raw_fact):
