@@ -14,6 +14,10 @@ class Category(object):
     def __init__(self, name, pk=None):
         self.pk = pk
         self.name = name
+        if not self.name:
+            raise ValueError(_(
+                "Missing a name for our Category instancec!"
+            ))
 
     @property
     def name(self):
@@ -37,6 +41,11 @@ class Activity(object):
     def __init__(self, name, pk=None, category=None, deleted=False):
         self.pk = pk
         self.name = name
+        # Check its not empty
+        if not self.name:
+            raise ValueError(_(
+                "Missing a name for our Activity instancec!"
+            ))
         self.category = category
         self.deleted = bool(deleted)
 
@@ -66,6 +75,11 @@ class Fact(object):
     def __init__(self, activity, start, pk=None, end=None, description='', tags=[]):
 
         self.pk = pk
+        if not isinstance(activity, Activity):
+            raise TypeError(_(
+                "'activity' should be an Activity instance, instead we got"
+                " {type}.".format(type=type(activity))
+            ))
         self.activity = activity
         self.start = start
         self.end = end

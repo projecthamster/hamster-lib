@@ -159,6 +159,11 @@ def activity_init_valid_values(request):
      'category': category(),
      'deleted': True
      },
+    {'name': '',
+     'pk': None,
+     'category': category(),
+     'deleted': False
+     },
 ])
 def activity_init_invalid_values(request):
     """A range of invalid values for creating an activity."""
@@ -295,6 +300,7 @@ def fact_various_raw_facts(request):
 
 
 @pytest.fixture(params=[
+    '',
     'foo@bar@boobaz',
     '11:00 12:00 foo@bar',
     'rumpelratz foo@bar',
