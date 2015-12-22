@@ -16,6 +16,11 @@ class AlchemyCategory(Category):
             raise TypeError(_("Category instance expected."))
         self.pk = hamster_category.pk
         self.name = hamster_category.name
+        if not self.name:
+            raise ValueError(_(
+                "It seems the Category instance passed along does not have"
+                " a name attribute. We need one to proceed!"
+            ))
 
     def as_hamster(self):
         return Category(
@@ -29,6 +34,11 @@ class AlchemyActivity(Activity):
             raise TypeError(_("Activity instance expected."))
         self.pk = hamster_activity.pk
         self.name = hamster_activity.name
+        if not self.name:
+            raise ValueError(_(
+                "It seems the Activity-instance passed along does not have"
+                " a name attribute. We need one to proceed!"
+            ))
         if hamster_activity.category:
             self.category = AlchemyCategory(hamster_activity.category)
         else:
