@@ -67,19 +67,8 @@ class HamsterControl(object):
         formatter = logging.Formatter(
             '%(asctime)s [%(levelname)s] %(name)s:  %(message)s')
 
-        # [FIXME]
-        # According to documentation libs should not actually designate
-        # handlelrs themselfs but leave that to their client applications.
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(console_level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-        file_handler = logging.FileHandler('hamsterlib.log', encoding='utf-8')
-        file_handler.setLevel(file_level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
+        logger.addHandler(logging.NullHandler())
+        logger.addHandler(logging.NullHandler())
         return logger
 
 
@@ -243,14 +232,14 @@ class HamsterControl(object):
         if back:
             category_name, description = comma_split(back)
             if category_name:
-                category = self.categories.get_or_create(category_name)
+                category = objects.Category(category_name)
             else:
                 category = None
         else:
             category = None
             description = None
 
-        activity = self.activities.get_by_composite(activity_name, category)
+        activity = objects.Activity(activity_name, category=category)
         if not activity:
             activity = objects.Activity(activity_name, category=category)
             activity = self.activities.save(activity)
