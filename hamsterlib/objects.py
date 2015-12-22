@@ -92,6 +92,8 @@ class Fact(object):
         :return: The date the fact has started.
         :rtype: datetime.date
         """
+        # [FIXME]
+        # Still needed?
         return self.start.date()
 
     @property
@@ -106,10 +108,10 @@ class Fact(object):
                 end time.
             * '-minutes': Relative time in minutes from the current date and time.
         """
-        result = str(self.activity)
+        result = str(self.activity.name)
 
         if self.category:
-            result += "@%s" % self.category
+            result += "@%s" % self.category.name
 
         if self.description or self.tags:
             result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
@@ -120,6 +122,7 @@ class Fact(object):
     def category(self):
         """For convinience only."""
         return self.activity.category
+
 
     def __str__(self):
         time = self.start.strftime("%d-%m-%Y %H:%M")

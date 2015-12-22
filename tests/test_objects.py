@@ -92,17 +92,17 @@ class TestFact:
         assert fact.date == fact.start.date()
 
     def test_serialized_name_with_category_and_description(self, fact):
-        expectation = '{f.activity}@{f.category}, {f.description}'.format(f=fact)
+        expectation = '{f.activity.name}@{f.category.name}, {f.description}'.format(f=fact)
         assert fact.serialized_name == expectation
 
     def test_serialized_name_with_category_no_description(self, fact):
         fact.description = None
-        expectation = '{f.activity}@{f.category}'.format(f=fact)
+        expectation = '{f.activity.name}@{f.category.name}'.format(f=fact)
         assert fact.serialized_name == expectation
 
     def test_serialized_name_with_description_no_category(self, fact):
         fact.activity.category = None
-        expectation = '{f.activity}, {f.description}'.format(f=fact)
+        expectation = '{f.activity.name}, {f.description}'.format(f=fact)
         assert fact.serialized_name == expectation
 
     def test_str(self, fact):
