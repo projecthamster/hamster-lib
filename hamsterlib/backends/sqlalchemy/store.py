@@ -20,7 +20,7 @@ logger = logging.getLogger('hamsterlib.lib')
 
 class SQLAlchemyStore(storage.BaseStore):
     def __init__(self, path):
-        engine = create_engine(path)#, echo=Tru4e)
+        engine = create_engine(path)
         alchemy.metadata.bind = engine
         alchemy.metadata.create_all(engine)
 
@@ -29,7 +29,6 @@ class SQLAlchemyStore(storage.BaseStore):
         self.categories = CategoryManager(self)
         self.activities = ActivityManager(self)
         self.facts = FactManager(self)
-        #logger.debug(_("SQLAlchemy store successfully set up"))
 
 
     def cleanup(self):
