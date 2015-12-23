@@ -43,8 +43,7 @@ def base_config():
     return {
         'unsorted_localized': 'Unsorted',
         'store': 'sqlalchemy',
-        'daystart': datetime.time(hour=0, minute=0, second=0),
-        'dayend': datetime.time(hour=23, minute=59, second=59),
+        'day_start': datetime.time(hour=5, minute=30, second=0),
         'db-path': 'sqlite:///:memory:',
     }
 
