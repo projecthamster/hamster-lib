@@ -57,16 +57,7 @@ class HamsterControl(object):
         return result
 
     def __get_logger(self):
-        level = logging.DEBUG
-        console_level = logging.DEBUG
-        file_level = logging.DEBUG
-
         lib_logger = logging.getLogger(__name__)
-        lib_logger.setLevel(level)
-
-        formatter = logging.Formatter(
-            '%(asctime)s [%(levelname)s] %(name)s:  %(message)s')
-
         lib_logger.addHandler(logging.NullHandler())
         lib_logger.addHandler(logging.NullHandler())
         return lib_logger
