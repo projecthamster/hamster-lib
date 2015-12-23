@@ -10,4 +10,5 @@ Development Lead
 Contributors
 ------------
 
-None yet. Why not be the first?
+* [tbaugis](https://github.com/tbaugis): `parse_time_info` from [hamster-cli](
+  https://github.com/projecthamster/hamster/blob/master/src/hamster-cli)

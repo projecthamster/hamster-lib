@@ -38,6 +38,11 @@ class TestControler:
             controler.parse_raw_fact(invalid_raw_fact)
 
 
+    def test_parse_time_info(self, controler, time_info_string):
+        string, expectation = time_info_string
+        assert controler.parse_time_info(string) == expectation
+
+
     def test_parse_raw_fact_with_persistent_activity(self, controler,
         raw_fact_with_persistent_activity):
         raw_fact, expectation = raw_fact_with_persistent_activity
