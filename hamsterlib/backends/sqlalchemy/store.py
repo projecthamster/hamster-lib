@@ -119,9 +119,8 @@ class CategoryManager(storage.BaseCategoryManager):
 
     def get_all(self):
         """Get all categories."""
-        # [TODO] Check if this matches original functionality.
         return [alchemy_category for alchemy_category in (
-            self.store.session.query(AlchemyCategory).all())]
+            self.store.session.query(AlchemyCategory).order_by(AlchemyCategory.name).all())]
 
 class ActivityManager(storage.BaseActivityManager):
 
