@@ -329,44 +329,6 @@ def start_end_times():
     start = end - datetime.timedelta(minutes=15)
     return (start, end)
 
-@pytest.fixture(params=[
-    ('2015-12-12', (datetime.datetime(2015, 12, 12, 0, 0, 0), None)),
-    ('   2015-12-12    ', (None, None)),
-    ('2015-12-12 12:30', (datetime.datetime(2015, 12, 12, 12, 30, 0), None)),
-    ('2015-12-12    12:30', (datetime.datetime(2015, 12, 12, 0, 0, 0), None)),
-    ('12:30', (convert_time_to_datetime('12:30'), None)),
-    ('   12:30', (None, None)),
-    ('12:30   ', (convert_time_to_datetime('12:30'), None)),
-    ('2015-12-12 2015-12-20', (
-        datetime.datetime(2015, 12, 12, 0, 0, 0),
-        datetime.datetime(2015, 12, 20, 0, 0, 0)
-    )),
-    ('2015-12-12      2015-12-20', (
-        datetime.datetime(2015, 12, 12, 0, 0, 0),
-        None,
-    )),
-    ('   2015-12-12 2015-12-20', ( None, None)),
-    ('2015-12-12 2015-12-20     ', (
-        datetime.datetime(2015, 12, 12, 0, 0, 0),
-        datetime.datetime(2015, 12, 20, 0, 0, 0)
-    )),
-    ('2015-12-12 2015-12-20 12:30', (
-        datetime.datetime(2015, 12, 12, 0, 0, 0),
-        datetime.datetime(2015, 12, 20, 12, 30, 0)
-    )),
-    ('2015-12-12 10:33 2015-12-20 12:30', (
-        datetime.datetime(2015, 12, 12, 10, 33, 0),
-        datetime.datetime(2015, 12, 20, 12, 30, 0)
-    )),
-    ('10:33 12:30', (
-        convert_time_to_datetime('10:33'),
-        convert_time_to_datetime('12:30')
-    )),
-
-])
-def time_info_string(request):
-    """Return a time info string the return value by parse_time_info."""
-    return request.param
 
 
 
