@@ -205,29 +205,12 @@ class ActivityManager(storage.BaseActivityManager):
             result = result.as_hamster()
         return result
 
-    def get_all(self, category=None, filter_term=''):
-        """
-        Retrieve a list of activities that belong to a given category (or do
-        not have any category (if category=None) and whichs name matches our
-        'search_term'
-
-        NOTE: Propably should be renamed to something more accurate like
-        'get_category_activities' or such...
-
-        :param category: Hamster Category to filter by or None for all category-less
-        acvtivities
-        :type category: Category
-        :param str filter_term: Sting to filter results by
-
-        :return: List of matching activities
-        :rtype: list
-        """
-        # [TODO] Verify that this matches original functionality.
-        # [FIXME] Implement 'filter by category' and 'search_term'.
+    def get_all(self, search_term=''):
         result = self.store.session.query(AlchemyActivity)
-        if category:
-            category = AlchemyCategory(category)
-        return result.filter_by(category=category).all()
+        if search_term:
+            result = result.filter(AlchemyActivity.name.ilike('%{}%'.format(search_term)))
+        result.order_by(AlchemyActivity.name)
+        return result.all()
 
 
 class FactManager(storage.BaseFactManager):
