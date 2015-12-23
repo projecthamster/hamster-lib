@@ -39,8 +39,8 @@ class HamsterControl(object):
 
     def __init__(self, config):
         self.config = config
-        self.logger = self.__get_logger()
-        self.logger.debug(_("HamsterControl initialized"))
+        self.lib_logger = self.__get_logger()
+        self.lib_logger.debug(_("HamsterControl initialized"))
         self.unsorted_localized = self.config['unsorted_localized']
         self.store = self.__get_store(self.config['store'])
         # convinience attributes
@@ -61,15 +61,15 @@ class HamsterControl(object):
         console_level = logging.DEBUG
         file_level = logging.DEBUG
 
-        logger = logging.getLogger(__name__)
-        logger.setLevel(level)
+        lib_logger = logging.getLogger(__name__)
+        lib_logger.setLevel(level)
 
         formatter = logging.Formatter(
             '%(asctime)s [%(levelname)s] %(name)s:  %(message)s')
 
-        logger.addHandler(logging.NullHandler())
-        logger.addHandler(logging.NullHandler())
-        return logger
+        lib_logger.addHandler(logging.NullHandler())
+        lib_logger.addHandler(logging.NullHandler())
+        return lib_logger
 
 
 
