@@ -270,6 +270,9 @@ class FactManager(storage.BaseFactManager):
         # [FIXME] Figure out against what to match search_terms
         results = self.store.session.query(AlchemyFact)
         if start and end:
+            # [FIXME]
+            # Account for (start or end)! Check with reference implementation.
+
             # This assumes that start <= end!
             results = results.filter(and_(AlchemyFact.start >= start, AlchemyFact.end <= end))
         # [FIXME]
