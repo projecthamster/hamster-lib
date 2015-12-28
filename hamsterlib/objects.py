@@ -95,8 +95,20 @@ class Fact(object):
         start datetime, we return None.
         :rtype: datetime.timedelta or None
         """
-        if self.start and self.end:
-            return self.end - self.start
+        return self.end - self.start
+
+    def get_string_delta(self, format='raw'):
+        if format == '%M':
+            result = int(self.delta.total_seconds())/60
+        elif format == '%H:%M':
+            seconds = int(self.delta.total_seconds())
+            result = '{hours}:{minutes}'.format(hours=(seconds/3600),
+                minutes=((seconds%3600)/60))
+        else:
+            raise ValueError(_("Got invalid format argument."))
+        return result
+
+
 
     @property
     def date(self):
