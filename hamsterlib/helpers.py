@@ -8,7 +8,7 @@ TimeFrame = namedtuple('Timeframe', ('start_date', 'start_time',
     'end_date', 'end_time', 'offset'))
 
 
-def parse_time_info(time_info):
+def parse_time_range(time_info):
     """
     Generic parser for time(-range) information.
 

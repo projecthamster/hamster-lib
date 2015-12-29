@@ -3,7 +3,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, mapper, relationship
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import and_
+from sqlalchemy.sql.expression import and_, or_
 
 from gettext import gettext as _
 from past.builtins import basestring
@@ -257,7 +257,7 @@ class FactManager(storage.BaseFactManager):
         """
         return self.store.session.query(AlchemyFact).get(pk)
 
-    def get_all(self, start=None, end=None, search_terms=''):
+    def get_all(self, start=None, end=None, search_term=''):
         """
         Return all facts within a given timeframe (beginning of start_date
         end of end_date) that match given search terms.
@@ -275,6 +275,12 @@ class FactManager(storage.BaseFactManager):
 
             # This assumes that start <= end!
             results = results.filter(and_(AlchemyFact.start >= start, AlchemyFact.end <= end))
+        if search_term:
+            results = results.join(AlchemyActivity).join(AlchemyCategory).filter(
+                or_(AlchemyActivity.name.ilike('%{}%'.format(search_term)),
+                    AlchemyCategory.name.ilike('%{}%'.format(search_term))
+                    )
+            )
         # [FIXME]
         # Depending on scale, this could be a problem.
         return [fact.as_hamster() for fact in results.all()]
