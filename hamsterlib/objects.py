@@ -151,7 +151,8 @@ class Fact(object):
 
 
     def __str__(self):
-        time = self.start.strftime("%d-%m-%Y %H:%M")
+        if self.start:
+            time = self.start.strftime("%d-%m-%Y %H:%M")
         if self.end:
             time = "%s - %s" % (time, self.end.strftime("%H:%M"))
         return "%s %s" % (time, self.serialized_name)
