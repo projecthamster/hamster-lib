@@ -39,7 +39,7 @@ def convert_time_to_datetime(time_string):
 # Controler
 @pytest.fixture
 def base_config():
-    """Privide a generic baseline configutation."""
+    """Provide a generic baseline configuration."""
     return {
         'unsorted_localized': 'Unsorted',
         'store': 'sqlalchemy',

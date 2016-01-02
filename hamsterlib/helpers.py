@@ -57,7 +57,7 @@ def parse_time_range(time_info):
     return result
 
 
-def complete_timeframe(timeframe, day_start):
+def complete_timeframe(timeframe, day_start, day_end):
     """Apply fallback strategy to incomplete timeframes."""
 
     def complete_start_date(date):
@@ -84,7 +84,7 @@ def complete_timeframe(timeframe, day_start):
 
     def complete_end_date(date, start_date):
         if not date:
-            date = start_date + datetime.timedelta(days=1)
+            date = start_date
         else:
             if not isinstance(date, datetime.date):
                 raise TypeError(_(
@@ -93,12 +93,9 @@ def complete_timeframe(timeframe, day_start):
                 ))
         return date
 
-    def complete_end_time(time, start_time):
+    def complete_end_time(time, day_end):
         if not time:
-            # create a pseudo datetime object so we can operate with timedelta
-            time = datetime.datetime.combine(datetime.date.today(),
-                start_time)
-            time = (time - datetime.timedelta(seconds=1)).time()
+            time = day_end
         else:
             if not isinstance(time, datetime.time):
                 raise TypeError(_(
@@ -118,7 +115,32 @@ def complete_timeframe(timeframe, day_start):
 
     end = datetime.datetime.combine(
         complete_end_date(timeframe.end_date, start.date()),
-        complete_end_time(timeframe.end_time, start.time())
+        complete_end_time(timeframe.end_time, day_end)
     )
     return (start, end)
+
+
+def parse_time(time):
+    """
+    Parse a (date-)time string and return properly typed components.
+
+    Supported formats:
+        * '%Y-%m-%d'
+        * '%H:%M'
+        * '%Y-%m-%d %H:%M'
+    """
+    result = time.strip().split()
+    length = len(result)
+    if length == 1:
+        try:
+            result = datetime.datetime.strptime(time, '%H:%M')
+        except ValueError:
+            result = datetime.datetime.strptime(time, '%Y-%m-%d')
+    elif length == 2:
+        result = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M')
+    else:
+        raise ValueError(_(
+            "Sting does not seem to be in one of our supported time formats."
+        ))
+    return result
 

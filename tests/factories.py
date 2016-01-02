@@ -39,4 +39,4 @@ class FactFactory(factory.Factory):
     class Meta:
         model = objects.Fact
 
-
+0
