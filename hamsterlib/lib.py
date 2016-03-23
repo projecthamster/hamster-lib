@@ -59,9 +59,7 @@ class HamsterControl(object):
     def __get_logger(self):
         lib_logger = logging.getLogger(__name__)
         lib_logger.addHandler(logging.NullHandler())
-        lib_logger.addHandler(logging.NullHandler())
         return lib_logger
-
 
     def parse_raw_fact(self, raw_fact):
         """
@@ -192,7 +190,6 @@ class HamsterControl(object):
                 description = description.strip()
             return (category.strip(), description)
 
-
         front, back = at_split(raw_fact)
 
         time_info, activity_name = time_activity_split(front)
@@ -216,7 +213,6 @@ class HamsterControl(object):
         if not activity:
             activity = objects.Activity(activity_name, category=category)
             activity = self.activities.save(activity)
-
 
         return objects.Fact(activity, start, end=end, description=description)
 

@@ -9,7 +9,6 @@ from hamsterlib import Category, Activity, Fact
 
 DEFAULT_STRING_LENGTH = 254
 
-
 class AlchemyCategory(Category):
     def __init__(self, hamster_category):
         if not isinstance(hamster_category, Category):
@@ -27,6 +26,7 @@ class AlchemyCategory(Category):
             pk=self.pk,
             name=self.name
         )
+
 
 class AlchemyActivity(Activity):
     def __init__(self, hamster_activity):

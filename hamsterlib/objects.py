@@ -16,7 +16,7 @@ class Category(object):
         self.name = name
         if not self.name:
             raise ValueError(_(
-                "Missing a name for our Category instancec!"
+                "Missing a name for our Category instance!"
             ))
 
     @property
@@ -34,6 +34,7 @@ class Category(object):
 
     def __str__(self):
         return '[{pk}] {name}'.format(pk=self.pk, name=self.name)
+
 
 class Activity(object):
     """Storage agnostic class for activities."""
@@ -65,11 +66,13 @@ class Activity(object):
             'deleted': self.deleted,
         }
 
+
 class Fact(object):
     """Storage agnostic class for facts.
 
-    There is some weired black magic still to be integrated from
-    store.db.Storage. Among it __get_facts()
+    Note:
+        There is some weired black magic still to be integrated from
+        store.db.Storage. Among it __get_facts()
     """
 
     def __init__(self, activity, start, pk=None, end=None, description='', tags=[]):

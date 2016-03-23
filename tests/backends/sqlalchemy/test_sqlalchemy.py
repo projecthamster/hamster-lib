@@ -157,10 +157,10 @@ class TestActivityManager():
 
     def test_get_all_without_category(self, alchemy_store, existing_activity):
         """
-        Note: this method is not meant to return 'all-activities' but rather
-        all of a certain category.
+        Note:
+            This method is not meant to return 'all-activities' but rather
+            all of a certain category.
         """
-        activity = existing_activity.as_hamster()
         result = alchemy_store.activities.get_all()
         assert len(result) == 0
 

@@ -234,11 +234,11 @@ class BaseActivityManager(BaseManager):
         raise NotImplementedError
 
 
-    def get_all(self, category=False, search_term=''):
+    def get_all(self, category=None, search_term=''):
         """
         Return all activities.
 
-        :param category: Category by to filter by. If None, return all
+        :param category: Category to filter by. If None, return all
         activities without a category.
         :type category: Category or None
 

@@ -8,7 +8,6 @@ from sqlalchemy.sql.expression import and_, or_
 from gettext import gettext as _
 from past.builtins import basestring
 
-
 from hamsterlib.backends.sqlalchemy import alchemy
 from hamsterlib import storage
 from hamsterlib import Category, Activity, Fact
@@ -122,6 +121,7 @@ class CategoryManager(storage.BaseCategoryManager):
         return [alchemy_category for alchemy_category in (
             self.store.session.query(AlchemyCategory).order_by(AlchemyCategory.name).all())]
 
+
 class ActivityManager(storage.BaseActivityManager):
 
     def _add(self, activity):
@@ -173,18 +173,17 @@ class ActivityManager(storage.BaseActivityManager):
             activity = self._add(activity)
         return activity
 
-
     def get(self, pk):
         return self.store.session.query(AlchemyActivity).get(pk)
 
     def get_by_composite(self, name, category):
         """
-        As far as we understand the legacy code in __change_category and
-        __get_activity_by the combination of activity.name and
+        As far as we understand the legacy code in ``__change_category`` and
+        ``__get_activity_by`` the combination of activity.name and
         activity.category is unique.
 
         Whilst it is questionable if our datamodel is the most
-        apropiate one, we will stick work around this premise for now.
+        apropiate one, we will stick to work around this premise for now.
 
         :param str name: The activities name.
         :param category: The activities category

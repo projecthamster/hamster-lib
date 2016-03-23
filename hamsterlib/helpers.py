@@ -104,7 +104,6 @@ def complete_timeframe(timeframe, day_start, day_end):
                 ))
         return time
 
-
     if not timeframe.offset:
         start = datetime.datetime.combine(
             complete_start_date(timeframe.start_date),
