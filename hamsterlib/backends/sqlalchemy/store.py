@@ -204,8 +204,15 @@ class ActivityManager(storage.BaseActivityManager):
             result = result.as_hamster()
         return result
 
-    def get_all(self, search_term=''):
+    def get_all(self, category=None, search_term=''):
         result = self.store.session.query(AlchemyActivity)
+
+        if category:
+            alchemy_category = AlchemyCategory(category)
+        else:
+            alchemy_category = None
+        result = result.filter_by(category=alchemy_category)
+
         if search_term:
             result = result.filter(AlchemyActivity.name.ilike('%{}%'.format(search_term)))
         result.order_by(AlchemyActivity.name)
