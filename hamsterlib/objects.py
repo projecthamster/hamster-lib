@@ -98,7 +98,10 @@ class Fact(object):
         start datetime, we return None.
         :rtype: datetime.timedelta or None
         """
-        return self.end - self.start
+        result = None
+        if self.end:
+            result = self.end - self.start
+        return result
 
     def get_string_delta(self, format='raw'):
         if format == '%M':
