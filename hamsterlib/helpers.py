@@ -57,8 +57,14 @@ def parse_time_range(time_info):
     return result
 
 
-def complete_timeframe(timeframe, day_start, day_end):
+def complete_timeframe(timeframe, day_start):
     """Apply fallback strategy to incomplete timeframes."""
+
+    def get_day_end(day_start):
+        """Get the day end time given the day start. This assumes full 24h day."""
+        day_start_datetime = datetime.datetime.combine(datetime.date.today(), day_start)
+        day_end_datetime = day_start_datetime - datetime.timedelta(seconds=1)
+        return day_end_datetime.time()
 
     def complete_start_date(date):
         if not date:
@@ -82,7 +88,7 @@ def complete_timeframe(timeframe, day_start, day_end):
                 ))
         return time
 
-    def complete_end_date(date, start_date):
+    def complete_end_date(date, start_date, day_start, end_time):
         if not date:
             date = start_date
         else:
@@ -91,9 +97,19 @@ def complete_timeframe(timeframe, day_start, day_end):
                     "Expected datetime.date instance, got {type} instead.".format(
                         type=type(date))
                 ))
+
+        if day_start != datetime.time(0, 0, 0):
+            # Each calendar day actually 'ends' sometime the following day.
+            start_datetime = datetime.datetime.combine(
+                date, datetime.datetime.now().time()
+            )
+            if not end_time or (end_time < day_start):
+                date = start_datetime + datetime.timedelta(days=1)
+
         return date
 
     def complete_end_time(time, day_end):
+
         if not time:
             time = day_end
         else:
@@ -113,8 +129,8 @@ def complete_timeframe(timeframe, day_start, day_end):
         start = datetime.datetime.now() - timeframe.offset
 
     end = datetime.datetime.combine(
-        complete_end_date(timeframe.end_date, start.date()),
-        complete_end_time(timeframe.end_time, day_end)
+        complete_end_date(timeframe.end_date, start.date(), day_start, timeframe.end_time),
+        complete_end_time(timeframe.end_time, get_day_end(day_start))
     )
     return (start, end)
 
