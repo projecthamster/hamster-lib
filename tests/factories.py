@@ -6,9 +6,9 @@ import faker
 import datetime
 
 from hamsterlib import objects
-from hamsterlib import backends
+# from hamsterlib import backends
 
-#from . import common
+# from . import common
 
 
 class CategoryFactory(factory.Factory):

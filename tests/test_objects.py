@@ -2,12 +2,13 @@
 from __future__ import unicode_literals
 
 import pytest
-import datetime
+# import datetime
 import faker as faker_
 
 from hamsterlib.objects import Category, Activity, Fact
 
 faker = faker_.Faker()
+
 
 @pytest.fixture(params=[
     {'name': faker.name(), 'pk': 1},
@@ -17,9 +18,10 @@ def category_init_valid_values(request):
     """Valid (name, pk) tuples."""
     return request.param
 
+
 @pytest.fixture(params=[
     {'name': None, 'pk': 2, 'exception': ValueError},
-    {'name': '','pk': None, 'exception': ValueError},
+    {'name': '', 'pk': None, 'exception': ValueError},
     {'name': 12, 'pk': None, 'exception': TypeError},
 ])
 def category_init_invalid_values(request):
@@ -37,7 +39,7 @@ class TestCategory:
     def test_init_invalid(self, category_init_invalid_values):
         """Make sure that Category constructor rejects all invalid values."""
         with pytest.raises(category_init_invalid_values.pop('exception')):
-            category = Category(**category_init_invalid_values)
+            Category(**category_init_invalid_values)
 
 
 class TestActivity:
@@ -52,7 +54,7 @@ class TestActivity:
     def test_init_invalid(self, activity_init_invalid_values):
         """Test that init rejects all invalid values."""
         with pytest.raises(ValueError):
-            activity = Activity(**activity_init_invalid_values)
+            Activity(**activity_init_invalid_values)
 
     def test_str_without_category(self, activity):
         activity.category = None
@@ -86,8 +88,7 @@ class TestFact:
 
     def test_delta_no_end(self, fact):
         fact.end = None
-        assert fact.delta == None
-
+        assert fact.delta is None
 
     def test_date(self, fact):
         assert fact.date == fact.start.date()
@@ -108,16 +109,16 @@ class TestFact:
 
     def test_str(self, fact):
         expectation = '{start} - {end} {serialized_name}'.format(
-            start = fact.start.strftime("%d-%m-%Y %H:%M"),
-            end = fact.end.strftime("%H:%M"),
-            serialized_name = fact.serialized_name)
+            start=fact.start.strftime("%d-%m-%Y %H:%M"),
+            end=fact.end.strftime("%H:%M"),
+            serialized_name=fact.serialized_name)
         assert str(fact) == expectation
 
     def test_str_no_end(self, fact):
         fact.end = None
         expectation = '{start} {serialized_name}'.format(
-            start = fact.start.strftime("%d-%m-%Y %H:%M"),
-            serialized_name = fact.serialized_name)
+            start=fact.start.strftime("%d-%m-%Y %H:%M"),
+            serialized_name=fact.serialized_name)
         assert str(fact) == expectation
 
     def test_as_dict(self, fact):
@@ -129,4 +130,3 @@ class TestFact:
             'description': fact.description,
         }
         assert fact.as_dict() == expectation
-

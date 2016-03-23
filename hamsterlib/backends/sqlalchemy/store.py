@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, mapper, relationship
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import sessionmaker  # , mapper, relationship
+# from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import and_, or_
 
 from gettext import gettext as _
@@ -10,7 +10,7 @@ from past.builtins import basestring
 
 from hamsterlib.backends.sqlalchemy import alchemy
 from hamsterlib import storage
-from hamsterlib import Category, Activity, Fact
+from hamsterlib import Category, Activity  # , Fact
 from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
 
 import logging
@@ -28,7 +28,6 @@ class SQLAlchemyStore(storage.BaseStore):
         self.categories = CategoryManager(self)
         self.activities = ActivityManager(self)
         self.facts = FactManager(self)
-
 
     def cleanup(self):
         pass
@@ -114,7 +113,6 @@ class CategoryManager(storage.BaseCategoryManager):
             alchemy_category = AlchemyCategory(Category(name))
             self._add(alchemy_category)
         return alchemy_category
-
 
     def get_all(self):
         """Get all categories."""
@@ -290,4 +288,3 @@ class FactManager(storage.BaseFactManager):
         # [FIXME]
         # Depending on scale, this could be a problem.
         return [fact.as_hamster() for fact in results.all()]
-

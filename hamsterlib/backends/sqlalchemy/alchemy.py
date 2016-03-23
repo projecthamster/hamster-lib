@@ -1,13 +1,14 @@
 # -*- encoding: utf-8 -*-
 
 from sqlalchemy import Table, Column, ForeignKey, Integer, String, DateTime, Boolean, MetaData
-from sqlalchemy.sql.expression import and_
-from sqlalchemy.orm import relationship, sessionmaker, mapper
+# from sqlalchemy.sql.expression import and_
+from sqlalchemy.orm import relationship, mapper  # , sessionmaker
 from gettext import gettext as _
 from hamsterlib import Category, Activity, Fact
 
 
 DEFAULT_STRING_LENGTH = 254
+
 
 class AlchemyCategory(Category):
     def __init__(self, hamster_category):
@@ -115,7 +116,7 @@ activities = Table(
     Column('category_id', Integer, ForeignKey(categories.c.id)),
 )
 
-mapper(AlchemyActivity, activities, properties = {
+mapper(AlchemyActivity, activities, properties={
     'pk': activities.c.id,
     'category': relationship(AlchemyCategory, backref='activities'),
 })

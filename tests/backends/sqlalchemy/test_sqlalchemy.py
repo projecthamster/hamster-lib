@@ -1,11 +1,10 @@
-## -*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 
 import pytest
 import datetime
 
 from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
-from hamsterlib import Category, Activity, Fact
 
 
 class TestCategoryManager():
@@ -30,7 +29,7 @@ class TestCategoryManager():
             assert getattr(existing_category, key) != value
         for key, value in new_values.items():
             setattr(existing_category, key, value)
-        result = alchemy_store.categories._update(existing_category.as_hamster())
+        alchemy_store.categories._update(existing_category.as_hamster())
         count_after = alchemy_store.session.query(AlchemyCategory).count()
         assert count_before == count_after
         for key, value in new_values.items():
@@ -38,11 +37,11 @@ class TestCategoryManager():
 
     def test_remove(self, existing_category, alchemy_store):
         assert alchemy_store.session.query(AlchemyCategory).get(
-            existing_category.pk) != None
+            existing_category.pk) is not None
         result = alchemy_store.categories.remove(existing_category)
         assert result is True
         assert alchemy_store.session.query(AlchemyCategory).get(
-            existing_category.pk) == None
+            existing_category.pk) is None
 
     def test_remove_invalid_type(self, alchemy_store):
         with pytest.raises(TypeError):
@@ -89,18 +88,15 @@ class TestCategoryManager():
 
 class TestActivityManager():
     def test_save_new(self, activity, alchemy_store):
-        assert activity.pk == None
+        assert activity.pk is None
         count_before = alchemy_store.session.query(AlchemyActivity).count()
         result = alchemy_store.activities._add(activity)
         count_after = alchemy_store.session.query(AlchemyActivity).count()
         assert count_before < count_after
-        new_activity = alchemy_store.session.query(AlchemyActivity).get(
-            result.pk)
-        assert result.name== activity.name
+        assert result.name == activity.name
 
     def test_save_existing(self, existing_activity, new_activity_values,
             alchemy_store):
-        old_values = existing_activity.as_dict()
         count_before = alchemy_store.session.query(AlchemyActivity).count()
         new_values = new_activity_values(existing_activity.as_hamster())
         for attr, value in new_values.items():
@@ -115,13 +111,13 @@ class TestActivityManager():
     def test_remove(self, existing_activity, alchemy_store):
         count_before = alchemy_store.session.query(AlchemyActivity).count()
         assert alchemy_store.session.query(AlchemyActivity).get(
-            existing_activity.pk) != None
+            existing_activity.pk) is not None
         result = alchemy_store.activities.remove(existing_activity)
         count_after = alchemy_store.session.query(AlchemyActivity).count()
         assert count_after < count_before
         assert result is True
         assert alchemy_store.session.query(AlchemyActivity).get(
-            existing_activity.pk) == None
+            existing_activity.pk) is None
 
     def test_get_or_create_get(self, alchemy_store, existing_activity):
         activity = existing_activity.as_hamster()
@@ -145,7 +141,7 @@ class TestActivityManager():
 
     def test_get_non_existingt(self, alchemy_store):
         result = alchemy_store.activities.get(4)
-        assert result == None
+        assert result is None
 
     def test_get_by_composite(self, alchemy_store, existing_activity):
         activity = existing_activity.as_hamster()
@@ -181,7 +177,6 @@ class TestFactManager():
 
     def test_save_existing(self, existing_fact, new_fact_values, alchemy_store):
         count_before = alchemy_store.session.query(AlchemyFact).count()
-        old_values = existing_fact.as_dict()
         new_values = new_fact_values(existing_fact.as_hamster())
         for key, value in new_values.items():
             setattr(existing_fact, key, value)
@@ -197,8 +192,8 @@ class TestFactManager():
         result = alchemy_store.facts.remove(existing_fact)
         count_after = alchemy_store.session.query(AlchemyFact).count()
         assert count_after < count_before
-        assert result == True
-        assert alchemy_store.session.query(AlchemyFact).get(existing_fact.pk) == None
+        assert result is True
+        assert alchemy_store.session.query(AlchemyFact).get(existing_fact.pk) is None
 
     def test_get(self, existing_fact, alchemy_store):
         result = alchemy_store.facts.get(existing_fact.pk)

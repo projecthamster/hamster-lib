@@ -40,7 +40,7 @@ def parse_time_range(time_info):
     match = re.compile(patterns).match(time_info)
     if match:
         fragments = match.groupdict()
-        rest = (fragments['rest'] or '').strip()
+        # rest = (fragments['rest'] or '').strip()
 
         # Bail out early on relative minutes
         if fragments['relative']:
@@ -158,4 +158,3 @@ def parse_time(time):
             "Sting does not seem to be in one of our supported time formats."
         ))
     return result
-

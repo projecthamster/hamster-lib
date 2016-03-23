@@ -1,11 +1,12 @@
 # -*- encoding: utf-8 -*-
+
 from __future__ import unicode_literals
 from past.builtins import basestring
 
 from gettext import gettext as _
-import datetime
-from calendar import timegm
-import re
+# import datetime
+# from calendar import timegm
+# import re
 
 
 class Category(object):
@@ -51,7 +52,7 @@ class Activity(object):
         self.deleted = bool(deleted)
 
     def __str__(self):
-        if self.category is  None:
+        if self.category is None:
             string = '[{pk}] {name}'.format(pk=self.pk, name=self.name)
         else:
             string = '[{pk}] {name} ({category})'.format(
@@ -105,16 +106,14 @@ class Fact(object):
 
     def get_string_delta(self, format='raw'):
         if format == '%M':
-            result = int(self.delta.total_seconds())/60
+            result = int(self.delta.total_seconds()) / 60
         elif format == '%H:%M':
             seconds = int(self.delta.total_seconds())
-            result = '{hours}:{minutes}'.format(hours=(seconds/3600),
-                minutes=((seconds%3600)/60))
+            result = '{hours}:{minutes}'.format(hours=(seconds / 3600),
+                minutes=((seconds % 3600) / 60))
         else:
             raise ValueError(_("Got invalid format argument."))
         return result
-
-
 
     @property
     def date(self):
@@ -154,7 +153,6 @@ class Fact(object):
     def category(self):
         """For convinience only."""
         return self.activity.category
-
 
     def __str__(self):
         if self.start:

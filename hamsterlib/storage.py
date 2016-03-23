@@ -2,18 +2,23 @@
 
 from hamsterlib import objects
 from gettext import gettext as _
-from future.utils import raise_from
+import datetime
+# from future.utils import raise_from
 
 
 """
-In lack of a better place to store this thought, here for now:
-Our dbus service assumes/imposes that PKs are always >= 0 integers.
-Whilst this is usualy the way to go, its worth noting as a constraint.
+Module containing base classes intended to be inherited from when implementing storage backends.
 
-resurrect/temporary for add_fact is about checking for preexisting activities
-by using __get_activity_by_name. If True we will consider 'deleted' activities
-and stick this to our new fact.
+Note:
+    In lack of a better place to store this thought, here for now:
+    Our dbus service assumes/imposes that PKs are always >= 0 integers.
+    Whilst this is usualy the way to go, its worth noting as a constraint.
+
+    resurrect/temporary for ``add_fact`` is about checking for preexisting activities
+    by using ``__get_activity_by_name``. If True we will consider 'deleted' activities
+    and stick this to our new fact.
 """
+
 
 class BaseStore(object):
     def __init__(self, path):
@@ -74,7 +79,7 @@ class BaseCategoryManager(BaseManager):
         :rtype: object.Category
         """
 
-        #[TODO]
+        # [TODO]
         # create_category checks for an existing category of that name as well
         # which is redundant. But for now this will do.
         category = self.get_by_name(name)
@@ -137,7 +142,7 @@ class BaseCategoryManager(BaseManager):
 class BaseActivityManager(BaseManager):
     def save(self, activity):
         if activity.pk or activity.pk == 0:
-            #[FIXME]
+            # [FIXME]
             # [activity.name + activity.category] soll anscheinend unique sein.
             # Siehe storage.db __change_category()
             # D.h. Wenn wir die category einer activity updaten müssen wir sicher
@@ -148,7 +153,6 @@ class BaseActivityManager(BaseManager):
         else:
             result = self._add(activity)
         return result
-
 
     def create(self, name, category=None, deleted=False):
         """
@@ -183,7 +187,7 @@ class BaseActivityManager(BaseManager):
         :rtype: object.Activity
         """
 
-        #[TODO]
+        # [TODO]
         # create_category checks for an existing activity of that name and
         # category as well which is redundant. But for now this will do.
         activity = self.activities.get(name, category)
@@ -217,6 +221,7 @@ class BaseActivityManager(BaseManager):
         :rtype: Activity
         """
         raise NotImplementedError
+
     def get_by_composite(self, name, category):
         """
         It aprears that in our current datamodel each combination of
@@ -232,7 +237,6 @@ class BaseActivityManager(BaseManager):
         """
 
         raise NotImplementedError
-
 
     def get_all(self, category=None, search_term=''):
         """
@@ -290,4 +294,3 @@ class BaseFactManager(BaseManager):
 
     def _get_all(self, start_date=None, end_date=None, search_terms=''):
         raise NotImplementedError
-

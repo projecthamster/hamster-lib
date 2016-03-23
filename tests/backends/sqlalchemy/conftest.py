@@ -1,9 +1,9 @@
 import pytest
 
-#from sqlalchemy import orm, create_engine
+# from sqlalchemy import orm, create_engine
 import datetime
 
-from . import factories
+# from . import factories
 
 from ... import factories
 
@@ -14,6 +14,7 @@ from hamsterlib.backends.sqlalchemy import (AlchemyCategory, AlchemyActivity,
 @pytest.fixture
 def alchemy_store(request):
     return SQLAlchemyStore('sqlite:///:memory:')
+
 
 @pytest.fixture
 def existing_category_factory(request, alchemy_store):
@@ -67,9 +68,11 @@ def existing_fact_factory(request, alchemy_store):
 def existing_fact(existing_fact_factory):
     return existing_fact_factory()
 
+
 @pytest.fixture
 def start_datetime():
     return datetime.datetime.now()
+
 
 @pytest.fixture
 def set_of_existing_facts(start_datetime, existing_fact_factory):
@@ -83,7 +86,6 @@ def set_of_existing_facts(start_datetime, existing_fact_factory):
     return result
 
 
-
-#@pytest.fixture
-#def set_of_existing_facts(existing_fact_factory):
-#    return [existing_fact_factory() for i in range(5)]
+# @pytest.fixture
+# def set_of_existing_facts(existing_fact_factory):
+#     return [existing_fact_factory() for i in range(5)]

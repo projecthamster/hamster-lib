@@ -9,6 +9,7 @@ from collections import namedtuple
 FactTuple = namedtuple('FactTuple', ('start', 'end', 'activity', 'category',
     'description', 'duration'))
 
+
 class ReportWriter(object):
     def __init__(self, path, datetime_format="%Y-%m-%d %H:%M:%S"):
         self.datetime_format = datetime_format
@@ -36,16 +37,16 @@ class ReportWriter(object):
                 self._write_fact(fact)
             self._close()
 
-
     def _write_fact(self, fact):
         raise NotImplementedError
 
     def _close(self):
         self.file.close()
 
+
 class TSVWriter(ReportWriter):
     def __init__(self, path):
-        super (TSVWriter, self).__init__(path)
+        super(TSVWriter, self).__init__(path)
         self.csv_writer = csv.writer(self.file, dialect='excel-tab')
 
         headers = (

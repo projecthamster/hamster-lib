@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 import datetime
-import calendar
+# import calendar
 from gettext import gettext as _
 import re
 import logging
@@ -18,6 +18,7 @@ NOTE:
     for failure. Would be great if we can change that on the frontend instead
     of working around that.
 """
+
 
 class HamsterControl(object):
     """
@@ -139,7 +140,8 @@ class HamsterControl(object):
 
             delta_re = re.compile("^-[0-9]{1,3}$")
             time_re = re.compile("^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$")
-            time_range_re = re.compile("^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$")
+            time_range_re = re.compile(
+                "^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$")
 
             if delta_re.match(string):
                 start = now + datetime.timedelta(minutes=int(string))

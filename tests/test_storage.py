@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 import pytest
 
-
 from hamsterlib.storage import BaseStore
+
 
 @pytest.fixture
 def store_path():
@@ -67,8 +67,6 @@ class TestCategoryManager():
     def test_get_all(self, basestore):
         with pytest.raises(NotImplementedError):
             basestore.categories.get_all()
-
-
 
 
 class TestActivityManager:

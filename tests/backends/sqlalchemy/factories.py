@@ -5,11 +5,12 @@ import datetime
 
 import factory
 import faker
-from sqlalchemy import create_engine
-#from . import common
+# from sqlalchemy import create_engine
+# from . import common
 from hamsterlib.backends.sqlalchemy import (AlchemyCategory, AlchemyActivity,
                                             AlchemyFact)
-from sqlalchemy.orm import sessionmaker, scoped_session
+# from sqlalchemy.orm import sessionmaker, scoped_session
+
 
 class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
     id = factory.Sequence(lambda n: n)
@@ -17,7 +18,7 @@ class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     class Meta:
         model = AlchemyCategory
-        #sqlalchemy_session = common.Session
+        # sqlalchemy_session = common.Session
 
 
 class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -28,7 +29,7 @@ class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     class Meta:
         model = AlchemyActivity
-        #sqlalchemy_session = common.Session
+        # sqlalchemy_session = common.Session
 
 
 class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -40,4 +41,4 @@ class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     class Meta:
         model = AlchemyFact
-        #sqlalchemy_session = common.Session
+        # sqlalchemy_session = common.Session

@@ -35,7 +35,7 @@ setup(
     ],
     package_dir={'hamsterlib':
                  'hamsterlib'},
-    #include_package_data=True,
+    # include_package_data=True,
     install_requires=requirements,
     license="GPL3",
     zip_safe=False,
