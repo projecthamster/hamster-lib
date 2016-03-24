@@ -8,6 +8,12 @@ TimeFrame = namedtuple('Timeframe', ('start_date', 'start_time',
     'end_date', 'end_time', 'offset'))
 
 
+def get_day_end(config):
+    """Get the day end time given the day start. This assumes full 24h day."""
+    day_start_datetime = datetime.datetime.combine(datetime.date.today(), config['day_start'])
+    day_end_datetime = day_start_datetime - datetime.timedelta(seconds=1)
+    return day_end_datetime.time()
+
 def parse_time_range(time_info):
     """
     Generic parser for time(-range) information.
@@ -57,14 +63,8 @@ def parse_time_range(time_info):
     return result
 
 
-def complete_timeframe(timeframe, day_start):
+def complete_timeframe(timeframe, config):
     """Apply fallback strategy to incomplete timeframes."""
-
-    def get_day_end(day_start):
-        """Get the day end time given the day start. This assumes full 24h day."""
-        day_start_datetime = datetime.datetime.combine(datetime.date.today(), day_start)
-        day_end_datetime = day_start_datetime - datetime.timedelta(seconds=1)
-        return day_end_datetime.time()
 
     def complete_start_date(date):
         if not date:
@@ -109,7 +109,6 @@ def complete_timeframe(timeframe, day_start):
         return date
 
     def complete_end_time(time, day_end):
-
         if not time:
             time = day_end
         else:
@@ -119,6 +118,8 @@ def complete_timeframe(timeframe, day_start):
                         type=type(time))
                 ))
         return time
+
+    day_start = config['day_start']
 
     if not timeframe.offset:
         start = datetime.datetime.combine(
@@ -130,7 +131,7 @@ def complete_timeframe(timeframe, day_start):
 
     end = datetime.datetime.combine(
         complete_end_date(timeframe.end_date, start.date(), day_start, timeframe.end_time),
-        complete_end_time(timeframe.end_time, get_day_end(day_start))
+        complete_end_time(timeframe.end_time, get_day_end(config))
     )
     return (start, end)
 

@@ -74,4 +74,4 @@ from freezegun import freeze_time
 @freeze_time('2015-12-10 12:30')
 def test_complete_timeframe_valid(base_config, timeframe, expectation):
     """Test that completing an partial timeframe results in expected results."""
-    assert helpers.complete_timeframe(timeframe, base_config['day_start']) == expectation
+    assert helpers.complete_timeframe(timeframe, base_config) == expectation
