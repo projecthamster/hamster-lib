@@ -21,6 +21,8 @@ Note:
 
 
 class BaseStore(object):
+    """A controlers Store provides unified interfaces to interact with our stored enteties."""
+
     def __init__(self, path):
         self.path = path
         self.categories = BaseCategoryManager(self)
@@ -36,20 +38,28 @@ class BaseStore(object):
 
 
 class BaseManager(object):
+    """Base class for all object managers."""
+
     def __init__(self, store):
         self.store = store
 
 
 class BaseCategoryManager(BaseManager):
+    """Base class defining the minimal API for a CategoryManager implementation."""
+
     def save(self, category):
         """
         Save a Category to our selected backend.
         Internal code decides wether we need to add or update.
 
-        :param category: Category to be saved
-        :type category: Category
-        :return: Saved Category or False if we failed.
-        :rtype: Category or bool
+        Args:
+            category (hamsterlib.Category): Category instance to be saved.
+
+        Returns:
+            hamsterlib.Category: Saved Category
+
+        Raises:
+            TypeError: If the ``category`` parameter is not a valid ``Category`` instance.
         """
 
         # We split this into two seperate steps to make validation easier to
@@ -58,6 +68,8 @@ class BaseCategoryManager(BaseManager):
         if not isinstance(category, objects.Category):
             raise TypeError(_("You need to pass a hamster category"))
 
+        # We don't check for just ``category.pk`` becauses we don't want to make
+        # assumptions about the PK beeing an int.
         if category.pk or category.pk == 0:
             result = self._update(category)
         else:
@@ -66,17 +78,17 @@ class BaseCategoryManager(BaseManager):
 
     def get_or_create(self, name):
         """
-        Check if we already got a category with that name, if not
-        create one.
+        Check if we already got a category with that name, if not create one.
 
         This is a convinience method as it seems sensible to rather implement
         this once in our controler than having every client implementation
         deal with it anew.
 
-        :param str name: The categories name.
+        Args:
+            namea (str): The categories name.
 
-        :return: The retrieved or created category
-        :rtype: object.Category
+        Returns:
+            hamsterlib.Category: The retrieved or created category
         """
 
         # [TODO]
@@ -89,41 +101,69 @@ class BaseCategoryManager(BaseManager):
         return category
 
     def get(self, pk):
+        """
+        Get an ``Category`` by its primary key.
+
+        Args:
+            pk (int): Primary key of the ``Category`` to be fetched.
+
+        Returns:
+            hamsterlib.Category: ``Category`` with given primary key.
+
+        Raises:
+            KeyError: If no ``Category`` with this primary key can be found by the backend.
+        """
+
         raise NotImplementedError
 
     def get_by_name(self, name):
         """
         Look up a category by its name.
 
-        :param str name: Name of the category to we want the PK of
-        :return: Hamster-Category with given name
-        :rtype: Hamster-Category instance.
+        Args:
+            name (str): Name of the ``Category`` to we want to fetch.
+
+        Returns:
+            hamsterlib.Category: ``Category`` with given name.
+
+        Raises:
+            KeyError: If no ``Category`` with this name was found by the backend.
         """
         raise NotImplementedError
 
     def get_all(self):
-        """Return a list of all categories as hamster instances."""
+        """
+        Return a list of all categories.
+
+        Returns:
+            list: List of ``Categories``.
+        """
         raise NotImplementedError
 
     def _add(self, category):
         """
-        Add a category to our backend.
+        Add a ``Category`` to our backend.
 
-        :param category: Category to be added
-        :type category: Category
-        :return: The newly created category
-        :rtype: Category
+        Args:
+            category (hamsterlib.Category): ``Category`` to be added.
+
+        Returns:
+            hamsterlib.Category: Newly created ``Category`` instance.
         """
         raise NotImplementedError
 
     def _update(self, category):
         """
-        update a categories values in our backend.
+        Update a ``Categories`` values in our backend.
 
-        :param category: Category to be updated
-        :type category: Category
-        :return: The updated category
-        :rtype: Category
+        Args:
+            category (hamsterlib.Category): Category to be updated.
+
+        Returns:
+            hamsterlib.Category: The updated Category.
+
+        Raises:
+            KeyError: If the ``Category`` can not be found by the backend.
         """
         raise NotImplementedError
 
@@ -131,77 +171,83 @@ class BaseCategoryManager(BaseManager):
         """
         Remove a category.
 
-        :param category: Category to be removed.
-        :type category: Hamster-Category
-        :return: Success status
-        :rtype: bool
+        Args:
+            category (hamsterlib.Category): Category to be updated.
+
+        Returns:
+            None: If everything went ok.
+
+        Raises:
+            KeyError: If the ``Category`` can not be found by the backend.
         """
         raise NotImplementedError
 
 
 class BaseActivityManager(BaseManager):
+    """Base class defining the minimal API for a ActivityManager implementation."""
     def save(self, activity):
+        """
+        Save a ``Activity`` to the backend.
+
+        This public method decides if it calles either ``_add`` or ``_update``.
+
+        Args:
+            activity (hamsterlib.Activity): ``Activity`` to be saved.
+
+        Returns:
+            hamsterlib.Activity: The saved ``Activity``.
+        """
+
         if activity.pk or activity.pk == 0:
             # [FIXME]
-            # [activity.name + activity.category] soll anscheinend unique sein.
-            # Siehe storage.db __change_category()
-            # D.h. Wenn wir die category einer activity updaten müssen wir sicher
-            # gehen das es diese combination nicht shcon gibt.
-            # Es bleibt zu bedenken ob wur das auf controler oder storage-backend
-            # ebene abfertigen wollen.
+            # It appears that[activity.name + activity.category] is supposed to
+            # be unique (see ``storage.db __change_category()``).
+            # That means that if we update the category of an activity we need
+            # to ensure that particular combination does not exist already.
+            # We still need to contemplate if this is to be handled on the
+            # controler or storage-backend level.
             result = self._update(activity)
         else:
             result = self._add(activity)
         return result
 
-    def create(self, name, category=None, deleted=False):
-        """
-        Convinience Method for creating and saving a new activity.
-        Use this if you don't to build the activity yourself in order
-        to just pass it on to save_activity.
-
-        :param str name: The activity name.
-
-        :return: The newly created and saved activity instance.
-        :rtype: objects.Activity or None
-        """
-        activity = self.get(name, category)
-        if not activity:
-            activity = objects.Activity(name, category=category,
-                                        deleted=deleted)
-            return self.save(activity)
-
     def get_or_create(self, name, category=None, deleted=False):
         """
-        Check if we already got an activity with that name and category,
-        if not create one.
+        Convinience method to either get an activity matching the specs or create a new one.
 
-        This is a convinience method as it seems sensible to rather implement
-        this once in our controler than having every client implementation
-        deal with it anew.
+        Args:
+            name (str): Activity name
+            category (hamsterlib.Category): The activities category
+            deleted (bool): If the to be created category is marked as deleted.
 
-        :param str name: The activity name.
-        :param objects.Category category: This activities category
-
-        :return: The retrieved or created activity
-        :rtype: object.Activity
+        Returns:
+            hamsterlib.Activity: The retrieved or created activity
         """
 
         # [TODO]
         # create_category checks for an existing activity of that name and
         # category as well which is redundant. But for now this will do.
-        activity = self.activities.get(name, category)
+        activity = self.get_by_composite(name, category)
         if not activity:
             activity = self.create_activity(name, category=category,
                                             deleted=deleted)
+            activity = self.save(activity)
         return activity
 
     def _add(self, activity, temporary=False):
         """
-        :param str temporary: Who the fuck knows what this is about...
+        Add a new ``Activity`` instance to the databasse.
 
-        For referece see storage.db.__add_activity(). If temporary, the fact
-        will be created with deleted=True.
+        Args:
+            activity (hamsterlib.Activity): The ``Activity`` to be added.
+            temporary (bool, optional): If ``True``, the fact will be created with
+                ``Fact.deleted = True``. Defaults to ``False``.
+
+        Returns:
+            hamsterlib.Activity: The newly created ``Activity``.
+
+        Note:
+            For referece see ``storage.db.__add_activity()``.
         """
         raise NotImplementedError
 
@@ -209,31 +255,50 @@ class BaseActivityManager(BaseManager):
         raise NotImplementedError
 
     def remove(self, activity):
+        """
+        Remove an ``Activity`` from the database.import
+
+        Args:
+            activity (hamsterlib.Activity): The activity to be removed.
+
+        Returns:
+            bool: True
+
+        Raises:
+            KeyError: If the given ``Activity`` can not be found in the database.
+        """
         raise NotImplementedError
 
     def get(self, pk):
         """
-        Return an activity based on its PK.
+        Return an activity based on its primary key.
 
-        :param int pk: PK of the activity
+        Args:
+            pk (int): Primary key of the activity
 
-        :return: Activity matchin PK
-        :rtype: Activity
+        Returns:
+            hamsterlib.Activity: Activity matchin primary key.
+
+        Raises:
+            KeyError: If the primary key can not be found in the database.
         """
         raise NotImplementedError
 
     def get_by_composite(self, name, category):
         """
-        It aprears that in our current datamodel each combination of
-        name/category is unique.
+        Lookup for a supposedly unique ``Activityname`` / ``Category`` pair.
 
         This method utilizes that to return the corresponding entry or None.
 
-        :para str name: activities name
-        :para objects.Category category: activities category
+        Args:
+            name (str): Name of the ``Activities`` in question.
+            category (hamsterlib.Category): ``Category`` of the activities.
 
-        :return: the correspondig activity or None
-        :rtype: objects.Activity or None
+        Returns:
+            hamsterlib.Activity: The correspondig activity
+
+        Raises:
+            KeyError: If the composite key can not be found.
         """
 
         raise NotImplementedError
@@ -242,27 +307,31 @@ class BaseActivityManager(BaseManager):
         """
         Return all activities.
 
-        :param category: Category to filter by. If None, return all
-        activities without a category.
-        :type category: Category or None
+        Args:
+            category (hamsterlib.Category, optional): Category to filter by. Defaults to ``None``.
+                If ``None``, return all activities without a category.
+            search_term (str): (Sub-)String that needs to be present in the ``Article.name`` in
+                order to be considered for the resulti``Article.name`` in
+                    order to be considered for the resulting list.
 
-        :return: List of activities
-        :rtype: list
+        Returns:
+            list: List of activities
         """
         raise NotImplementedError
 
 
 class BaseFactManager(BaseManager):
+    """Base class defining the minimal API for a FactManager implementation."""
     def save(self, fact):
         """
         Save a Fact to our selected backend.
-        Internal code decides wether we need to add or update.
 
-        :param fact: Fact to be saved
-        :type fact: Fact
+        Args:
+            fact (hamsterlib.Fact): Fact to be saved. Needs to be complete otherwise this will
+            fail.
 
-        :return: Saved Fact or False if we failed.
-        :rtype: Fact or bool
+        Returns:
+            hamsterlib.Fact: Saved Fact.
         """
 
         if fact.pk or fact.pk == 0:
@@ -272,25 +341,88 @@ class BaseFactManager(BaseManager):
         return result
 
     def get(self, pk):
+        """
+        Return a Fact by its primary key.
+
+        Args:
+            pk (int): Primary key of the ``Fact to be retrieved``.
+
+        Returns:
+            hamsterlib.Fact: The ``Fact`` corresponding to the primary key.
+
+        Raises:
+            KeyError: If primary key not found in the backend.
+        """
         raise NotImplementedError
 
     def get_all(self, start_date=None, end_date=None, filter_term=''):
+        """
+        Return a list of ``Facts`` matching given criterias.
+
+        Args:
+            start_date (datetime.date, optional): Consider only Facts starting at or after
+                this date. Alternativly you can also pass a ``datetime.datetime`` object
+                in which case its own time will be considered instead of the default ``day_start``.
+                Defaults to ``None``.
+            end_date (datetime.datetime, optional): Consider only Facts ending before or at
+                this date. Alternativly you can also pass a ``datetime.datetime`` object
+                in which case its own time will be considered instead of the default ``day_start``.
+                Defaults to ``None``.
+            filter_term (str, optional): Only consider ``Facts`` with this string as part of their
+                associated ``Activity.name``.
+
+        Returns:
+            list: List of ``Facts`` matching given specifications.
+        """
 
         start = start_date
         end = end_date
         if start_date and end_date:
             start = datetime.datetime.combine(start_date, self.store.config['daystart'])
+            # [FIXME]
+            # If we get rid of the dedicated ``day_end`` this needs to be
+            # adjusted.
             end = datetime.datetime.combine(end_date, self.store.config['dayend'])
         return self._get_all(start, end, filter_term)
 
     def _add(self, fact):
+        """
+        Add a new ``Fact`` to the backend.
+
+        Args:
+            fact (hamsterlib.Fact): Fact to be added.
+
+        Returns:
+            hamsterlib.Fact: Added ``Fact``.
+
+        Returns:
+            hamsterlib.Fact: Added ``Fact``.
+        """
         raise NotImplementedError
 
     def _update(self, fact):
         raise NotImplementedError
 
     def remove(self, fact):
+        """
+        Remove a given ``Fact`` from the backend.
+
+        Args:
+            fact (hamsterlib.Fact): ``Fact`` instance to be removed.
+
+        Returns:
+            None: If everything worked as intended.
+
+        Raises:
+            KeyError: If the ``Fact`` specified could not be found in the backend.
+        """
         raise NotImplementedError
 
-    def _get_all(self, start_date=None, end_date=None, search_terms=''):
+    def _get_all(self, start=None, end=None, search_terms=''):
+        """
+        Get all Facts in a given timeframe.
+
+        Note:
+            Unlike the public method this one expects datetime objects.
+        """
         raise NotImplementedError
