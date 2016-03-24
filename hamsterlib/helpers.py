@@ -9,7 +9,16 @@ TimeFrame = namedtuple('Timeframe', ('start_date', 'start_time',
 
 
 def get_day_end(config):
-    """Get the day end time given the day start. This assumes full 24h day."""
+    """
+    Get the day end time given the day start. This assumes full 24h day.
+
+    Args:
+        config (dict): Configdict. Needed to extract ``day_start``.
+
+    Note:
+        This is merely a convinience funtion so we do not have to deduct this from ``day_start``
+        by hand all the time.
+    """
     day_start_datetime = datetime.datetime.combine(datetime.date.today(), config['day_start'])
     day_end_datetime = day_start_datetime - datetime.timedelta(seconds=1)
     return day_end_datetime.time()
@@ -19,7 +28,7 @@ def end_day_to_datetime(end_day, config):
     """
     Convert a given end day to its proper datetime.
 
-    This is non trivial because of variables ``day_starts``. We want to make sure
+    This is non trivial because of variable ``day_start``s. We want to make sure
     that even if an 'end day' is specified the actual point in time may reach into the following
     day.
 
@@ -51,11 +60,24 @@ def parse_time_range(time_info):
     """
     Generic parser for time(-range) information.
 
+    Args:
+        time_info (str): Raw string containing encoded timespan information.
+            Date/Time-combinations are expected in a ``YYYY-MM-DD hh:mm`` format.
+            Relative  times can be given with ``-minutes``.
+            Please note that either *relative* or *absolute* times will be considered.
+
+    Returns:
+        TimeFrame: Tuple that provides convinient access to all seperate elements
+            extracted from the raw string.
+
     Note:
-        * We assume that timedeltas are relative to ``now``.
-        * Relative times always return just ``(start, None)``.
+        * Relative times always return just ``(None, None, None, None, timedelta)``.
     """
-    result = TimeFrame(None, None, None, None, None)
+
+    # [TODO] Add a list of supported formats.
+
+    # Credits to tbaugis (https://github.com/tbaugis) for the original
+    # implementation in hamster-cli.
 
     def get_time(time):
         if time:
@@ -76,6 +98,7 @@ def parse_time_range(time_info):
         '(?P<time2> ?\d{2}:\d{2})?)?)'
         '(?P<rest>\D.+)?$'
     )
+    result = TimeFrame(None, None, None, None, None)
     match = re.compile(patterns).match(time_info)
     if match:
         fragments = match.groupdict()
@@ -83,8 +106,15 @@ def parse_time_range(time_info):
 
         # Bail out early on relative minutes
         if fragments['relative']:
-            result = TimeFrame(None, None, None, None,
-                datetime.timedelta(minutes=abs(int(fragments['relative']))))
+            try:
+                result = TimeFrame(None, None, None, None,
+                    datetime.timedelta(minutes=abs(int(fragments['relative']))))
+            except ValueError as e:
+                raise ValueError(_(
+                    "It seems you provided more than just a relative time"
+                    " Please check your time_info string. You can only use relative OR"
+                    " absolute time statements."
+                ))
         else:
             result = TimeFrame(
                 start_date=get_date(fragments.get('date1', None)),
