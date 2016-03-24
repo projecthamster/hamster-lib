@@ -33,6 +33,10 @@ class TestEndDayToDatetime(object):
 
 class TestParseTimeRange(object):
     @pytest.mark.parametrize(('time_info', 'expectation'), [
+        ('',
+         helpers.TimeFrame(None, None, None, None, None)),
+        ('foobar',
+         helpers.TimeFrame(None, None, None, None, None)),
         ('-30',
          helpers.TimeFrame(None, None, None, None, datetime.timedelta(minutes=30))),
         ('2014-01-05 18:15 - 2014-04-01 05:19',
@@ -110,6 +114,19 @@ class TestCompleteTimeFrame(object):
         ),
         (
             helpers.TimeFrame(
+                start_date=None,
+                start_time=datetime.time(18, 55),
+                end_date=None,
+                end_time=datetime.time(23, 2),
+                offset=None
+            ),
+            (
+                datetime.datetime(2015, 12, 10, 18, 55, 0),
+                datetime.datetime(2015, 12, 10, 23, 2, 0)
+            ),
+        ),
+        (
+            helpers.TimeFrame(
                 start_date=datetime.date(2015, 12, 1),
                 start_time=None,
                 end_date=None,
@@ -118,7 +135,7 @@ class TestCompleteTimeFrame(object):
             ),
             (
                 datetime.datetime(2015, 12, 1, 5, 30, 0),
-                datetime.datetime(2015, 12, 1, 17, 0, 0)
+                datetime.datetime(2015, 12, 10, 17, 0, 0)
             ),
         ),
         (
@@ -131,15 +148,29 @@ class TestCompleteTimeFrame(object):
             ),
             (
                 datetime.datetime(2015, 12, 1, 5, 30, 0),
-                datetime.datetime(2015, 12, 2, 2, 0, 0)
+                datetime.datetime(2015, 12, 10, 2, 0, 0)
             ),
         ),
     ])
     @freeze_time('2015-12-10 12:30')
-    def test_complete_timeframe_valid(self, base_config, timeframe, expectation):
+    def test_various_valid_timeframes(self, base_config, timeframe, expectation):
         """Test that completing an partial timeframe results in expected results.""",
         assert helpers.complete_timeframe(timeframe, base_config) == expectation
 
+    @pytest.mark.parametrize('timeframe', [
+        helpers.TimeFrame('2014-12-01', None, None, None, None),
+        helpers.TimeFrame(None, '18:45', None, None, None),
+        helpers.TimeFrame(None, None, '2015-03-23', None, None),
+        helpers.TimeFrame(None, None, None, '12:03', None),
+        helpers.TimeFrame(None, None, None, None, '30'),
+    ])
+    def test_various_invalid_timeframes(self, base_config, timeframe):
+        """Make sure our method double checks that a given timeframe contains only valid types."""
+        with pytest.raises(TypeError):
+            helpers.complete_timeframe(timeframe, base_config)
+
+
+class TestEndDayToDaytime(object):
     @pytest.mark.parametrize(('end_day', 'day_start', 'expectation'), [
         (datetime.date(2015, 4, 5),
         datetime.time(0, 0, 0),
@@ -156,3 +187,22 @@ class TestCompleteTimeFrame(object):
         config = base_config
         config['day_start'] = day_start
         assert helpers.end_day_to_datetime(end_day, config) == expectation
+
+
+class TestParseTime(object):
+    @pytest.mark.parametrize(('time', 'expectation'), [
+        ('18:55', datetime.time(18, 55)),
+        ('2014-12-10', datetime.date(2014, 12, 10)),
+        ('2015-10-02 18:12', datetime.datetime(2015, 10, 2, 18, 12)),
+    ])
+    def test_various_times(self, time, expectation):
+        """Make sure that given times are parsed as expected."""
+        assert helpers.parse_time(time) == expectation
+
+    @pytest.mark.parametrize('time', ['18 55', '18:555', '2014 01 04 12:30'])
+    def test_various_invalid_times(self, time):
+        """Ensure that invalid times throw an exception."""
+        with pytest.raises(ValueError):
+            helpers.parse_time(time)
+
+

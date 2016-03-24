@@ -102,9 +102,7 @@ def parse_time_range(time_info):
     match = re.compile(patterns).match(time_info)
     if match:
         fragments = match.groupdict()
-        # rest = (fragments['rest'] or '').strip()
 
-        # Bail out early on relative minutes
         if fragments['relative']:
             try:
                 result = TimeFrame(None, None, None, None,
@@ -130,6 +128,23 @@ def complete_timeframe(timeframe, config):
     """Apply fallback strategy to incomplete timeframes."""
 
     def complete_start_date(date):
+        """
+        Assign default if ``date=None``, else ensure its a ``datetime.date`` instance.
+
+        Args:
+            date (datetime.date): Startdate information.
+
+        Returns:
+            datetime.date: Either the original date or the default solution.
+
+        Raises:
+            TypeError: If ``date``` is neither ``None`` nor  ``datetime.date`` instance.
+
+        Note:
+            Reference behavior taken from [hamster-cli](https://github.com/projecthamster/
+            hamster/blob/master/src/hamster-cli#L368).
+        """
+
         if not date:
             date = datetime.date.today()
         else:
@@ -151,70 +166,66 @@ def complete_timeframe(timeframe, config):
                 ))
         return time
 
-    def complete_end_date(date, start_date, day_start, end_time):
+    def complete_start(date, time, config):
+        return datetime.datetime.combine(
+            complete_start_date(timeframe.start_date),
+            complete_start_time(timeframe.start_time, config['day_start']),
+        )
+
+    def complete_end_date(date):
         if not date:
-            date = start_date
+            date = datetime.date.today()
         else:
             if not isinstance(date, datetime.date):
                 raise TypeError(_(
                     "Expected datetime.date instance, got {type} instead.".format(
                         type=type(date))
                 ))
-
-        if day_start != datetime.time(0, 0, 0):
-            # Each calendar day actually 'ends' sometime the following day.
-            start_datetime = datetime.datetime.combine(
-                date, datetime.datetime.now().time()
-            )
-            if not end_time or (end_time < day_start):
-                date = start_datetime + datetime.timedelta(days=1)
-
         return date
 
-    def complete_end_time(time, day_end):
-        if not time:
-            time = day_end
+    def complete_end(date, time, config):
+        date = complete_end_date(date)
+        if time:
+            result = datetime.datetime.combine(date, time)
         else:
-            if not isinstance(time, datetime.time):
-                raise TypeError(_(
-                    "Expected datetime.time instance, got {type} instead.".format(
-                        type=type(time))
-                ))
-        return time
-
-    day_start = config['day_start']
+            result = end_day_to_datetime(date, config)
+        return result
 
     if not timeframe.offset:
-        start = datetime.datetime.combine(
-            complete_start_date(timeframe.start_date),
-            complete_start_time(timeframe.start_time, day_start),
-        )
+        start = complete_start(timeframe.start_date, timeframe.start_time, config)
     else:
         start = datetime.datetime.now() - timeframe.offset
 
-    end = datetime.datetime.combine(
-        complete_end_date(timeframe.end_date, start.date(), day_start, timeframe.end_time),
-        complete_end_time(timeframe.end_time, get_day_end(config))
-    )
+    end = complete_end(timeframe.end_date, timeframe.end_time, config)
     return (start, end)
 
 
 def parse_time(time):
     """
-    Parse a (date-)time string and return properly typed components.
+    Parse a date/time string and return a corresponding datetime object.
 
-    Supported formats:
-        * '%Y-%m-%d'
-        * '%H:%M'
-        * '%Y-%m-%d %H:%M'
+    Args:
+        time (str): A ``string` of one of the following formats: ``%H:%M``, ``%Y-%m-%d`` or
+            ``%Y-%m-%d %H:%M``.
+
+    Returns:
+        datetime.datetime: Depending on input string either returns ``datetime.date``,
+            ``datetime.time`` or ``datetime.datetime``.
+
+    Raises:
+        ValueError: If ``time`` can not be matched against any of the accepted formats.
     """
-    result = time.strip().split()
-    length = len(result)
+
+    # [TODO]
+    # Propably should enhance error handling for invalid but correctly formated
+    # times such as '30:55' or '2015-15-60'.
+
+    length = len(time.strip().split())
     if length == 1:
         try:
-            result = datetime.datetime.strptime(time, '%H:%M')
+            result = datetime.datetime.strptime(time, '%H:%M').time()
         except ValueError:
-            result = datetime.datetime.strptime(time, '%Y-%m-%d')
+            result = datetime.datetime.strptime(time, '%Y-%m-%d').date()
     elif length == 2:
         result = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M')
     else:
