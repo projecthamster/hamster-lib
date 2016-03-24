@@ -73,7 +73,7 @@ class Fact(object):
 
     Note:
         There is some weired black magic still to be integrated from
-        store.db.Storage. Among it __get_facts()
+        ``store.db.Storage``. Among it ``__get_facts()``.
     """
 
     def __init__(self, activity, start, pk=None, end=None, description='', tags=[]):

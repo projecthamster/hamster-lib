@@ -188,6 +188,17 @@ def fact():
 
 
 @pytest.fixture
+def list_of_facts(fact_factory):
+    """Provide a factory that returns a list with given amount of Fact instances."""
+    def get_list_of_facts(number_of_facts):
+        facts = []
+        for i in range(number_of_facts):
+            facts.append(fact_factory())
+        return facts
+    return get_list_of_facts
+
+
+@pytest.fixture
 def persistent_fact(fact, controler):
     return controler.facts._add(fact)
 
