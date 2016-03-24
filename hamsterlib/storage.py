@@ -355,35 +355,84 @@ class BaseFactManager(BaseManager):
         """
         raise NotImplementedError
 
-    def get_all(self, start_date=None, end_date=None, filter_term=''):
+    def get_all(self, start=None, end=None, filter_term=''):
         """
         Return a list of ``Facts`` matching given criterias.
 
         Args:
-            start_date (datetime.date, optional): Consider only Facts starting at or after
+            start_date (datetime.datetime, optional): Consider only Facts starting at or after
                 this date. Alternativly you can also pass a ``datetime.datetime`` object
-                in which case its own time will be considered instead of the default ``day_start``.
+                in which case its own time will be considered instead of the default ``day_start``
+                or a ``datetime.time`` which will be considered as today.
                 Defaults to ``None``.
             end_date (datetime.datetime, optional): Consider only Facts ending before or at
                 this date. Alternativly you can also pass a ``datetime.datetime`` object
-                in which case its own time will be considered instead of the default ``day_start``.
+                in which case its own time will be considered instead of the default ``day_start``
+                or a ``datetime.time`` which will be considered as today.
                 Defaults to ``None``.
             filter_term (str, optional): Only consider ``Facts`` with this string as part of their
                 associated ``Activity.name``.
 
         Returns:
             list: List of ``Facts`` matching given specifications.
+
+        Raises:
+            TypeError: If ``start`` or ``end`` are not ``datetime.date``, ``datetime.time`` or
+                ``datetime.datetime`` objects.
+            ValueError: If ``end`` is before ``start``.
+
+        Note:
+            This public function only provides some sanity checks and normalization. The actual
+            backend query is handled by ``_get_all``.
         """
 
-        start = start_date
-        end = end_date
-        if start_date and end_date:
-            start = datetime.datetime.combine(start_date, self.store.config['daystart'])
-            # [FIXME]
-            # If we get rid of the dedicated ``day_end`` this needs to be
-            # adjusted.
-            end = datetime.datetime.combine(end_date, self.store.config['dayend'])
+        # [FIXME]
+        # If we get rid of the dedicated ``day_end`` this needs to be
+        # adjusted.
+        if start is not None:
+            if isinstance(start, datetime.date):
+                start = datetime.datetime.combine(start, self.store.config['daystart'])
+            elif isinstance(start, datetime.time):
+                start = datetime.datetime.combine(datetime.date.today(), start)
+            elif isinstance(start, datetime.datetime) is False:
+                raise TypeError(_(
+                    "You need to pass either a datetime.date, datetime.time or datetime.datetime"
+                    " object."))
+
+        if end is not None:
+            if isinstance(end, datetime.date):
+                end = datetime.datetime.combine(end, self.store.config['dayend'])
+            elif isinstance(end, datetime.time):
+                end = datetime.datetime.combine(datetime.date.today(), end)
+            elif isinstance(end, datetime.datetime) is False:
+                raise TypeError(_(
+                    "You need to pass either a datetime.date, datetime.time or datetime.datetime"
+                    " object."))
+
+        if start and end and (end <= start):
+            raise ValueError(_("End value can not be earlier than start!"))
+
         return self._get_all(start, end, filter_term)
+
+    def _get_all(self, start=None, end=None, search_terms=''):
+        """
+        Return a list of ``Facts`` matching given criterias.
+
+        Args:
+            start_date (datetime.datetime, optional): Consider only Facts starting at or after
+                this date. Defaults to ``None``.
+            end_date (datetime.datetime): Consider only Facts ending before or at
+                this date. Defaults to ``None``.
+            filter_term (str, optional): Only consider ``Facts`` with this string as part of their
+                associated ``Activity.name``.
+
+        Returns:
+            list: List of ``Facts`` matching given specifications.
+
+        Note:
+            In contrast to the public ``get_all``, this method actually handles the backend query.
+        """
+        raise NotImplementedError
 
     def _add(self, fact):
         """
