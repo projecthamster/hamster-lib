@@ -1,8 +1,10 @@
 # -*- encoding: utf-8 -*-
 
+import hamsterlib
 from hamsterlib import objects
 from gettext import gettext as _
 import datetime
+import hamsterlib.helpers as helpers
 # from future.utils import raise_from
 
 
@@ -224,14 +226,10 @@ class BaseActivityManager(BaseManager):
             hamsterlib.Activity: The retrieved or created activity
         """
 
-        # [TODO]
-        # create_category checks for an existing activity of that name and
-        # category as well which is redundant. But for now this will do.
-        activity = self.get_by_composite(name, category)
-        if not activity:
-            activity = self.create_activity(name, category=category,
-                                            deleted=deleted)
-            activity = self.save(activity)
+        try:
+            activity = self.get_by_composite(name, category)
+        except KeyError:
+            activity = self.save(hamsterlib.Activity(name, category=category, deleted=deleted))
         return activity
 
     def _add(self, activity, temporary=False):
@@ -386,25 +384,30 @@ class BaseFactManager(BaseManager):
             backend query is handled by ``_get_all``.
         """
 
-        # [FIXME]
-        # If we get rid of the dedicated ``day_end`` this needs to be
-        # adjusted.
         if start is not None:
-            if isinstance(start, datetime.date):
-                start = datetime.datetime.combine(start, self.store.config['daystart'])
+            if isinstance(start, datetime.datetime):
+                # isinstance(datetime.datetime, datetime.date) returns True,
+                # which is why we need to except this case first.
+                pass
+            elif isinstance(start, datetime.date):
+                start = datetime.datetime.combine(start, self.store.config['day_start'])
             elif isinstance(start, datetime.time):
                 start = datetime.datetime.combine(datetime.date.today(), start)
-            elif isinstance(start, datetime.datetime) is False:
+            else:
                 raise TypeError(_(
                     "You need to pass either a datetime.date, datetime.time or datetime.datetime"
                     " object."))
 
         if end is not None:
-            if isinstance(end, datetime.date):
-                end = datetime.datetime.combine(end, self.store.config['dayend'])
+            if isinstance(end, datetime.datetime):
+                # isinstance(datetime.datetime, datetime.date) returns True,
+                # which is why we need to except this case first.
+                pass
+            elif isinstance(end, datetime.date):
+                end = helpers.end_day_to_datetime(end, self.store.config)
             elif isinstance(end, datetime.time):
                 end = datetime.datetime.combine(datetime.date.today(), end)
-            elif isinstance(end, datetime.datetime) is False:
+            else:
                 raise TypeError(_(
                     "You need to pass either a datetime.date, datetime.time or datetime.datetime"
                     " object."))
