@@ -417,12 +417,3 @@ class BaseFactManager(BaseManager):
             KeyError: If the ``Fact`` specified could not be found in the backend.
         """
         raise NotImplementedError
-
-    def _get_all(self, start=None, end=None, search_terms=''):
-        """
-        Get all Facts in a given timeframe.
-
-        Note:
-            Unlike the public method this one expects datetime objects.
-        """
-        raise NotImplementedError
