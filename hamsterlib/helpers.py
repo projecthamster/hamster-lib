@@ -14,6 +14,39 @@ def get_day_end(config):
     day_end_datetime = day_start_datetime - datetime.timedelta(seconds=1)
     return day_end_datetime.time()
 
+
+def end_day_to_datetime(end_day, config):
+    """
+    Convert a given end day to its proper datetime.
+
+    This is non trivial because of variables ``day_starts``. We want to make sure
+    that even if an 'end day' is specified the actual point in time may reach into the following
+    day.
+
+    Args:
+        end (datetime.date): Raw end date that is to be adjusted.
+        config: Controler config containing information on when a workday starts.
+
+    Returns:
+        datetime.datetime: The endday as a adjusted datetime object.
+
+    Example:
+        Given a ``day_start`` of ``5:30`` and end date of ``2015-04-01`` we actually want to
+        consider even points in time up to ``2015-04-02 5:29``. That is to represent that a
+        *work day*
+        does not match *calendar days*.
+    """
+
+    day_start_time = config['day_start']
+    day_end_time = get_day_end(config)
+
+    if day_start_time == datetime.time(0, 0, 0):
+        end = datetime.datetime.combine(end_day, day_end_time)
+    else:
+        end = datetime.datetime.combine(end_day, day_end_time) + datetime.timedelta(days=1)
+    return end
+
+
 def parse_time_range(time_info):
     """
     Generic parser for time(-range) information.
