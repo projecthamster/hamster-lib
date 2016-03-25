@@ -1,8 +1,10 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
+from builtins import str
 
 import pytest
 # import operator
+import fauxfactory
 import datetime
 import faker as faker_
 # from pytest_factoryboy import register
@@ -16,9 +18,8 @@ from . import factories
 
 faker = faker_.Faker()
 
+
 # Refactored fixtures
-
-
 def convert_time_to_datetime(time_string):
         """
         Helper method.
@@ -31,6 +32,56 @@ def convert_time_to_datetime(time_string):
             datetime.datetime.now().date(),
             datetime.datetime.strptime(time_string, "%H:%M").time()
         )
+
+
+# General Data
+@pytest.fixture(params='alpha cyrillic latin1 utf8'.split())
+def name_string_valid_parametrized(request):
+    """Provide a variety of strings that should be valid *names*."""
+    return fauxfactory.gen_string(request.param)
+
+
+@pytest.fixture(params=(None, ''))
+def name_string_invalid_parametrized(request):
+    """Provide a variety of strings that should be valid *names*."""
+    return request.param
+
+
+@pytest.fixture(params=(
+    fauxfactory.gen_string('numeric'),
+    fauxfactory.gen_string('alphanumeric'),
+    fauxfactory.gen_string('utf8'),
+    None,
+))
+def pk_valid_parametrized(request):
+    """Provide a variety of valid primary keys.
+
+    Note:
+        At our current stage we do *not* make assumptions about the type of primary key.
+        Of cause, this may be a different thing on the backend level!
+    """
+    return request.param
+
+
+@pytest.fixture(params=(True, False, 0, 1, '', 'foobar'))
+def deleted_valid_parametrized(request):
+    return request.param
+
+
+@pytest.fixture
+def start_end_datetimes_from_offset():
+    """Generate start/end datetime tuple with given offset in minutes."""
+    def generate(offset):
+        end = datetime.datetime.now()
+        start = end - datetime.timedelta(minutes=offset)
+        return (start, end)
+    return generate
+
+
+@pytest.fixture
+def start_end_datetimes(start_end_datetimes_from_offset):
+    """Return a start/end-datetime-tuple."""
+    return start_end_datetimes_from_offset(15)
 
 
 # Controler
@@ -64,6 +115,12 @@ def category_factory():
 def category():
     """A random Category-instance."""
     return factories.CategoryFactory.build()
+
+
+@pytest.fixture(params=(None, category()))
+def category_valid_parametrized(request):
+    """Provide a variety of valid category fixtures."""
+    return request.param
 
 
 def persistent_category(controler, category):
@@ -130,52 +187,7 @@ def new_activity_values(category):
     return modify
 
 
-@pytest.fixture(params=[
-    {'name': faker.name(),
-     'pk': 1,
-     'category': category(),
-     'deleted': True
-     },
-    {'name': faker.name(),
-     'pk': None,
-     'category': category(),
-     'deleted': True
-     },
-    {'name': faker.name(),
-     'pk': 1,
-     'category': None,
-     'deleted': True
-     },
-    {'name': faker.name(),
-     'pk': 1,
-     'category': category(),
-     'deleted': False
-     },
-])
-def activity_init_valid_values(request):
-    """A range of valid values for creating an activity."""
-    return request.param
-
-
-@pytest.fixture(params=[
-    {'name': None,
-     'pk': 1,
-     'category': category(),
-     'deleted': True
-     },
-    {'name': '',
-     'pk': None,
-     'category': category(),
-     'deleted': False
-     },
-])
-def activity_init_invalid_values(request):
-    """A range of invalid values for creating an activity."""
-    return request.param
-
-
 # Facts
-
 @pytest.fixture
 def fact_factory():
     return factories.FactFactory.build
@@ -196,6 +208,22 @@ def list_of_facts(fact_factory):
             facts.append(fact_factory())
         return facts
     return get_list_of_facts
+
+@pytest.fixture(params='alpha cyrillic latin1 utf8'.split())
+def description_valid_parametrized(request):
+    """Provide a variety of strings that should be valid *descriptions*."""
+    return fauxfactory.gen_string(request.param)
+
+@pytest.fixture(params='alpha cyrillic latin1 utf8'.split())
+def tag_list_valid_parametrized(request):
+    """Provide a variety of strings that should be valid *descriptions*."""
+    return [fauxfactory.gen_string(request.param) for i in range(4)]
+
+
+@pytest.fixture(params=('%M', '%H:%M'))
+def string_delta_format_parametrized(request):
+    """Provide all possible format option for ``Fact().get_string_delta()``."""
+    return request.param
 
 
 @pytest.fixture
@@ -236,6 +264,7 @@ def persistent_not_today_fact(controler, not_today_fact):
 
 @pytest.fixture
 def current_fact(fact_factory):
+    """Provide a ``ongoing fact``. That is a fact that has started but not ended yet."""
     return fact_factory(start=datetime.datetime.now(), end=None)
 
 
@@ -244,27 +273,10 @@ def persistent_current_fact(controler, current_fact):
     return controler.facts._add(current_fact)
 
 
-@pytest.fixture(params=[
-    {'start': datetime.datetime(2015, 11, 5, 14, 30, 0),
-    'end': datetime.datetime(2015, 11, 5, 15, 23, 0),
-    'activity': activity(),
-    'description': None},
-])
-def fact_init_valid_values(request):
-    """Provide valid values for creating a new Fact-instance."""
-    return request.param
-
-
-@pytest.fixture(params=[
-])
-def fact_init_invalid_values(request):
-    """Provide invalid values for creating a new Fact-instance."""
-    return request.param
-
 
 @pytest.fixture
 def new_fact_values():
-    """Provice guaranteed different Fact-values for a given Fact-instance."""
+    """Provide guaranteed different Fact-values for a given Fact-instance."""
     def modify(fact):
         return {
             'start': fact.start - datetime.timedelta(days=1),
@@ -344,15 +356,6 @@ def raw_fact_with_persistent_activity(persistent_activity):
         },
     )
 
-
-@pytest.fixture
-def start_end_times():
-    """Return a start/end-datetime-tuple."""
-    end = datetime.datetime.now().time()
-    start = end - datetime.timedelta(minutes=15)
-    return (start, end)
-
-
 # Refactor end
 
 
@@ -419,20 +422,6 @@ def start_end_times():
 #            end=now -datetime.timedelta(days=2)
 #        )
 #        return fact.as_hamster()
-
-
-#    @pytest.fixture(params=[
-#        (None, False),
-#        ('', False),
-#        (category_name(), True),
-#    ])
-#    def various_category_names(request):
-#        return request.param
-
-
-#    @pytest.fixture(params=[None, category()])
-#    def various_categories(request):
-#        return request.param
 
 
 #     Dbus-service
