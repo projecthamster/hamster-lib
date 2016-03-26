@@ -1,32 +1,24 @@
 # -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
 
+from __future__ import unicode_literals
+from builtins import str
+from future.utils import python_2_unicode_compatible
 import datetime
-# import calendar
 from gettext import gettext as _
 import re
 import logging
 
-
 from . import objects
 
 
-"""
-NOTE:
-    * names are case sensitive. this should be documentend for search/filter.
-    * It looks like the dbus client assume PKs to be > 0 and uses 0 as marker
-    for failure. Would be great if we can change that on the frontend instead
-    of working around that.
-"""
-
-
+@python_2_unicode_compatible
 class HamsterControl(object):
     """
     All mandatory config options are set as part of the contoler setup.
     Any client may overwrite those values. but we can always asume that the
     controler does have a value set.
 
-    We will try hard to get thorugh with at least always returning the object.
+    We will try hard to get through with at least always returning the object.
     We should be able to change only the internal service code to then
     decompose it into its required weired format.
 
@@ -40,16 +32,26 @@ class HamsterControl(object):
 
     def __init__(self, config):
         self.config = config
-        self.lib_logger = self.__get_logger()
-        self.lib_logger.debug(_("HamsterControl initialized"))
-        self.unsorted_localized = self.config['unsorted_localized']
-        self.store = self.__get_store(self.config['store'])
+        self.lib_logger = self._get_logger()
+        self.lib_logger.debug(_("HamsterControl initialized."))
+        self.store = self._get_store()
+        self.lib_logger.debug(_("Store ({}) initialized.".format(self.store)))
         # convinience attributes
         self.categories = self.store.categories
         self.activities = self.store.activities
         self.facts = self.store.facts
 
-    def __get_store(self, storetype):
+    def _get_store(self):
+        """
+        Setup the store used by this controler.
+
+        This method is in charge off figuring out the store type, its instantiation
+        as well as all additional configuration.
+        """
+
+        # [TODO]
+        # Once proper backend-registration is available this should be streamlined.
+        storetype = self.config['store']
         if storetype == 'sqlalchemy':
             from .backends.sqlalchemy import store
             result = store.SQLAlchemyStore(self.config['db-path'])
@@ -57,7 +59,14 @@ class HamsterControl(object):
             raise KeyError(_("No valid storetype found."))
         return result
 
-    def __get_logger(self):
+    def _get_logger(self):
+        """
+        Setup and configure the main logger.
+
+        As the docs suggest we setup just a pseudo handler. Any client that actually
+        wants to use logging needs to setup its required handlers itself.
+        """
+
         lib_logger = logging.getLogger(__name__)
         lib_logger.addHandler(logging.NullHandler())
         return lib_logger
@@ -206,24 +215,29 @@ class HamsterControl(object):
 
         def comma_split(string):
             """
-            Return the caregory-fragment.
-            The remains may include more ','s which seems to be alright with
-            the specs. :(
+            Split string at the most left comma.
 
-            Return (category, description)
+            Args:
+                string (str): String to be processed. At this stage this should
+                    look something like ``<Category>, <Description>
+
+
+            Returns
+                tuple: (category_and_tags, description). Both substrings have their
+                    leading/tailing whitespaces removed.
+                    ``category_and_tags`` may include >=0 tags indicated by a leading ``#``.
+                    As we have used the most left ``,`` to seperate both substrings that
+                    means that categories and tags can not contain any ``,`` but the
+                    description text may contain as many as wished.
             """
 
             result = tuple(string.split(',', 1))
             length = len(result)
-
             if length == 1:
-                category = result[0]
-                category = category.strip()
-                description = None
+                category, description = result[0].strip(), None
             else:
                 category, description = tuple(result)
-                category = category.strip()
-                description = description.strip()
+                category, description = category.strip(), description.strip()
             return (category.strip(), description)
 
         front, back = at_split(raw_fact)
@@ -232,8 +246,7 @@ class HamsterControl(object):
         if time_info:
             start, end = parse_time_info(time_info)
         else:
-            start = None
-            end = None
+            start, end = None, None
 
         if back:
             category_name, description = comma_split(back)
@@ -242,8 +255,7 @@ class HamsterControl(object):
             else:
                 category = None
         else:
-            category = None
-            description = None
+            category, description = None, None
 
         activity = objects.Activity(activity_name, category=category)
         if not activity:
