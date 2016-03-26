@@ -229,6 +229,15 @@ class TestFactManager:
         with pytest.raises(TypeError):
             basestore.facts.get_all(start, end)
 
+    @freeze_time('2015-10-03 14:45')
+    def test_get_today(self, basestore, mocker):
+        """Make sure that method uses apropiate timeframe. E. g. it respects ``day_start``."""
+        basestore.facts.get_all = mocker.MagicMock(return_value=[])
+        result = basestore.facts.get_today()
+        assert result == []
+        assert basestore.facts.get_all.call_args[0] == (datetime.datetime(2015, 10, 3, 5, 30, 0),
+            datetime.datetime(2015, 10, 4, 5, 29, 59))
+
     def test__get_all(self, basestore):
         with pytest.raises(NotImplementedError):
             basestore.facts._get_all()

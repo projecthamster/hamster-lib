@@ -251,22 +251,3 @@ class HamsterControl(object):
             activity = self.activities.save(activity)
 
         return objects.Fact(activity, start, end=end, description=description)
-
-    def get_today_facts(self):
-        """Return all facts for today, while respecting midnight settings.
-
-        Because we want to refer to our settings about start/end time of a day
-        we can not merely delegate this to the frontend.
-
-        This used to be delegated to the store class, which is nuts, as this
-        is just a specialized version of get_facts.
-
-        :return: List of facts
-        :rtype: list
-        """
-        today = datetime.date.today()
-
-        return self.facts.get_all(
-            start=datetime.datetime(today.year, today.month, today.day, 0, 0, 1),
-            end=datetime.datetime(today.year, today.month, today.day, 23, 59, 59)
-        )

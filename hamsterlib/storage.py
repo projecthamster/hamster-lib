@@ -417,6 +417,19 @@ class BaseFactManager(BaseManager):
 
         return self._get_all(start, end, filter_term)
 
+    def get_today(self):
+        """
+        Return all facts for today, while respecting ``day_start``.
+
+        Returns:
+            list: List of ``Fact`` instances.
+        """
+        today = datetime.date.today()
+        return self.get_all(
+            datetime.datetime.combine(today, self.store.config['day_start']),
+            helpers.end_day_to_datetime(today, self.store.config)
+        )
+
     def _get_all(self, start=None, end=None, search_terms=''):
         """
         Return a list of ``Facts`` matching given criterias.
