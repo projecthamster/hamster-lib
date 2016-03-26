@@ -65,32 +65,27 @@ class CategoryManager(storage.BaseCategoryManager):
         self.store.session.commit()
         return category.as_hamster()
 
+    def remove(self, hamster_category):
         """
         Delete a given category.
 
-        :param hamster_category: Category to be removed.
-        :type hamster_category: Hamster-Category instance.
-        :return: Success status
-        :rtype: bool or Error
-        """
         Args:
             hamster_category (hamsterlib.Category): Category to be removed.
 
-        if not isinstance(category, Category):
-            raise TypeError(_("Category instance expected."))
-        elif category.pk is None:
-            raise ValueError(_("PK-less Category. Are you trying to remove a"
-                               " new Category?"
-                               ))
-        else:
-            alchemy_category = self.store.session.query(AlchemyCategory).get(category.pk)
-            self.store.session.delete(alchemy_category)
-            self.store.session.commit()
-            return True
         Returns:
             None: If everything went alright.
         """
         # [FIXME] Figure our what exactly does it mean to remove a category.
+
+        if not isinstance(hamster_category, Category):
+            raise TypeError(_(
+                "Category instance expected. Got {} instead.".format(type(hamster_category))
+            ))
+        if hamster_category.pk is None:
+            raise ValueError(_("PK-less Category. Are you trying to remove a new Category?"))
+        alchemy_category = self.store.session.query(AlchemyCategory).get(hamster_category.pk)
+        self.store.session.delete(alchemy_category)
+        self.store.session.commit()
 
     def get(self, pk):
         """Return a category based on their pk.
@@ -109,21 +104,6 @@ class CategoryManager(storage.BaseCategoryManager):
         if result:
             result.as_hamster()
         return result
-
-    def get_or_create(self, name):
-        # [FIXME] This may actually already be covered by the base manager!
-        """
-        Args:
-            name (str): Name of the category
-
-        Returns:
-            Category: Hamster category of that name.
-        """
-        alchemy_category = self.get_by_name(name)
-        if not alchemy_category:
-            alchemy_category = AlchemyCategory(Category(name))
-            self._add(alchemy_category)
-        return alchemy_category
 
     def get_all(self):
         """Get all categories."""

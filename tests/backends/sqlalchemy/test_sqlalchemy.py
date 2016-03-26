@@ -42,8 +42,8 @@ class TestCategoryManager():
     def test_remove(self, existing_category, alchemy_store):
         assert alchemy_store.session.query(AlchemyCategory).get(
             existing_category.pk) is not None
-        result = alchemy_store.categories.remove(existing_category)
-        assert result is True
+        result = alchemy_store.categories.remove(existing_category.as_hamster())
+        assert result is None
         assert alchemy_store.session.query(AlchemyCategory).get(
             existing_category.pk) is None
 
@@ -200,7 +200,6 @@ class TestFactManager():
         assert result is True
         assert alchemy_store.session.query(AlchemyFact).get(existing_fact.pk) is None
 
-    @pytest.mark.xfail
     def test_get(self, existing_fact, alchemy_store):
         result = alchemy_store.facts.get(existing_fact.pk)
         assert result == existing_fact

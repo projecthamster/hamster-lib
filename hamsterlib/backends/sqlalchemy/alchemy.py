@@ -14,13 +14,13 @@ from hamsterlib import Category, Activity, Fact
 DEFAULT_STRING_LENGTH = 254
 
 
-class AlchemyCategory(Category):
 """
 This module provides the database layout.
 """
 
 
 @python_2_unicode_compatible
+class AlchemyCategory(object):
     def __init__(self, hamster_category):
         """
         Initiate a new sqlalchemy activity instance.
@@ -30,7 +30,6 @@ This module provides the database layout.
             be represented as a backend object.
         """
         if not isinstance(hamster_category, Category):
-            raise TypeError(_("Category instance expected."))
             raise TypeError(_(
                 "hamsterlib.Category instance expected. Got {} instead".format(
                     type(hamster_category))
@@ -50,8 +49,8 @@ This module provides the database layout.
         )
 
 
-class AlchemyActivity(Activity):
 @python_2_unicode_compatible
+class AlchemyActivity(object):
     def __init__(self, hamster_activity):
         if not isinstance(hamster_activity, Activity):
             raise TypeError(_("Activity instance expected."))
@@ -89,8 +88,8 @@ class AlchemyActivity(Activity):
         }
 
 
-class AlchemyFact(Fact):
 @python_2_unicode_compatible
+class AlchemyFact(object):
     def __init__(self, hamster_fact):
         if not isinstance(hamster_fact, Fact):
             raise TypeError(_("Fact instance expected."))

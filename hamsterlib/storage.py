@@ -108,7 +108,7 @@ class BaseCategoryManager(BaseManager):
         category = self.get_by_name(name)
         if not category:
             category = objects.Category(name)
-            category = self._add(name)
+            category = self._add(category)
         return category
 
     def get(self, pk):
