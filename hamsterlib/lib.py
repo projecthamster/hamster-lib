@@ -3,8 +3,17 @@
 from __future__ import unicode_literals
 from builtins import str
 from future.utils import python_2_unicode_compatible
+
 from gettext import gettext as _
 import logging
+from collections import namedtuple
+import importlib
+
+BackendRegistryEntry = namedtuple('BackendRegistryEntry', ('verbose_name', 'store_class'))
+
+REGISTERED_BACKENDS = {
+    'sqlalchemy': BackendRegistryEntry('SQLAlchemy', 'hamsterlib.backends.sqlalchemy.SQLAlchemyStore'),
+}
 
 
 @python_2_unicode_compatible
@@ -45,15 +54,12 @@ class HamsterControl(object):
         as well as all additional configuration.
         """
 
-        # [TODO]
-        # Once proper backend-registration is available this should be streamlined.
-        storetype = self.config['store']
-        if storetype == 'sqlalchemy':
-            from .backends.sqlalchemy import store
-            result = store.SQLAlchemyStore(self.config['db-path'])
-        else:
-            raise KeyError(_("No valid storetype found."))
-        return result
+        backend = REGISTERED_BACKENDS[self.config['store']]
+        import_path, storeclass = tuple(backend.store_class.rsplit('.', 1))
+
+        backend_module = importlib.import_module(import_path)
+        cls = getattr(backend_module, storeclass)
+        return cls(self.config['db-path'])
 
     def _get_logger(self):
         """
