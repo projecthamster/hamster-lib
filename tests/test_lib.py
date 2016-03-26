@@ -34,22 +34,7 @@ class TestControler:
         # assert len(logger.handlers) == 1
         assert isinstance(logger.handlers[0], logging.NullHandler)
 
-    def test_parse_raw_fact(self, controler, fact_various_raw_facts):
-        raw_fact, expectation = fact_various_raw_facts
-        fact = controler.parse_raw_fact(raw_fact)
-        assert fact.start == expectation['start']
-        assert fact.end == expectation['end']
-        assert fact.activity.name == expectation['activity']
-        if fact.activity.category:
-            assert fact.activity.category.name == expectation['category']
-        else:
-            assert expectation['category'] is None
-        assert fact.description == expectation['description']
-
-    def test_parse_raw_fact_invalid_string(self, controler, invalid_raw_fact):
-        with pytest.raises(ValueError):
-            controler.parse_raw_fact(invalid_raw_fact)
-
+    @pytest.mark.xfail
     def test_parse_raw_fact_with_persistent_activity(self, controler,
             raw_fact_with_persistent_activity):
         raw_fact, expectation = raw_fact_with_persistent_activity
@@ -62,18 +47,3 @@ class TestControler:
         else:
             assert expectation['category'] is None
         assert fact.description == expectation['description']
-
-    @pytest.mark.parametrize(('raw_fact', 'expectations'), [
-        ('-7 foo@bar, palimpalum',
-         {'end': None,
-          'activity': 'foo',
-          'category': 'bar',
-          'description': 'palimpalum'},
-         ),
-    ])
-    def test_parse_raw_fact_with_delta(self, controler, raw_fact, expectations):
-        fact = controler.parse_raw_fact(raw_fact)
-        fact_start = fact.start.replace(second=0, microsecond=0)
-        expectation_start = (datetime.datetime.now() + datetime.timedelta(
-            minutes=-7)).replace(second=0, microsecond=0)
-        assert fact_start == expectation_start

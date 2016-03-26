@@ -329,17 +329,17 @@ def new_fact_values():
         'description': 'palimpalum',
     }),
 ])
-def fact_various_raw_facts(request):
+def raw_fact_parametrized(request):
+    """Provide a variety of valid raw facts as well as a dict of its proper components."""
     return request.param
 
 
 @pytest.fixture(params=[
     '',
-    'foo@bar@boobaz',
     '11:00 12:00 foo@bar',
     'rumpelratz foo@bar',
 ])
-def invalid_raw_fact(request):
+def invalid_raw_fact_parametrized(request):
     return request.param
 
 
