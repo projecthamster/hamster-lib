@@ -1,14 +1,16 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
+from future.utils import python_2_unicode_compatible
 from builtins import str
+
 import pytest
-import datetime
 import logging
 
 from hamsterlib.storage import BaseStore
 
 
+@python_2_unicode_compatible
 class TestControler:
     @pytest.mark.parametrize('storetype', ['sqlalchemy'])
     def test_get_store_valid(self, controler, storetype):

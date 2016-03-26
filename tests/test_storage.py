@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
+from future.utils import python_2_unicode_compatible
+from builtins import str
 
 
 import pytest
@@ -21,6 +23,7 @@ def basestore(store_path, base_config):
     return store
 
 
+@python_2_unicode_compatible
 class TestBaseStore():
     def test_init(self, store_path):
         assert BaseStore(store_path).path == store_path
@@ -30,6 +33,7 @@ class TestBaseStore():
             basestore.cleanup()
 
 
+@python_2_unicode_compatible
 class TestCategoryManager():
     def test_add(self, basestore, category):
         with pytest.raises(NotImplementedError):
@@ -100,6 +104,7 @@ class TestCategoryManager():
             basestore.categories.get_all()
 
 
+@python_2_unicode_compatible
 class TestActivityManager:
     def test_save_new(self, basestore, activity, mocker):
         """Make sure that saving an new activity calls ``_add``."""
@@ -159,6 +164,7 @@ class TestActivityManager:
             basestore.activities.get_all()
 
 
+@python_2_unicode_compatible
 class TestFactManager:
     def test_add(self, basestore, fact):
         with pytest.raises(NotImplementedError):

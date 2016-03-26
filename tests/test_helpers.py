@@ -1,9 +1,16 @@
+# -*- encoding: utf-8 -*-
+
+from __future__ import unicode_literals
+from future.utils import python_2_unicode_compatible
+from builtins import str
+
 import datetime
 import pytest
 from hamsterlib import helpers
 from freezegun import freeze_time
 
 
+@python_2_unicode_compatible
 class TestGetDayEnd(object):
     @pytest.mark.parametrize(('day_start', 'expectation'), [
         (datetime.time(0, 0, 0), datetime.time(23, 59, 59)),
@@ -17,6 +24,7 @@ class TestGetDayEnd(object):
         assert helpers.get_day_end(base_config) == expectation
 
 
+@python_2_unicode_compatible
 class TestEndDayToDatetime(object):
     @pytest.mark.parametrize(('day_start', 'expectation'), [
         (datetime.time(0, 0, 0), datetime.datetime(2015, 4, 15, 23, 59, 59)),
@@ -31,6 +39,7 @@ class TestEndDayToDatetime(object):
         assert helpers.end_day_to_datetime(end_day, base_config) == expectation
 
 
+@python_2_unicode_compatible
 class TestParseTimeRange(object):
     @pytest.mark.parametrize(('time_info', 'expectation'), [
         ('',
@@ -71,6 +80,7 @@ class TestParseTimeRange(object):
             helpers.parse_time_range('-30 2014-01-05 18:15 - 2014-04-01 05:19')
 
 
+@python_2_unicode_compatible
 class TestCompleteTimeFrame(object):
     @pytest.mark.parametrize(('timeframe', 'expectation'), [
         (
@@ -170,6 +180,7 @@ class TestCompleteTimeFrame(object):
             helpers.complete_timeframe(timeframe, base_config)
 
 
+@python_2_unicode_compatible
 class TestEndDayToDaytime(object):
     @pytest.mark.parametrize(('end_day', 'day_start', 'expectation'), [
         (datetime.date(2015, 4, 5),
@@ -189,6 +200,7 @@ class TestEndDayToDaytime(object):
         assert helpers.end_day_to_datetime(end_day, config) == expectation
 
 
+@python_2_unicode_compatible
 class TestParseTime(object):
     @pytest.mark.parametrize(('time', 'expectation'), [
         ('18:55', datetime.time(18, 55)),

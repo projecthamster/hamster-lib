@@ -1,5 +1,8 @@
 # -*- encoding: utf-8 -*-
+
 from __future__ import unicode_literals
+from future.utils import python_2_unicode_compatible
+from builtins import str
 
 import factory
 import faker
@@ -11,6 +14,7 @@ from hamsterlib import objects
 # from . import common
 
 
+@python_2_unicode_compatible
 class CategoryFactory(factory.Factory):
     pk = None
     name = factory.Faker('word')
@@ -19,6 +23,7 @@ class CategoryFactory(factory.Factory):
         model = objects.Category
 
 
+@python_2_unicode_compatible
 class ActivityFactory(factory.Factory):
     pk = None
     name = factory.Faker('word')
@@ -29,6 +34,7 @@ class ActivityFactory(factory.Factory):
         model = objects.Activity
 
 
+@python_2_unicode_compatible
 class FactFactory(factory.Factory):
     pk = None
     activity = factory.SubFactory(ActivityFactory)

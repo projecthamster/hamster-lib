@@ -1,5 +1,9 @@
 # - coding: utf-8 -
 
+from __future__ import unicode_literals
+from future.utils import python_2_unicode_compatible
+from builtins import str
+
 import csv
 from gettext import gettext as _
 
@@ -18,6 +22,7 @@ FactTuple = namedtuple('FactTuple', ('start', 'end', 'activity', 'category',
     'description', 'duration'))
 
 
+@python_2_unicode_compatible
 class ReportWriter(object):
     def __init__(self, path, datetime_format="%Y-%m-%d %H:%M:%S"):
         """
@@ -98,6 +103,7 @@ class ReportWriter(object):
         self.file.close()
 
 
+@python_2_unicode_compatible
 class TSVWriter(ReportWriter):
     def __init__(self, path):
         super(TSVWriter, self).__init__(path)

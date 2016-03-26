@@ -1,5 +1,9 @@
 # -*- encoding: utf-8 -*-
 
+from __future__ import unicode_literals
+from future.utils import python_2_unicode_compatible
+from builtins import str
+
 import hamsterlib
 from hamsterlib import objects
 from gettext import gettext as _
@@ -22,6 +26,7 @@ Note:
 """
 
 
+@python_2_unicode_compatible
 class BaseStore(object):
     """A controlers Store provides unified interfaces to interact with our stored enteties."""
 
@@ -39,6 +44,7 @@ class BaseStore(object):
         raise NotImplementedError
 
 
+@python_2_unicode_compatible
 class BaseManager(object):
     """Base class for all object managers."""
 
@@ -46,6 +52,7 @@ class BaseManager(object):
         self.store = store
 
 
+@python_2_unicode_compatible
 class BaseCategoryManager(BaseManager):
     """Base class defining the minimal API for a CategoryManager implementation."""
 
@@ -185,6 +192,7 @@ class BaseCategoryManager(BaseManager):
         raise NotImplementedError
 
 
+@python_2_unicode_compatible
 class BaseActivityManager(BaseManager):
     """Base class defining the minimal API for a ActivityManager implementation."""
     def save(self, activity):
@@ -318,6 +326,7 @@ class BaseActivityManager(BaseManager):
         raise NotImplementedError
 
 
+@python_2_unicode_compatible
 class BaseFactManager(BaseManager):
     """Base class defining the minimal API for a FactManager implementation."""
     def save(self, fact):
