@@ -1,5 +1,9 @@
 # -*- encoding: utf-8 -*-
 
+from __future__ import unicode_literals
+from builtins import str
+from future.utils import python_2_unicode_compatible
+
 from sqlalchemy import Table, Column, ForeignKey, Integer, String, DateTime, Boolean, MetaData
 # from sqlalchemy.sql.expression import and_
 from sqlalchemy.orm import relationship, mapper  # , sessionmaker
@@ -11,9 +15,26 @@ DEFAULT_STRING_LENGTH = 254
 
 
 class AlchemyCategory(Category):
+"""
+This module provides the database layout.
+"""
+
+
+@python_2_unicode_compatible
     def __init__(self, hamster_category):
+        """
+        Initiate a new sqlalchemy activity instance.
+
+        Args:
+            hamster_category (hamsterlib.Category): A hamster category that is to
+            be represented as a backend object.
+        """
         if not isinstance(hamster_category, Category):
             raise TypeError(_("Category instance expected."))
+            raise TypeError(_(
+                "hamsterlib.Category instance expected. Got {} instead".format(
+                    type(hamster_category))
+            ))
         self.pk = hamster_category.pk
         self.name = hamster_category.name
         if not self.name:
@@ -30,6 +51,7 @@ class AlchemyCategory(Category):
 
 
 class AlchemyActivity(Activity):
+@python_2_unicode_compatible
     def __init__(self, hamster_activity):
         if not isinstance(hamster_activity, Activity):
             raise TypeError(_("Activity instance expected."))
@@ -68,6 +90,7 @@ class AlchemyActivity(Activity):
 
 
 class AlchemyFact(Fact):
+@python_2_unicode_compatible
     def __init__(self, hamster_fact):
         if not isinstance(hamster_fact, Fact):
             raise TypeError(_("Fact instance expected."))

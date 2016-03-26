@@ -1,3 +1,8 @@
+# -*- encoding: utf-8 -*-
+
+from __future__ import unicode_literals
+from builtins import str
+
 import pytest
 
 # from sqlalchemy import orm, create_engine

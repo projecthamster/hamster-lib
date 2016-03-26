@@ -1,5 +1,8 @@
 # -*- encoding: utf-8 -*-
+
 from __future__ import unicode_literals
+from builtins import str
+from future.utils import python_2_unicode_compatible
 
 import datetime
 
@@ -12,6 +15,7 @@ from hamsterlib.backends.sqlalchemy import (AlchemyCategory, AlchemyActivity,
 # from sqlalchemy.orm import sessionmaker, scoped_session
 
 
+@python_2_unicode_compatible
 class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
     id = factory.Sequence(lambda n: n)
     name = factory.Faker('word')
@@ -21,6 +25,7 @@ class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
         # sqlalchemy_session = common.Session
 
 
+@python_2_unicode_compatible
 class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
     pk = factory.Sequence(lambda n: n)
     name = factory.Faker('sentence')
@@ -32,6 +37,7 @@ class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
         # sqlalchemy_session = common.Session
 
 
+@python_2_unicode_compatible
 class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
     pk = factory.Sequence(lambda n: n)
     activity = factory.SubFactory(AlchemyActivityFactory)

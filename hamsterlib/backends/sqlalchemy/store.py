@@ -1,5 +1,9 @@
 # -*- encoding: utf-8 -*-
 
+from __future__ import unicode_literals
+from builtins import str
+from future.utils import python_2_unicode_compatible
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker  # , mapper, relationship
 # from sqlalchemy.orm.exc import NoResultFound
@@ -14,9 +18,11 @@ from hamsterlib import Category, Activity  # , Fact
 from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
 
 import logging
-logger = logging.getLogger('hamsterlib.lib')
+
+logger = logging.getLogger('hamsterlib')
 
 
+@python_2_unicode_compatible
 class SQLAlchemyStore(storage.BaseStore):
     def __init__(self, path):
         engine = create_engine(path)
@@ -33,6 +39,7 @@ class SQLAlchemyStore(storage.BaseStore):
         pass
 
 
+@python_2_unicode_compatible
 class CategoryManager(storage.BaseCategoryManager):
     def _add(self, hamster_category):
         """
@@ -58,8 +65,6 @@ class CategoryManager(storage.BaseCategoryManager):
         self.store.session.commit()
         return category.as_hamster()
 
-    def remove(self, category):
-        # [FIXME] Figure our what exactly does it mean to remove a category.
         """
         Delete a given category.
 
@@ -68,6 +73,8 @@ class CategoryManager(storage.BaseCategoryManager):
         :return: Success status
         :rtype: bool or Error
         """
+        Args:
+            hamster_category (hamsterlib.Category): Category to be removed.
 
         if not isinstance(category, Category):
             raise TypeError(_("Category instance expected."))
@@ -80,6 +87,10 @@ class CategoryManager(storage.BaseCategoryManager):
             self.store.session.delete(alchemy_category)
             self.store.session.commit()
             return True
+        Returns:
+            None: If everything went alright.
+        """
+        # [FIXME] Figure our what exactly does it mean to remove a category.
 
     def get(self, pk):
         """Return a category based on their pk.
@@ -120,6 +131,7 @@ class CategoryManager(storage.BaseCategoryManager):
             self.store.session.query(AlchemyCategory).order_by(AlchemyCategory.name).all())]
 
 
+@python_2_unicode_compatible
 class ActivityManager(storage.BaseActivityManager):
 
     def _add(self, activity):
@@ -217,6 +229,7 @@ class ActivityManager(storage.BaseActivityManager):
         return result.all()
 
 
+@python_2_unicode_compatible
 class FactManager(storage.BaseFactManager):
 
     def _add(self, fact):

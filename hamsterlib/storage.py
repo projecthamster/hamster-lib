@@ -97,7 +97,9 @@ class BaseCategoryManager(BaseManager):
             namea (str): The categories name.
 
         Returns:
-            hamsterlib.Category: The retrieved or created category
+            hamsterlib.Category: The retrieved or created category. Either way,
+                the returned Category will contain all data from the backend, including
+                its primary key.
         """
 
         # [TODO]

@@ -1,5 +1,8 @@
 # -*- encoding: utf-8 -*-
 
+from __future__ import unicode_literals
+from builtins import str
+from future.utils import python_2_unicode_compatible
 
 import pytest
 import datetime
@@ -7,6 +10,7 @@ import datetime
 from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
 
 
+@python_2_unicode_compatible
 class TestCategoryManager():
     def test_category_add(self, category, alchemy_store):
         """
@@ -72,10 +76,9 @@ class TestCategoryManager():
         assert alchemy_category.pk == existing_category.pk
         assert alchemy_category.name == existing_category.name
 
-    def test_get_or_create_create_bew(self, alchemy_store, category):
+    def test_get_or_create_create_new(self, alchemy_store, category):
         old_count = alchemy_store.session.query(AlchemyCategory).count()
-        result = alchemy_store.categories.get_or_create(
-            category.name)
+        result = alchemy_store.categories.get_or_create(category.name)
         new_count = alchemy_store.session.query(AlchemyCategory).count()
         assert old_count < new_count
         assert result.name == category.name
@@ -86,6 +89,7 @@ class TestCategoryManager():
         assert len(result) == alchemy_store.session.query(AlchemyCategory).count()
 
 
+@python_2_unicode_compatible
 class TestActivityManager():
     def test_save_new(self, activity, alchemy_store):
         assert activity.pk is None
@@ -166,6 +170,7 @@ class TestActivityManager():
         assert len(result) == 1
 
 
+@python_2_unicode_compatible
 class TestFactManager():
     def test_save_new(self, fact, alchemy_store):
         count_before = alchemy_store.session.query(AlchemyFact).count()
