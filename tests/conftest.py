@@ -245,9 +245,9 @@ def today_fact(fact_factory):
     return fact_factory(start=start, end=end)
 
 
-@pytest.fixture
-def persistent_today_fact(controler, today_fact):
-    return controler.facts._add(today_fact)
+#@pytest.fixture
+#def persistent_today_fact(controler, today_fact):
+#    return controler.facts._add(today_fact)
 
 
 @pytest.fixture
@@ -257,9 +257,9 @@ def not_today_fact(fact_factory):
     return fact_factory(start=start, end=end)
 
 
-@pytest.fixture
-def persistent_not_today_fact(controler, not_today_fact):
-    return controler.facts._add(not_today_fact)
+#@pytest.fixture
+#def persistent_not_today_fact(controler, not_today_fact):
+#    return controler.facts._add(not_today_fact)
 
 
 @pytest.fixture

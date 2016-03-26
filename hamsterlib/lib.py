@@ -65,76 +65,110 @@ class HamsterControl(object):
     def parse_raw_fact(self, raw_fact):
         """
         Take a raw fact string and turn it into a proper Fact-instance.
+
         We need to handle this within the controler as we need access to a
         store in order to resolve any relationships (activities/categories).
 
+        This aproach has the benefit of providing this one single point of entry.
+        Once any such raw fact has been turned in to a proper ``hamstserlib.Fact``
+        we can rely on it having encapsulated all.
 
         See serialiazed_name for details on the raw_fact format.
-        As far as we can tell right now ther are a couple of clear seperatiors
+        As far as we can tell right now ther are a couple of clear seperators
         for our raw-string.
         '@' --> [time-info] activity @ remains
         ',' --> @category',' description remains
 
         As a consequence extra care has to be taken to mask/escape them.
 
-        :param str raw_fact: Raw fact.
+        Args:
+            raw_fact (str): Raw fact to be parsed.
 
-        :return: Fact object with data taken from raw fact.
-        :rtype: object.Fact
+        Returns:
+            hamsterlib.Fact: ``Fact`` object with data parsesd from raw fact.
         """
 
         def at_split(string):
             """
-            Return everything in front of the '@'-symbol, if it was used.
+            Return everything in front of the (leftests) '@'-symbol, if it was used.
+
+            Args:
+                string (str):  The string to be parsed.
+
+            Returns:
+                touple: (front, back) representing the substings before and after the
+                    most left ``@`` symbol. If no such symbol was present at all,
+                    ``back=None``. Both substrings have been trimmed of any leading
+                    and tailing whilespaces.
+
+            Note:
+                If our string contains multiple ``@`` symbols, all but the most left
+                one will be treated as part of the regular ``back`` string.
+                This allows for usage of the symbol in descriptions, categories and tags.
             """
-            result = string.split('@')
+            result = string.split('@', 1)
             length = len(result)
             if length == 1:
-                front = result[0].strip()
-                back = None
-            elif length == 2:
-                front, back = tuple(result)
-                front = front.strip()
-                back = back.strip()
+                front, back = result[0].strip(), None
             else:
-                raise ValueError(
-                    _("Our raw_fact may not allow more than one '@'-symbol.")
-                )
+                front, back = result
+                front, back = front.strip(), back.strip()
             return (front, back)
 
         def time_activity_split(string):
             """
-            If there is any time information, it will be seperated from
-            the activity-name by a whitespace. We use that to split those
-            with confidence.
+            Seperate time information from activity name.
 
-            Return (time, activity).
+            Args:
+                string (str): Expects a string ``<timeinformation> <activity>``.
+
+            Returns
+                tuple: ``(time, activity)``. If no seperating whitespace was found,
+                    ``time=None``. Both substrings will have their leading/tailing
+                    whitespaces trimmed.
+
+            Note:
+                * We seperate at the most left whitespace. That means that our
+                timeinformation substring may very well include additional
+                whitespaces.
+                * If no whitespace is found, we consider the entire string to be
+                the activity name.
             """
 
-            # [FIXME]
-            # Right now we do only allow for words as activity, we want
-            # this to be more flexible!
             result = string.rsplit(' ', 1)
             length = len(result)
             if length == 1:
-                time = None
-                activity = result[0].strip()
+                time, activity = None, result[0].strip()
             else:
                 time, activity = tuple(result)
-                time = time.strip()
-                activity = activity.strip()
+                time, activity = time.strip(), activity.strip()
             return (time, activity)
 
         def parse_time_info(string):
             """
-            Eventually all parsing should happen by hamsterlib, so that this
-            functionality does not have to be replicated by all frontends
-            (originaly I was/am a great fan of 'parsing and handing over
-            valid/typed input is a frontend job').
+            Parse time info of a given raw fact.
 
-            Returns (start_time, end_time) as datetime.datetime objects,
-            where end_time may be None.
+            Args:
+                string (str): String representing the timeinfo. The string is expected
+                    to have one of the following three formats: ``-offset in minutes``,
+                    ``HH:MM`` or ``HH:MM-HH:MM``.
+
+            Returns:
+                tuple: ``(start_time, end_time)`` tuple, where both elements are
+                    ``datetime.dateime`` instances. If no end time was extracted
+                    ``end_time=None``.
+
+            Note:
+                This parsing method is is informed by the legacy hamster
+                ``hamster.lib.parse_fact``. It seems that here we only extract
+                times that then are understood relative to today.
+                This seems significanty less powerfull that our
+                ``hamsterlib.helpers.parse_time_range`` method which itself has been
+                taken from legacy hamsters ``hamster-cli``.
             """
+            # [FIXME]
+            # Check if ther is any rationale against using
+            # ``hamsterlib.helpers.parse_time_range`` instead.
 
             now = datetime.datetime.now()
 

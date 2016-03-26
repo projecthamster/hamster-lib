@@ -7,8 +7,6 @@ from collections import namedtuple
 
 from gettext import gettext as _
 import datetime
-# from calendar import timegm
-# import re
 
 
 CategoryTuple = namedtuple('CategoryTuple', ('pk', 'name'))

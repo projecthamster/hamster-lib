@@ -1,26 +1,38 @@
 # -*- encoding: utf-8 -*-
+
 from __future__ import unicode_literals
-
+from builtins import str
 import pytest
-# from pytest_factoryboy import LazyFixture
 import datetime
-# from freezegun import freeze_time
+import logging
 
-# from hamsterlib.objects import Category, Activity, Fact
-from hamsterlib import lib
+from hamsterlib.storage import BaseStore
 
 
 class TestControler:
-    def test_init_no_store(self, base_config):
-        base_config['store'] = None
-        with pytest.raises(KeyError):
-            lib.HamsterControl(base_config)
+    @pytest.mark.parametrize('storetype', ['sqlalchemy'])
+    def test_get_store_valid(self, controler, storetype):
+        """Make sure  we recieve a valid ``store`` instance."""
+        # [TODO]
+        # Once we got backend registration up and running this should be
+        # improved to check actual store type for that backend.
+        controler.config['store'] = storetype
+        assert isinstance(controler._get_store(), BaseStore)
 
-    def test_get_today_facts(self, controler, persistent_today_fact,
-            persistent_not_today_fact):
-        result = [fact.pk for fact in controler.get_today_facts()]
-        assert persistent_today_fact.pk in result
-        assert persistent_not_today_fact.pk not in result
+    def test_get_store_invalid(self, controler):
+        """Make sure we get an exception if store retrieval fails."""
+        controler.config['store'] = None
+        with pytest.raises(KeyError):
+            controler._get_store()
+
+    def test_get_logger(self, controler):
+        """Make sure we recieve a logger that maches our expectations."""
+        logger = controler._get_logger()
+        assert isinstance(logger, logging.Logger)
+        assert logger.name == 'hamsterlib.lib'
+        # [FIXME]
+        # assert len(logger.handlers) == 1
+        assert isinstance(logger.handlers[0], logging.NullHandler)
 
     def test_parse_raw_fact(self, controler, fact_various_raw_facts):
         raw_fact, expectation = fact_various_raw_facts

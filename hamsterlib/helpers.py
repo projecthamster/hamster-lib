@@ -80,11 +80,13 @@ def parse_time_range(time_info):
     # implementation in hamster-cli.
 
     def get_time(time):
+        """Convert a times string representation to datetime.time instance."""
         if time:
             time = datetime.datetime.strptime(time.strip(), "%H:%M").time()
         return time
 
     def get_date(date):
+        """Convert a dates string representation to datetime.date instance."""
         if date:
             date = datetime.datetime.strptime(date.strip(), "%Y-%m-%d").date()
         return date
@@ -214,6 +216,9 @@ def parse_time(time):
 
     Raises:
         ValueError: If ``time`` can not be matched against any of the accepted formats.
+
+    Note:
+        This parse just a singlular date, time or datetime representation.
     """
 
     # [TODO]
