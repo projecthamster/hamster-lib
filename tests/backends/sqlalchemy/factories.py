@@ -10,8 +10,7 @@ import factory
 import faker
 # from sqlalchemy import create_engine
 # from . import common
-from hamsterlib.backends.sqlalchemy import (AlchemyCategory, AlchemyActivity,
-                                            AlchemyFact)
+from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
 # from sqlalchemy.orm import sessionmaker, scoped_session
 
 

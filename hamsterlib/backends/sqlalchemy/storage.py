@@ -12,10 +12,10 @@ from sqlalchemy.sql.expression import and_, or_
 from gettext import gettext as _
 from past.builtins import basestring
 
-from hamsterlib.backends.sqlalchemy import alchemy
+from . import objects
 from hamsterlib import storage
 from hamsterlib import Category, Activity  # , Fact
-from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
+from .objects import AlchemyCategory, AlchemyActivity, AlchemyFact
 
 import logging
 
@@ -26,8 +26,8 @@ logger = logging.getLogger('hamsterlib')
 class SQLAlchemyStore(storage.BaseStore):
     def __init__(self, path):
         engine = create_engine(path)
-        alchemy.metadata.bind = engine
-        alchemy.metadata.create_all(engine)
+        objects.metadata.bind = engine
+        objects.metadata.create_all(engine)
 
         Session = sessionmaker(bind=engine)
         self.session = Session()

@@ -12,8 +12,8 @@ import datetime
 
 from ... import factories
 
-from hamsterlib.backends.sqlalchemy import (AlchemyCategory, AlchemyActivity,
-                                            AlchemyFact, SQLAlchemyStore)
+from hamsterlib.backends.sqlalchemy import (AlchemyCategory, AlchemyActivity, AlchemyFact,
+    SQLAlchemyStore)
 
 
 @pytest.fixture

@@ -8,7 +8,9 @@ from sqlalchemy import Table, Column, ForeignKey, Integer, String, DateTime, Boo
 # from sqlalchemy.sql.expression import and_
 from sqlalchemy.orm import relationship, mapper  # , sessionmaker
 from gettext import gettext as _
+
 from hamsterlib import Category, Activity, Fact
+from hamsterlib import objects
 
 
 DEFAULT_STRING_LENGTH = 254
@@ -43,10 +45,27 @@ class AlchemyCategory(object):
             ))
 
     def as_hamster(self):
+        """Provide an convinient way to return it as a ``hamsterlib.Category`` instance."""
         return Category(
             pk=self.pk,
             name=self.name
         )
+
+    def as_tuple(self, include_pk=True):
+        """
+        Provide a tuple representation of this categories relevant 'fields'.
+
+        Args:
+            include_pk (bool): Wether to include the instances pk or not. Note that if
+            ``False`` ``tuple.pk = False``!
+
+        Returns:
+            CategoryTuple: Representing this categories values.
+        """
+        pk = self.pk
+        if not include_pk:
+            pk = False
+        return objects.CategoryTuple(pk=pk, name=self.name)
 
 
 @python_2_unicode_compatible
@@ -79,13 +98,21 @@ class AlchemyActivity(object):
             deleted=self.deleted
         )
 
-    def as_dict(self):
-        return {
-            'pk': self.pk,
-            'name': self.name,
-            'category': self.category.pk,
-            'deleted': self.deleted,
-        }
+    def as_tuple(self, include_pk=True):
+        """
+        Provide a tuple representation of this activities relevant 'fields'.
+
+        Args:
+            include_pk (bool): Wether to include the instances pk or not. Note that if
+            ``False`` ``tuple.pk = False``!
+
+        Returns:
+            ActvityTuple: Representing this categories values.
+        """
+        pk = self.pk
+        if not include_pk:
+            pk = False
+        return objects.ActivityTuple(pk, self.name, self.category, self.deleted)
 
 
 @python_2_unicode_compatible
@@ -98,6 +125,10 @@ class AlchemyFact(object):
         self.start = hamster_fact.start
         self.end = hamster_fact.end
         self.description = hamster_fact.description
+        # [FIXME]
+        # We currently don't support tags on the actual db level, but for
+        # compatibility we make believe here.
+        self.tags = []
 
     def as_hamster(self):
         return Fact(
@@ -116,6 +147,23 @@ class AlchemyFact(object):
             'end': self.end,
             'description': self.description,
         }
+
+    def as_tuple(self, include_pk=True):
+        """
+        Provide a tuple representation of this facts relevant 'fields'.
+
+        Args:
+            include_pk (bool): Wether to include the instances pk or not. Note that if
+            ``False`` ``tuple.pk = False``!
+
+        Returns:
+            ActvityTuple: Representing this categories values.
+        """
+        pk = self.pk
+        if not include_pk:
+            pk = False
+        return objects.FactTuple(pk, self.activity, self.start, self.end, self.description,
+            self.tags)
 
 
 metadata = MetaData()
