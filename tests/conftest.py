@@ -7,6 +7,8 @@ import pytest
 import fauxfactory
 import datetime
 import faker as faker_
+from pytest_factoryboy import register
+from . import factories
 # from pytest_factoryboy import register
 # from sqlalchemy import create_engine
 # from sqlalchemy.orm import sessionmaker
@@ -14,7 +16,10 @@ import faker as faker_
 from hamsterlib.lib import HamsterControl
 # from hamsterlib import objects
 
-from . import factories
+
+register(factories.CategoryFactory)
+register(factories.ActivityFactory)
+register(factories.FactFactory)
 
 faker = faker_.Faker()
 
@@ -123,15 +128,15 @@ def category_valid_parametrized(request):
     return request.param
 
 
-def persistent_category(controler, category):
-    return controler.categories._add(category)
-
-
-def persistent_category_factory(controler, category_factory):
-    def generate(**kwargs):
-        return controler.categories._add(category_factory(**kwargs))
-    return generate
-
+#def persistent_category(controler, category):
+#    return controler.categories._add(category)
+#
+#
+#def persistent_category_factory(controler, category_factory):
+#    def generate(**kwargs):
+#        return controler.categories._add(category_factory(**kwargs))
+#    return generate
+#
 
 @pytest.fixture
 def category_name():
@@ -150,31 +155,31 @@ def new_category_values():
 
 
 # Activities
-@pytest.fixture
-def activity_factory():
-    activity = factories.ActivityFactory.build
-    activity.category = factories.CategoryFactory.build()
-    return activity
+#@pytest.fixture
+#def activity_factory():
+#    activity = factories.ActivityFactory.build
+#    activity.category = factories.CategoryFactory.build()
+#    return activity
+#
+#
+#@pytest.fixture
+#def activity():
+#    """Return a randomized Activity-instance."""
+#    activity = factories.ActivityFactory.build()
+#    activity.category = factories.CategoryFactory.build()
+#    return activity
+#
+
+#@pytest.fixture
+#def persistent_activity(activity, controler):
+#    return controler.activities._add(activity)
 
 
-@pytest.fixture
-def activity():
-    """Return a randomized Activity-instance."""
-    activity = factories.ActivityFactory.build()
-    activity.category = factories.CategoryFactory.build()
-    return activity
-
-
-@pytest.fixture
-def persistent_activity(activity, controler):
-    return controler.activities._add(activity)
-
-
-@pytest.fixture
-def persistent_activity_factory(controler, activity_factory):
-    def generate(**kwargs):
-        return controler.activities._add(activity_factory(**kwargs))
-    return generate
+#@pytest.fixture
+#def persistent_activity_factory(controler, activity_factory):
+#    def generate(**kwargs):
+#        return controler.activities._add(activity_factory(**kwargs))
+#    return generate
 
 
 @pytest.fixture
@@ -226,17 +231,17 @@ def string_delta_format_parametrized(request):
     return request.param
 
 
-@pytest.fixture
-def persistent_fact(fact, controler):
-    return controler.facts._add(fact)
-
-
-@pytest.fixture
-def persistent_fact_factory(controler, fact_factory):
-    def generate(**kwargs):
-        return controler.facts._add(fact_factory(**kwargs))
-    return generate
-
+#@pytest.fixture
+#def persistent_fact(fact, controler):
+#    return controler.facts._add(fact)
+#
+#
+#@pytest.fixture
+#def persistent_fact_factory(controler, fact_factory):
+#    def generate(**kwargs):
+#        return controler.facts._add(fact_factory(**kwargs))
+#    return generate
+#
 
 @pytest.fixture
 def today_fact(fact_factory):
@@ -268,9 +273,9 @@ def current_fact(fact_factory):
     return fact_factory(start=datetime.datetime.now(), end=None)
 
 
-@pytest.fixture
-def persistent_current_fact(controler, current_fact):
-    return controler.facts._add(current_fact)
+#@pytest.fixture
+#def persistent_current_fact(controler, current_fact):
+#    return controler.facts._add(current_fact)
 
 
 

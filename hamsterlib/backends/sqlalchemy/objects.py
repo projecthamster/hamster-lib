@@ -18,6 +18,13 @@ DEFAULT_STRING_LENGTH = 254
 
 """
 This module provides the database layout.
+
+Note:
+    Our dedicated SQLAlchemy objects do not perform any general data validation
+    as not to duplicate code. This is expected to be handled by the generic
+    ``hamsterlib`` objects.
+    If need for backend specific validation should arise, it could of cause be added
+    here.
 """
 
 
@@ -38,11 +45,6 @@ class AlchemyCategory(object):
             ))
         self.pk = hamster_category.pk
         self.name = hamster_category.name
-        if not self.name:
-            raise ValueError(_(
-                "It seems the Category instance passed along does not have"
-                " a name attribute. We need one to proceed!"
-            ))
 
     def as_hamster(self):
         """Provide an convinient way to return it as a ``hamsterlib.Category`` instance."""
@@ -75,11 +77,6 @@ class AlchemyActivity(object):
             raise TypeError(_("Activity instance expected."))
         self.pk = hamster_activity.pk
         self.name = hamster_activity.name
-        if not self.name:
-            raise ValueError(_(
-                "It seems the Activity-instance passed along does not have"
-                " a name attribute. We need one to proceed!"
-            ))
         if hamster_activity.category:
             self.category = AlchemyCategory(hamster_activity.category)
         else:

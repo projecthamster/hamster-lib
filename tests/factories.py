@@ -16,12 +16,12 @@ from hamsterlib import objects
 
 @python_2_unicode_compatible
 class CategoryFactory(factory.Factory):
-    pk = None
-    name = factory.Faker('word')
 
     class Meta:
         model = objects.Category
 
+    pk = None
+    name = factory.Faker('word')
 
 @python_2_unicode_compatible
 class ActivityFactory(factory.Factory):
