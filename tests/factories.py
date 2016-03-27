@@ -9,8 +9,6 @@ import faker
 import datetime
 
 from hamsterlib import objects
-
-
 @python_2_unicode_compatible
 class CategoryFactory(factory.Factory):
 

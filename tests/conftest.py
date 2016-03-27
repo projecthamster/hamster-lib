@@ -148,10 +148,10 @@ def category_valid_parametrized(request, category_factory, name_string_valid_par
 #    return generate
 #
 
-@pytest.fixture
-def category_name():
-    """Provide a randomized category-name."""
-    return faker.name()
+#@pytest.fixture
+#def category_name():
+#    """Provide a randomized category-name."""
+#    return faker.name()
 
 
 @pytest.fixture
@@ -165,6 +165,14 @@ def new_category_values():
 
 
 # Activities
+
+@pytest.fixture
+def activity_valid_parametrized(request, activity_factory, name_string_valid_parametrized,
+        category_valid_parametrized, deleted_valid_parametrized):
+    """Provide a huge array of possible activity versions. Including None."""
+    return activity_factory(name=name_string_valid_parametrized,
+            category=category_valid_parametrized, deleted=deleted_valid_parametrized)
+
 #@pytest.fixture
 #def activity_factory():
 #    activity = factories.ActivityFactory.build

@@ -40,10 +40,10 @@ class TestAlchemyCategory():
 
 @python_2_unicode_compatible
 class TestAlchemyActivity():
-    def test__init__valid(self, activity):
+    def test__init__valid(self, activity_valid_parametrized):
         """Make sure that an AlchemyActivity has same field values as the 'original'."""
-        result = AlchemyActivity(activity)
-        assert activity.equal_fields(result)
+        result = AlchemyActivity(activity_valid_parametrized)
+        assert activity_valid_parametrized.equal_fields(result)
 
     def test__init__invalid(self, activity):
         """Make sure that not passing a ``hamsterlib.Activity`` raises an error."""
