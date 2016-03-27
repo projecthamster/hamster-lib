@@ -9,9 +9,6 @@ import faker
 import datetime
 
 from hamsterlib import objects
-# from hamsterlib import backends
-
-# from . import common
 
 
 @python_2_unicode_compatible
@@ -25,13 +22,14 @@ class CategoryFactory(factory.Factory):
 
 @python_2_unicode_compatible
 class ActivityFactory(factory.Factory):
+
+    class Meta:
+        model = objects.Activity
+
     pk = None
     name = factory.Faker('word')
     category = factory.SubFactory(CategoryFactory)
     deleted = False
-
-    class Meta:
-        model = objects.Activity
 
 
 @python_2_unicode_compatible
@@ -44,5 +42,3 @@ class FactFactory(factory.Factory):
 
     class Meta:
         model = objects.Fact
-
-0

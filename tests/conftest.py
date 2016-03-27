@@ -111,21 +111,31 @@ def controler(base_config):
 # Categories
 
 
-@pytest.fixture
-def category_factory():
-    return factories.CategoryFactory.build
+#@pytest.fixture
+#def category_factory():
+#    return factories.CategoryFactory.build
 
 
-@pytest.fixture
-def category():
-    """A random Category-instance."""
-    return factories.CategoryFactory.build()
+#@pytest.fixture
+#def category():
+#    """A random Category-instance."""
+#    return factories.CategoryFactory.build()
 
 
-@pytest.fixture(params=(None, category()))
-def category_valid_parametrized(request):
+@pytest.fixture(params=(
+    None, True,
+    #fauxfactory.gen_string('latin1'),
+    #fauxfactory.gen_string('cjk'),
+    #fauxfactory.gen_string('utf8'),
+))
+def category_valid_parametrized(request, category_factory, name_string_valid_parametrized):
     """Provide a variety of valid category fixtures."""
-    return request.param
+    if request.param:
+        #result = category_factory(name=request.param)
+        result = category_factory(name=name_string_valid_parametrized)
+    else:
+        result = None
+    return result
 
 
 #def persistent_category(controler, category):
