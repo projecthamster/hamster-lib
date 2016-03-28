@@ -25,7 +25,29 @@ logger = logging.getLogger('hamsterlib')
 
 @python_2_unicode_compatible
 class SQLAlchemyStore(storage.BaseStore):
-    """SQLAlchemy based backend."""
+    """
+    SQLAlchemy based backend.
+
+    Unfortunatly despite using SQLAlchemy some database specific settings can not
+    be avoided (autoincrement, indexes etc).
+    Some of those issues will not be relevant in later versions as we may get rid
+    of Category and Activity ids entirely, just using their natural/composite keys
+    as primary keys.
+
+    However, for now we just support sqlite until the basic framework is up and running.
+    It should take only minor but delayable effort to broaden the applicability to
+    postgres, mysql and the likes.
+
+    The main takeaway right now is, that their is no actuall guarantee that in a
+    distributed environment no race condition occur and we may end up with duplicate
+    Category/Activity entries. No backend code will be able to prevent this by virtue of
+    this beeing a DB issue.
+    Furthermore, we will try hard to avoid placing more than one fact in a given time
+    window. However, there can be no guarantee that in a distributed environment this
+    will allways work out. As a consequence, we make sure that all our single object
+    data retrieval methods return only one item or throw an error alerting us the the
+    inconsistency.
+    """
     def __init__(self, path):
         engine = create_engine(path)
         objects.metadata.bind = engine

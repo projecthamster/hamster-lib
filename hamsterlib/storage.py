@@ -23,6 +23,9 @@ Note:
     resurrect/temporary for ``add_fact`` is about checking for preexisting activities
     by using ``__get_activity_by_name``. If True we will consider 'deleted' activities
     and stick this to our new fact.
+
+    Later versions of this lib should get rid of deliberate PK-fields for ``Category``
+    and ``Activity`` and use their natural pk or natural composite key respectivly.
 """
 
 
@@ -160,6 +163,10 @@ class BaseCategoryManager(BaseManager):
 
         Returns:
             hamsterlib.Category: Newly created ``Category`` instance.
+
+        Raises:
+            IOError: When the category name was alreadyy present! It is supposed to be
+            unique.
         """
         raise NotImplementedError
 
@@ -208,6 +215,9 @@ class BaseActivityManager(BaseManager):
 
         Returns:
             hamsterlib.Activity: The saved ``Activity``.
+
+        Raises:
+            IOError: When the category name was alreadyy present! It is supposed to be
         """
 
         if activity.pk or activity.pk == 0:
