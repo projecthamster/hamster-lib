@@ -168,7 +168,7 @@ metadata = MetaData()
 categories = Table(
     'categories', metadata,
     Column('id', Integer, primary_key=True),
-    Column('name', String(DEFAULT_STRING_LENGTH))
+    Column('name', String(DEFAULT_STRING_LENGTH), unique=True)
 )
 
 mapper(AlchemyCategory, categories, properties={

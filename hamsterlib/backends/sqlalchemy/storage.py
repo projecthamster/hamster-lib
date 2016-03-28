@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker  # , mapper, relationship
 # from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import and_, or_
+from sqlalchemy.orm.exc import FlushError
 
 from gettext import gettext as _
 from past.builtins import basestring
@@ -24,6 +25,7 @@ logger = logging.getLogger('hamsterlib')
 
 @python_2_unicode_compatible
 class SQLAlchemyStore(storage.BaseStore):
+    """SQLAlchemy based backend."""
     def __init__(self, path):
         engine = create_engine(path)
         objects.metadata.bind = engine
@@ -43,13 +45,21 @@ class SQLAlchemyStore(storage.BaseStore):
 class CategoryManager(storage.BaseCategoryManager):
     def _add(self, hamster_category):
         """
-        Add a hamster category. Reteurn saved instance hamster style.
+        Add a new category to the database.
+
+        This method should not be used by any client code. Call ``save`` to make
+        the decission wether to modify an existing entry or to add a new one is
+        done correctly..
 
         Args:
-            hamster_category (Category): Hamster Category instance.
+            hamster_category (hamsterlib.Category): Hamster Category instance.
 
         Returns:
             Category: Saved instance, as_hamster()
+
+        Note:
+            If the name of this category already exists in the db, this will fail
+            as it should be unique.
         """
         logger.debug(
             _("Recieved <{}> to be added to DB.".format(
@@ -57,7 +67,13 @@ class CategoryManager(storage.BaseCategoryManager):
         )
         category = AlchemyCategory(hamster_category)
         self.store.session.add(category)
-        self.store.session.commit()
+        try:
+            self.store.session.commit()
+        except FlushError as e:
+            raise IOError(_(
+                "An error occured! Are you sure the category.name is not already present in our"
+                " database? Here is the full original exception: '{}'.".format(e)
+            ))
         return category.as_hamster()
 
     def _update(self, hamster_category):
