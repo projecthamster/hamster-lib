@@ -68,7 +68,7 @@ def existing_category(existing_category_factory):
 
 @pytest.fixture
 def set_of_existing_categories(existing_category_factory):
-    return [existing_category_factory() for i in range(5)]
+    return (existing_category_factory() for i in range(5))
 
 
 @pytest.fixture

@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker  # , mapper, relationship
 # from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.orm.exc import FlushError
+from sqlalchemy.exc import IntegrityError
 
 from gettext import gettext as _
 from past.builtins import basestring
@@ -79,9 +80,8 @@ class CategoryManager(storage.BaseCategoryManager):
         Returns:
             Category: Saved instance, as_hamster()
 
-        Note:
-            If the name of this category already exists in the db, this will fail
-            as it should be unique.
+        Raises:
+            ValueError: If the name to be added is already present in the db.
         """
         logger.debug(
             _("Recieved <{}> to be added to DB.".format(
@@ -92,7 +92,7 @@ class CategoryManager(storage.BaseCategoryManager):
         try:
             self.store.session.commit()
         except FlushError as e:
-            raise IOError(_(
+            raise ValueError(_(
                 "An error occured! Are you sure the category.name is not already present in our"
                 " database? Here is the full original exception: '{}'.".format(e)
             ))
@@ -100,7 +100,14 @@ class CategoryManager(storage.BaseCategoryManager):
 
     def _update(self, hamster_category):
         category = AlchemyCategory(hamster_category)
-        self.store.session.commit()
+        try:
+            self.store.session.commit()
+        except IntegrityError as e:
+            raise ValueError(_(
+                "An error occured! Are you sure the category.name is not already present in our"
+                " database? Here is the full original exception: '{}'.".format(e)
+            ))
+
         return category.as_hamster()
 
     def remove(self, hamster_category):
@@ -159,6 +166,10 @@ class ActivityManager(storage.BaseActivityManager):
 
         Returns:
             Activity: Hamster activity representation of stored instance.
+
+        Raises:
+            ValueError: If the category/activity.name combination to be added is
+            already present in the db.
         """
         alchemy_activity = AlchemyActivity(activity)
         self.store.session.add(alchemy_activity)
@@ -166,7 +177,13 @@ class ActivityManager(storage.BaseActivityManager):
         return alchemy_activity.as_hamster()
 
     def _update(self, activity):
-        self.store.session.commit()
+        try:
+            self.store.session.commit()
+        except IntegrityError as e:
+            raise ValueError(_(
+                "There seems to already be an activity like this for the given category."
+                "Can not change this activities values. Original exception: {}".format(e)
+            ))
         return activity
 
     def remove(self, activity):

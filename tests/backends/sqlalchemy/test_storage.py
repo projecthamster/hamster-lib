@@ -6,7 +6,6 @@ from future.utils import python_2_unicode_compatible
 
 import pytest
 import datetime
-from sqlalchemy.orm.exc import FlushError
 
 from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
 
@@ -28,7 +27,7 @@ class TestCategoryManager():
 
     def test_category_add_existing_name(self, alchemy_store, existing_category):
         """Make sure that adding a category with a name that is already present gives an error."""
-        with pytest.raises(IOError):
+        with pytest.raises(ValueError):
             alchemy_store.categories._add(existing_category.as_hamster())
 
     def test_category_update(self, existing_category, new_category_values, alchemy_store):
@@ -44,6 +43,13 @@ class TestCategoryManager():
         assert count_before == count_after
         for key, value in new_values.items():
             assert getattr(existing_category, key) == value
+
+    def test_update_existing_name(self, alchemy_store, existing_category_factory):
+        """Make sure that renaming a given category to a name already taken throws an error."""
+        category_1, category_2 = (existing_category_factory(), existing_category_factory())
+        category_2.name = category_1.name
+        with pytest.raises(ValueError):
+            alchemy_store.categories._update(category_2.as_hamster())
 
     def test_remove(self, existing_category, alchemy_store):
         assert alchemy_store.session.query(AlchemyCategory).get(

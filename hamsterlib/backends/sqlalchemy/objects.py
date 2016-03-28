@@ -7,6 +7,7 @@ from future.utils import python_2_unicode_compatible
 from sqlalchemy import Table, Column, ForeignKey, Integer, String, DateTime, Boolean, MetaData
 # from sqlalchemy.sql.expression import and_
 from sqlalchemy.orm import relationship, mapper  # , sessionmaker
+from sqlalchemy import UniqueConstraint
 from gettext import gettext as _
 
 from hamsterlib import Category, Activity, Fact
@@ -181,6 +182,7 @@ activities = Table(
     Column('name', String(500)),
     Column('deleted', Boolean),
     Column('category_id', Integer, ForeignKey(categories.c.id)),
+    UniqueConstraint('name', 'category_id')
 )
 
 mapper(AlchemyActivity, activities, properties={
