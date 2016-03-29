@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from builtins import str
 from future.utils import python_2_unicode_compatible
 
-from sqlalchemy import Table, Column, ForeignKey, Integer, String, DateTime, Boolean, MetaData
+from sqlalchemy import Table, Column, ForeignKey, Integer, Unicode, DateTime, Boolean, MetaData
 # from sqlalchemy.sql.expression import and_
 from sqlalchemy.orm import relationship, mapper  # , sessionmaker
 from sqlalchemy import UniqueConstraint
@@ -169,7 +169,7 @@ metadata = MetaData()
 categories = Table(
     'categories', metadata,
     Column('id', Integer, primary_key=True),
-    Column('name', String(DEFAULT_STRING_LENGTH), unique=True)
+    Column('name', Unicode(DEFAULT_STRING_LENGTH), unique=True)
 )
 
 mapper(AlchemyCategory, categories, properties={
@@ -179,7 +179,7 @@ mapper(AlchemyCategory, categories, properties={
 activities = Table(
     'activities', metadata,
     Column('id', Integer, primary_key=True),
-    Column('name', String(500)),
+    Column('name', Unicode(500)),
     Column('deleted', Boolean),
     Column('category_id', Integer, ForeignKey(categories.c.id)),
     UniqueConstraint('name', 'category_id')
@@ -196,7 +196,7 @@ facts = Table(
     Column('start', DateTime),
     Column('end', DateTime),
     Column('activity_id', Integer, ForeignKey(activities.c.id)),
-    Column('description', String(500)),
+    Column('description', Unicode(500)),
 )
 
 mapper(AlchemyFact, facts, properties={
