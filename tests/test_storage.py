@@ -91,7 +91,7 @@ class TestCategoryManager():
     def test_get_or_create_new_category(self, basestore, category, mocker):
         """Make sure the category is beeing looked up and new one is created."""
         basestore.categories._add = mocker.MagicMock(return_value=category)
-        basestore.categories.get_by_name = mocker.MagicMock(return_value=None)
+        basestore.categories.get_by_name = mocker.MagicMock(side_effect=KeyError)
         try:
             basestore.categories.get_or_create(category.name)
         except NotImplementedError:

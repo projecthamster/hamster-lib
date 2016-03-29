@@ -88,7 +88,7 @@ class BaseCategoryManager(BaseManager):
             result = self._add(category)
         return result
 
-    def get_or_create(self, name):
+    def get_or_create(self, category):
         """
         Check if we already got a category with that name, if not create one.
 
@@ -96,8 +96,13 @@ class BaseCategoryManager(BaseManager):
         this once in our controler than having every client implementation
         deal with it anew.
 
+        It is worth noting that the lookup completely ignores any PK contained in the
+        passed category. This makes this suitable to just create the desired Category
+        and pass it along. One way or the other one will end up with a persistend
+        db-backed version.
+
         Args:
-            namea (str): The categories name.
+            category (hamsterlib.Category or None): The categories.
 
         Returns:
             hamsterlib.Category: The retrieved or created category. Either way,
@@ -105,14 +110,63 @@ class BaseCategoryManager(BaseManager):
                 its primary key.
         """
 
-        # [TODO]
-        # create_category checks for an existing category of that name as well
-        # which is redundant. But for now this will do.
-        category = self.get_by_name(name)
-        if not category:
-            category = objects.Category(name)
-            category = self._add(category)
+        if category:
+            try:
+                category = self.get_by_name(category)
+            except KeyError:
+                category = objects.Category(category)
+                category = self._add(category)
+        else:
+            category = None
         return category
+
+    def _add(self, category):
+        """
+        Add a ``Category`` to our backend.
+
+        Args:
+            category (hamsterlib.Category): ``Category`` to be added.
+
+        Returns:
+            hamsterlib.Category: Newly created ``Category`` instance.
+
+        Raises:
+            ValueError: When the category name was alreadyy present! It is supposed to be
+            unique.
+        """
+        raise NotImplementedError
+
+    def _update(self, category):
+        """
+        Update a ``Categories`` values in our backend.
+
+        Args:
+            category (hamsterlib.Category): Category to be updated.
+
+        Returns:
+            hamsterlib.Category: The updated Category.
+
+        Raises:
+            KeyError: If the ``Category`` can not be found by the backend.
+            ValueError: If the ``Category().name`` is already beeing used by
+                another ``Category`` instance.
+        """
+        raise NotImplementedError
+
+    def remove(self, category):
+        """
+        Remove a category.
+
+        Args:
+            category (hamsterlib.Category): Category to be updated.
+
+        Returns:
+            None: If everything went ok.
+
+        Raises:
+            KeyError: If the ``Category`` can not be found by the backend.
+        """
+        raise NotImplementedError
 
     def get(self, pk):
         """
@@ -154,52 +208,6 @@ class BaseCategoryManager(BaseManager):
         """
         raise NotImplementedError
 
-    def _add(self, category):
-        """
-        Add a ``Category`` to our backend.
-
-        Args:
-            category (hamsterlib.Category): ``Category`` to be added.
-
-        Returns:
-            hamsterlib.Category: Newly created ``Category`` instance.
-
-        Raises:
-            IOError: When the category name was alreadyy present! It is supposed to be
-            unique.
-        """
-        raise NotImplementedError
-
-    def _update(self, category):
-        """
-        Update a ``Categories`` values in our backend.
-
-        Args:
-            category (hamsterlib.Category): Category to be updated.
-
-        Returns:
-            hamsterlib.Category: The updated Category.
-
-        Raises:
-            KeyError: If the ``Category`` can not be found by the backend.
-        """
-        raise NotImplementedError
-
-    def remove(self, category):
-        """
-        Remove a category.
-
-        Args:
-            category (hamsterlib.Category): Category to be updated.
-
-        Returns:
-            None: If everything went ok.
-
-        Raises:
-            KeyError: If the ``Category`` can not be found by the backend.
-        """
-        raise NotImplementedError
-
 
 @python_2_unicode_compatible
 class BaseActivityManager(BaseManager):
@@ -217,7 +225,7 @@ class BaseActivityManager(BaseManager):
             hamsterlib.Activity: The saved ``Activity``.
 
         Raises:
-            IOError: When the category name was alreadyy present! It is supposed to be
+            ValueError: If the category/activity.name combination was alreadyy present!
         """
 
         if activity.pk or activity.pk == 0:
@@ -245,7 +253,6 @@ class BaseActivityManager(BaseManager):
         Returns:
             hamsterlib.Activity: The retrieved or created activity
         """
-
         try:
             activity = self.get_by_composite(name, category)
         except KeyError:
@@ -272,6 +279,20 @@ class BaseActivityManager(BaseManager):
     def _update(self, activity):
         raise NotImplementedError
 
+    def remove(self, activity):
+        """
+        Remove an ``Activity`` from the database.import
+
+        Args:
+            activity (hamsterlib.Activity): The activity to be removed.
+
+        Returns:
+            bool: True
+
+        Raises:
+            KeyError: If the given ``Activity`` can not be found in the database.
+        """
+        raise NotImplementedError
     def remove(self, activity):
         """
         Remove an ``Activity`` from the database.import

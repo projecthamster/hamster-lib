@@ -16,7 +16,7 @@ from hamsterlib.backends.sqlalchemy import (AlchemyCategory, AlchemyActivity, Al
     SQLAlchemyStore)
 
 
-@pytest.fixture
+@pytest.fixture#(scope='session')
 def alchemy_store(request):
     return SQLAlchemyStore('sqlite:///:memory:')
 
@@ -68,11 +68,11 @@ def existing_category(existing_category_factory):
 
 @pytest.fixture
 def set_of_existing_categories(existing_category_factory):
-    return (existing_category_factory() for i in range(5))
+    return [existing_category_factory() for i in range(5)]
 
 
 @pytest.fixture
-def existing_activity_factory(request, alchemy_store):
+def existing_activity_factory(request, alchemy_store, category_factory):
     """
     Custom factory to provide a new persistent activity.
 
@@ -87,6 +87,7 @@ def existing_activity_factory(request, alchemy_store):
     def generate(*args, **kwargs):
         activity = factories.ActivityFactory.build(*args, **kwargs)
         alchemy_activity = AlchemyActivity(activity)
+        alchemy_activity.category = AlchemyCategory(category_factory())
         alchemy_store.session.add(alchemy_activity)
         alchemy_store.session.commit()
         return alchemy_activity
@@ -94,7 +95,7 @@ def existing_activity_factory(request, alchemy_store):
 
 
 @pytest.fixture
-def existing_activity(existing_activity_factory):
+def existing_activity(existing_activity_factory, existing_category_factory):
     """
     Provide a singe persisent activity.
 
@@ -105,8 +106,8 @@ def existing_activity(existing_activity_factory):
 
 
 @pytest.fixture
-def existing_activity_valid_parametrized(existing_activity_factory,
-        name_string_valid_parametrized, category_valid_parametrized, deleted_valid_parametrized):
+def existing_activity_valid_parametrized(existing_activity_factory, existing_category_factory,
+        name_string_valid_parametrized, deleted_valid_parametrized):
     """
     Provide a parametrized persistent activity fixture.
 
@@ -115,15 +116,19 @@ def existing_activity_valid_parametrized(existing_activity_factory,
     for details on what is covered.
     """
 
+    # [TODO]
+    # Parametrize category. In particular cover cases where category=None
+
     return existing_activity_factory(name=name_string_valid_parametrized,
-        category=category_valid_parametrized, deleted=deleted_valid_parametrized)
+        deleted=deleted_valid_parametrized)
 
 
 @pytest.fixture
-def existing_fact_factory(request, alchemy_store):
+def existing_fact_factory(request, alchemy_store, existing_activity_factory):
     def generate(*args, **kwargs):
         fact = factories.FactFactory.build(*args, **kwargs)
         alchemy_fact = AlchemyFact(fact)
+        alchemy_fact.activity = existing_activity_factory()
         alchemy_store.session.add(alchemy_fact)
         alchemy_store.session.commit()
         return alchemy_fact
@@ -141,7 +146,6 @@ def existing_fact_valid_parametrized(alchemy_store, existing_fact_factory,
         tag_list_valid_parametrized):
     fact = existing_fact_factory(description=description_valid_parametrized,
         tags=tag_list_valid_parametrized)
-    fact.activity = existing_activity_valid_parametrized
     alchemy_store.session.commit()
     return fact
 

@@ -107,7 +107,7 @@ class TestActivity(object):
     def test_as_tuple_exclude_pk(self, activity):
         """Make sure that conversion to a tuple matches our expectations."""
         assert activity.as_tuple(include_pk=False) == (False, activity.name,
-            activity.category, activity.deleted)
+            (False, activity.category.name), activity.deleted)
 
     def test_equal_fields_true(self, activity):
         """Make sure that two activities that differ only in their PK compare equal."""

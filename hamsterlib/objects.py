@@ -11,7 +11,7 @@ import datetime
 
 
 CategoryTuple = namedtuple('CategoryTuple', ('pk', 'name'))
-ActivityTuple = namedtuple('CategoryTuple', ('pk', 'name', 'category', 'deleted'))
+ActivityTuple = namedtuple('ActivityTuple', ('pk', 'name', 'category', 'deleted'))
 FactTuple = namedtuple('FactTuple', ('pk', 'activity', 'start', 'end', 'description', 'tags'))
 
 
@@ -73,10 +73,22 @@ class Category(object):
             with a freshly created backend instance. As the latter will propably have a
             primary key assigned now and so ``__eq__`` would fail.
         """
-        return self.as_tuple(include_pk=False) == other.as_tuple(include_pk=False)
+        if other:
+            other = other.as_tuple(include_pk=False)
+        else:
+            other = None
+
+        return self.as_tuple(include_pk=False) == other
 
     def __eq__(self, other):
-        return self.as_tuple() == other.as_tuple()
+        if other:
+            if isinstance(other, CategoryTuple):
+                pass
+            else:
+                other = other.as_tuple()
+        else:
+            other = None
+        return self.as_tuple() == other
 
     def __str__(self):
         return '{name}'.format(name=self.name)
@@ -158,8 +170,11 @@ class Activity(object):
         pk = self.pk
         if not include_pk:
             pk = False
-        return ActivityTuple(pk=pk, name=self.name, category=self.category,
-            deleted=self.deleted)
+        if self.category:
+            category = self.category.as_tuple(include_pk=include_pk)
+        else:
+            category = None
+        return ActivityTuple(pk=pk, name=self.name, category=category, deleted=self.deleted)
 
     def equal_fields(self, other):
         """
@@ -176,6 +191,11 @@ class Activity(object):
             with a freshly created backend instance. As the latter will propably have a
             primary key assigned now and so ``__eq__`` would fail.
         """
+        print(other)
+        print(type(other))
+        print(other.category)
+        print(self.as_tuple(include_pk=False))
+        print(other.as_tuple(include_pk=False))
         return self.as_tuple(include_pk=False) == other.as_tuple(include_pk=False)
 
     def __eq__(self, other):
