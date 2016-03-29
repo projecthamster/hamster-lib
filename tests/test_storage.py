@@ -128,14 +128,14 @@ class TestActivityManager:
     def test_get_or_create_existing(self, basestore, activity, mocker):
         basestore.activities.get_by_composite = mocker.MagicMock(return_value=activity)
         basestore.activities.save = mocker.MagicMock(return_value=activity)
-        result = basestore.activities.get_or_create(activity.name, activity.category)
+        result = basestore.activities.get_or_create(activity)
         assert result.name == activity.name
         assert basestore.activities.save.called is False
 
     def test_get_or_create_new(self, basestore, activity, mocker):
         basestore.activities.get_by_composite = mocker.MagicMock(side_effect=KeyError())
         basestore.activities.save = mocker.MagicMock(return_value=activity)
-        result = basestore.activities.get_or_create(activity.name, activity.category)
+        result = basestore.activities.get_or_create(activity)
         assert result.name == activity.name
         assert basestore.activities.save.called is True
 

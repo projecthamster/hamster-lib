@@ -241,7 +241,7 @@ class BaseActivityManager(BaseManager):
             result = self._add(activity)
         return result
 
-    def get_or_create(self, name, category=None, deleted=False):
+    def get_or_create(self, activity):
         """
         Convinience method to either get an activity matching the specs or create a new one.
 
@@ -254,9 +254,10 @@ class BaseActivityManager(BaseManager):
             hamsterlib.Activity: The retrieved or created activity
         """
         try:
-            activity = self.get_by_composite(name, category)
+            activity = self.get_by_composite(activity.name, activity.category)
         except KeyError:
-            activity = self.save(hamsterlib.Activity(name, category=category, deleted=deleted))
+            activity = self.save(hamsterlib.Activity(activity.name, category=activity.category,
+                deleted=activity.deleted))
         return activity
 
     def _add(self, activity, temporary=False):

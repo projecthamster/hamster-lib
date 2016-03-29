@@ -461,7 +461,7 @@ class ActivityManager(storage.BaseActivityManager):
 @python_2_unicode_compatible
 class FactManager(storage.BaseFactManager):
 
-    def _add(self, fact):
+    def _add(self, fact, raw=False):
         """
         Add a new fact to the database.
 
@@ -471,10 +471,26 @@ class FactManager(storage.BaseFactManager):
         Returns:
             hamsterlib.Fact: Fact as stored in the database
         """
+
+        if fact.pk:
+            message = _(
+                "The fact ('{!r}') you are trying to add already has an PK."
+                " Are you sure you do not want to ``_update`` instead?".format(fact)
+            )
+            logger.debug(message)
+            raise ValueError(message)
+
+        if self.get_all(fact.start, fact.end):
+            message = _("Our database already contains facts for this facts timewindow."
+                        "There can ever only be one fact at any given point in time")
+            raise ValueError(message)
+
         alchemy_fact = AlchemyFact(fact)
         self.store.session.add(alchemy_fact)
         self.store.session.commit()
-        return alchemy_fact.as_hamster()
+        if not raw:
+            alchemy_fact = alchemy_fact.as_hamster()
+        return alchemy_fact
 
     def _update(self, fact):
         """Update and existing fact with new values.
