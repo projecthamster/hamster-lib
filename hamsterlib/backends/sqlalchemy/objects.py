@@ -20,6 +20,9 @@ DEFAULT_STRING_LENGTH = 254
 """
 This module provides the database layout.
 
+We inherit from our hamster objects in order to use the custom methods, making insstance
+comparissions so much easier.
+
 Note:
     Our dedicated SQLAlchemy objects do not perform any general data validation
     as not to duplicate code. This is expected to be handled by the generic
@@ -30,7 +33,7 @@ Note:
 
 
 @python_2_unicode_compatible
-class AlchemyCategory(object):
+class AlchemyCategory(Category):
     def __init__(self, hamster_category):
         """
         Initiate a new sqlalchemy activity instance.
@@ -47,6 +50,7 @@ class AlchemyCategory(object):
         self.pk = hamster_category.pk
         self.name = hamster_category.name
 
+
     def as_hamster(self):
         """Provide an convinient way to return it as a ``hamsterlib.Category`` instance."""
         return Category(
@@ -54,34 +58,18 @@ class AlchemyCategory(object):
             name=self.name
         )
 
-    def as_tuple(self, include_pk=True):
-        """
-        Provide a tuple representation of this categories relevant 'fields'.
-
-        Args:
-            include_pk (bool): Wether to include the instances pk or not. Note that if
-            ``False`` ``tuple.pk = False``!
-
-        Returns:
-            CategoryTuple: Representing this categories values.
-        """
-        pk = self.pk
-        if not include_pk:
-            pk = False
-        return objects.CategoryTuple(pk=pk, name=self.name)
-
 
 @python_2_unicode_compatible
-class AlchemyActivity(object):
+class AlchemyActivity(Activity):
     def __init__(self, hamster_activity):
         if not isinstance(hamster_activity, Activity):
             raise TypeError(_("Activity instance expected."))
         self.pk = hamster_activity.pk
         self.name = hamster_activity.name
-        if hamster_activity.category:
-            self.category = AlchemyCategory(hamster_activity.category)
-        else:
-            self.category = None
+        #if hamster_activity.category:
+        #    self.category = AlchemyCategory(hamster_activity.category)
+        #else:
+        #self.category = None
         self.deleted = hamster_activity.deleted
 
     def as_hamster(self):
@@ -96,30 +84,14 @@ class AlchemyActivity(object):
             deleted=self.deleted
         )
 
-    def as_tuple(self, include_pk=True):
-        """
-        Provide a tuple representation of this activities relevant 'fields'.
-
-        Args:
-            include_pk (bool): Wether to include the instances pk or not. Note that if
-            ``False`` ``tuple.pk = False``!
-
-        Returns:
-            ActvityTuple: Representing this categories values.
-        """
-        pk = self.pk
-        if not include_pk:
-            pk = False
-        return objects.ActivityTuple(pk, self.name, self.category, self.deleted)
-
 
 @python_2_unicode_compatible
-class AlchemyFact(object):
+class AlchemyFact(Fact):
     def __init__(self, hamster_fact):
         if not isinstance(hamster_fact, Fact):
             raise TypeError(_("Fact instance expected."))
         self.pk = hamster_fact.pk
-        self.activity = AlchemyActivity(hamster_fact.activity)
+        #self.activity = AlchemyActivity(hamster_fact.activity)
         self.start = hamster_fact.start
         self.end = hamster_fact.end
         self.description = hamster_fact.description
@@ -146,22 +118,6 @@ class AlchemyFact(object):
             'description': self.description,
         }
 
-    def as_tuple(self, include_pk=True):
-        """
-        Provide a tuple representation of this facts relevant 'fields'.
-
-        Args:
-            include_pk (bool): Wether to include the instances pk or not. Note that if
-            ``False`` ``tuple.pk = False``!
-
-        Returns:
-            ActvityTuple: Representing this categories values.
-        """
-        pk = self.pk
-        if not include_pk:
-            pk = False
-        return objects.FactTuple(pk, self.activity, self.start, self.end, self.description,
-            self.tags)
 
 
 metadata = MetaData()
