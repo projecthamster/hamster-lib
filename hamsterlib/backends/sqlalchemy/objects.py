@@ -74,13 +74,13 @@ class AlchemyCategory(Category):
 
 @python_2_unicode_compatible
 class AlchemyActivity(Activity):
-    def __init__(self,  activity):
+    def __init__(self, activity):
         """
         Initiate a new instance.
 
         Args:
-            activity (hamsterlib.Activity): A category that is to be represented
-                as a backend instance..
+            activity (hamsterlib.Activity): An activity that is to be represented
+                as a backend instance.
 
         Raises:
             TypeError: If ``activity`` is not an ``Activity`` instance.
@@ -111,37 +111,40 @@ class AlchemyActivity(Activity):
 
 @python_2_unicode_compatible
 class AlchemyFact(Fact):
-    def __init__(self, hamster_fact):
-        if not isinstance(hamster_fact, Fact):
-            raise TypeError(_("Fact instance expected."))
-        self.pk = hamster_fact.pk
-        #self.activity = AlchemyActivity(hamster_fact.activity)
-        self.start = hamster_fact.start
-        self.end = hamster_fact.end
-        self.description = hamster_fact.description
+    def __init__(self, fact):
+        """
+        Initiate a new instance.
+
+        Args:
+            fact (hamsterlib.Fact): A fact that is to be represented
+                as a backend instance.
+
+        Raises:
+            TypeError: If ``fact`` is not an ``Fact`` instance.
+        """
+
+        if not isinstance(fact, Fact):
+            raise TypeError(_(
+                "hamsterlib.Fact instance expected. Got {} instead".format(
+                    type(fact))
+            ))
+
+        self.pk = fact.pk
+        self.start = fact.start
+        self.end = fact.end
+        self.description = fact.description
         # [FIXME]
-        # We currently don't support tags on the actual db level, but for
-        # compatibility we make believe here.
-        self.tags = []
+        # We currently don't support tags on the actual db level!
 
     def as_hamster(self):
+        """Provide an convinient way to return it as a ``hamsterlib.Fact`` instance."""
         return Fact(
             pk=self.pk,
             activity=self.activity.as_hamster(),
             start=self.start,
             end=self.end,
-            description=self.description
+            description=self.description,
         )
-
-    def as_dict(self):
-        return {
-            'pk': self.pk,
-            'activity': self.activity,
-            'start': self.start,
-            'end': self.end,
-            'description': self.description,
-        }
-
 
 
 metadata = MetaData()

@@ -36,7 +36,7 @@ class TestAlchemyActivity():
         """
         Make sure that an AlchemyActivity has same field values as the 'original'.
 
-        We can't profit from ``euqal_fields`` here because the initialized ``AlchemyActivity``
+        We can't profit from ``equal_fields`` here because the initialized ``AlchemyActivity``
         lacks the category.
         """
         result = AlchemyActivity(activity_valid_parametrized)
@@ -55,22 +55,28 @@ class TestAlchemyActivity():
         assert activity.equal_fields(existing_activity_valid_parametrized)
 
 
-#@python_2_unicode_compatible
-#class TestAlchemyFact():
-#    @pytest.mark.xfail
-#    def test__init__valid(self, fact):
-#        """Make sure that an AlchemyFact has same field values as the 'original'."""
-#        result = AlchemyFact(fact)
-#        assert fact.equal_fields(result)
-#
-#    @pytest.mark.xfail
-#    def test__init__invalid(self, fact):
-#        """Make sure that not passing a ``hamsterlib.Fact`` raises an error."""
-#        with pytest.raises(TypeError):
-#            AlchemyFact(fact.activity)
-#
-#    @pytest.mark.xfail
-#    def test_as_hamster(self, existing_fact_valid_parametrized):
-#        """Make sure that conversion into a ``hamsterlib.Fact```works as expected."""
-#        fact = existing_fact_valid_parametrized.as_hamster()
-#        assert fact.equal_fields(existing_fact_valid_parametrized)
+class TestAlchemyFact():
+    def test__init__valid(self, fact):
+        """
+        Make sure that an AlchemyFact has same field values as the 'original'.
+
+        We can't profit from ``equal_fields`` here because the initialized ``AlchemyFact``
+        lacks the activity.
+        """
+        result = AlchemyFact(fact)
+        assert result.pk == fact.pk
+        assert result.start == fact.start
+        assert result.end == fact.end
+        assert result.description == fact.description
+        # [TODO]
+        # Once implemented, need to add tags.
+
+    def test__init__invalid(self, fact):
+        """Make sure that not passing a ``hamsterlib.Fact`` raises an error."""
+        with pytest.raises(TypeError):
+            AlchemyFact(fact.activity)
+
+    def test_as_hamster(self, existing_fact_valid_parametrized):
+        """Make sure that conversion into a ``hamsterlib.Fact```works as expected."""
+        fact = existing_fact_valid_parametrized.as_hamster()
+        assert fact.equal_fields(existing_fact_valid_parametrized)

@@ -617,8 +617,9 @@ class Fact(object):
         pk = self.pk
         if not include_pk:
             pk = False
+        # [FIXME] Once tags are implemented, they need to be added here!
         return FactTuple(pk, self.activity.as_tuple(include_pk=include_pk), self.start,
-            self.end, self.description, self.tags)
+            self.end, self.description, [])
 
     def equal_fields(self, other):
         """
