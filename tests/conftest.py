@@ -135,22 +135,6 @@ def category_valid_parametrized_without_none(request, category_factory,
     return category_factory(name=name_string_valid_parametrized)
 
 
-#def persistent_category(controler, category):
-#    return controler.categories._add(category)
-#
-#
-#def persistent_category_factory(controler, category_factory):
-#    def generate(**kwargs):
-#        return controler.categories._add(category_factory(**kwargs))
-#    return generate
-#
-
-#@pytest.fixture
-#def category_name():
-#    """Provide a randomized category-name."""
-#    return faker.name()
-
-
 @pytest.fixture
 def new_category_values():
     """Return garanteed modified values for a given category."""
@@ -169,33 +153,6 @@ def activity_valid_parametrized(request, activity_factory, name_string_valid_par
     """Provide a huge array of possible activity versions. Including None."""
     return activity_factory(name=name_string_valid_parametrized,
             category=category_valid_parametrized, deleted=deleted_valid_parametrized)
-
-#@pytest.fixture
-#def activity_factory():
-#    activity = factories.ActivityFactory.build
-#    activity.category = factories.CategoryFactory.build()
-#    return activity
-#
-#
-#@pytest.fixture
-#def activity():
-#    """Return a randomized Activity-instance."""
-#    activity = factories.ActivityFactory.build()
-#    activity.category = factories.CategoryFactory.build()
-#    return activity
-#
-
-#@pytest.fixture
-#def persistent_activity(activity, controler):
-#    return controler.activities._add(activity)
-
-
-#@pytest.fixture
-#def persistent_activity_factory(controler, activity_factory):
-#    def generate(**kwargs):
-#        return controler.activities._add(activity_factory(**kwargs))
-#    return generate
-
 
 @pytest.fixture
 def new_activity_values(category):
@@ -245,17 +202,6 @@ def string_delta_format_parametrized(request):
     """Provide all possible format option for ``Fact().get_string_delta()``."""
     return request.param
 
-
-#@pytest.fixture
-#def persistent_fact(fact, controler):
-#    return controler.facts._add(fact)
-#
-#
-#@pytest.fixture
-#def persistent_fact_factory(controler, fact_factory):
-#    def generate(**kwargs):
-#        return controler.facts._add(fact_factory(**kwargs))
-#    return generate
 #
 
 @pytest.fixture
@@ -265,11 +211,6 @@ def today_fact(fact_factory):
     return fact_factory(start=start, end=end)
 
 
-#@pytest.fixture
-#def persistent_today_fact(controler, today_fact):
-#    return controler.facts._add(today_fact)
-
-
 @pytest.fixture
 def not_today_fact(fact_factory):
     start = datetime.datetime.now() - datetime.timedelta(days=2)
@@ -277,21 +218,10 @@ def not_today_fact(fact_factory):
     return fact_factory(start=start, end=end)
 
 
-#@pytest.fixture
-#def persistent_not_today_fact(controler, not_today_fact):
-#    return controler.facts._add(not_today_fact)
-
-
 @pytest.fixture
 def current_fact(fact_factory):
     """Provide a ``ongoing fact``. That is a fact that has started but not ended yet."""
     return fact_factory(start=datetime.datetime.now(), end=None)
-
-
-#@pytest.fixture
-#def persistent_current_fact(controler, current_fact):
-#    return controler.facts._add(current_fact)
-
 
 
 @pytest.fixture
@@ -387,12 +317,6 @@ def raw_fact_with_persistent_activity(persistent_activity):
 #        """
 #        category.name = category.name + 'foobar'
 #        return category
-#    @pytest.fixture
-#    def set_of_existing_categories():
-#        return [factories.AlchemyActivityFactory.create() for i in range(5)]
-#    @pytest.fixture
-#    def existing_activity():
-#        return factories.AlchemyActivityFactory.create()
 
 #    @pytest.fixture
 #    def existing_activities_factory(alchemy_activity_factory):
@@ -412,65 +336,3 @@ def raw_fact_with_persistent_activity(persistent_activity):
 #                result.append(activity.as_hamster())
 #            return result
 #        return generate
-
-#    @pytest.fixture
-#    def set_of_existing_activities(existing_activities_factory):
-#        return existing_activities_factory(category=False)
-#    @pytest.fixture
-#    def existing_fact():
-#        return factories.AlchemyFactFactory.create()
-
-#    @pytest.fixture
-#    def set_of_existing_facts():
-#        return [factories.AlchemyFactFactory.create() for i in range(5)]
-
-#    @pytest.fixture
-#    def existing_fact_today():
-#        now = datetime.datetime.now()
-#        fact = factories.AlchemyFactFactory.create(
-#            start=now - datetime.timedelta(hours=3),
-#            end=now,
-#        )
-#        return fact
-#
-#
-#    @pytest.fixture
-#    def existing_fact_not_today(alchemy_fact_factory):
-#        now = datetime.datetime.now()
-#        fact = alchemy_fact_factory.create(
-#            start=now - datetime.timedelta(days=2, hours=3),
-#            end=now -datetime.timedelta(days=2)
-#        )
-#        return fact.as_hamster()
-
-
-#     Dbus-service
-
-#    @pytest.fixture(scope='session')
-#    @pytest.fixture(scope='class')
-#    def dbus_loop(request):
-#        from gi.repository import GObject as gobject
-#        request.cls.loop = gobject.MainLoop()
-#
-#    #@pytest.fixture(scope='session')
-#    @pytest.fixture
-#    def dbus_service(dbus_loop, controler):
-#        service = hamster_dbus_service.HamsterDBusService(dbus_loop)
-#        service.controler = controler
-#        return service
-#
-#    @pytest.fixture
-#    def category_name():
-#        return faker.name()
-#
-#    @pytest.fixture(scope='class', params=[
-#        (None, False),
-#        ('', False),
-#        (category_name(), True),
-#    ])
-#    def various_category_names(request):
-#        request.cls.names = param
-#
-#    @pytest.fixture(params=[None, category()])
-#    def various_categories(request):
-#        return request.param
