@@ -3,18 +3,13 @@ from __future__ import unicode_literals
 from builtins import str
 
 import pytest
-# import operator
 import fauxfactory
 import datetime
 import faker as faker_
 from pytest_factoryboy import register
-from . import factories
-# from pytest_factoryboy import register
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
 
+from . import factories
 from hamsterlib.lib import HamsterControl
-# from hamsterlib import objects
 
 
 register(factories.CategoryFactory)
