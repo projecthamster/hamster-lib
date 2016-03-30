@@ -5,8 +5,7 @@ from builtins import str
 from future.utils import python_2_unicode_compatible
 
 from sqlalchemy import Table, Column, ForeignKey, Integer, Unicode, DateTime, Boolean, MetaData
-# from sqlalchemy.sql.expression import and_
-from sqlalchemy.orm import relationship, mapper  # , sessionmaker
+from sqlalchemy.orm import relationship, mapper
 from sqlalchemy import UniqueConstraint
 
 from hamsterlib import Category, Activity, Fact
@@ -21,6 +20,19 @@ This module provides the database layout.
 We inherit from our hamster objects in order to use the custom methods, making insstance
 comparissions so much easier.
 
+The reason we are not mapping our native hamster objects directly is that this seems
+to break the flexible plugable backend architecture as SQLAlchemy establishes the mapping
+right away. This may be avoidable and should be investigates later on.
+
+Our AlchemyObjects do not contain any nested/related-references. In particular there
+is neither a ``AlchemyActivity.category`` nor a ``AlchemyFact.activity``. Any such
+reference needs to be added manually. Right now our fixtures are the only ones
+instanciated those models and they do it manually.
+Maybe it is preferable to add storage methods for instance creation which just accept
+hamster objects and return fully populated AlchemyObjects.
+Then again, another alternative would be to just get proper alchemy factories up and running,
+this way we wouldnt need a manual init method to begin with.
+
 Note:
     Our dedicated SQLAlchemy objects do not perform any general data validation
     as not to duplicate code. This is expected to be handled by the generic
@@ -32,22 +44,25 @@ Note:
 
 @python_2_unicode_compatible
 class AlchemyCategory(Category):
-    def __init__(self, hamster_category):
+    def __init__(self, category):
         """
         Initiate a new sqlalchemy activity instance.
 
         Args:
-            hamster_category (hamsterlib.Category): A hamster category that is to
-            be represented as a backend object.
+            category (hamsterlib.Category): A hamster category that is to
+                be represented as a backend object.
+
+        Raises:
+            TypeError: If ``category`` is not a ``Category`` instance.
         """
-        if not isinstance(hamster_category, Category):
+
+        if not isinstance(category, Category):
             raise TypeError(_(
                 "hamsterlib.Category instance expected. Got {} instead".format(
-                    type(hamster_category))
+                    type(category))
             ))
-        self.pk = hamster_category.pk
-        self.name = hamster_category.name
-
+        self.pk = category.pk
+        self.name = category.name
 
     def as_hamster(self):
         """Provide an convinient way to return it as a ``hamsterlib.Category`` instance."""
@@ -59,18 +74,29 @@ class AlchemyCategory(Category):
 
 @python_2_unicode_compatible
 class AlchemyActivity(Activity):
-    def __init__(self, hamster_activity):
-        if not isinstance(hamster_activity, Activity):
-            raise TypeError(_("Activity instance expected."))
-        self.pk = hamster_activity.pk
-        self.name = hamster_activity.name
-        #if hamster_activity.category:
-        #    self.category = AlchemyCategory(hamster_activity.category)
-        #else:
-        #self.category = None
-        self.deleted = hamster_activity.deleted
+    def __init__(self,  activity):
+        """
+        Initiate a new instance.
+
+        Args:
+            activity (hamsterlib.Activity): A category that is to be represented
+                as a backend instance..
+
+        Raises:
+            TypeError: If ``activity`` is not an ``Activity`` instance.
+        """
+        if not isinstance(activity, Activity):
+            raise TypeError(_(
+                "hamsterlib.Activity instance expected. Got {} instead".format(
+                    type(activity))
+            ))
+
+        self.pk = activity.pk
+        self.name = activity.name
+        self.deleted = activity.deleted
 
     def as_hamster(self):
+        """Provide an convinient way to return it as a ``hamsterlib.Activity`` instance."""
         if self.category:
             category = self.category.as_hamster()
         else:
