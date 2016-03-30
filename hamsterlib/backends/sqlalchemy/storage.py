@@ -86,7 +86,7 @@ class CategoryManager(storage.BaseCategoryManager):
             try:
                 category = self.get_by_name(category.name, raw=raw)
             except KeyError:
-                category = objects.Category(category.name)
+                #category = objects.Category(category.name)
                 category = self._add(category, raw=raw)
         else:
             category = None
@@ -150,6 +150,7 @@ class CategoryManager(storage.BaseCategoryManager):
         Raises:
             ValueError: If the new name is already taken.
             ValueError: If category passed does not have a PK.
+            KeyError:If no category with passed PK was found.
         """
         if not category.pk:
             message = _(
@@ -158,7 +159,11 @@ class CategoryManager(storage.BaseCategoryManager):
             )
             logger.debug(message)
             raise ValueError(message)
-        alchemy_category = AlchemyCategory(category)
+        alchemy_category = self.store.session.query(AlchemyCategory).get(category.pk)
+        if not alchemy_category:
+            raise KeyError(_("No category with given pk was found!"))
+        alchemy_category.name = category.name
+
         try:
             self.store.session.commit()
         except IntegrityError as e:
@@ -254,7 +259,27 @@ class CategoryManager(storage.BaseCategoryManager):
 @python_2_unicode_compatible
 class ActivityManager(storage.BaseActivityManager):
 
-    def _add(self, activity):
+    def get_or_create(self, activity, raw=False):
+        """
+        Custom version of the default method in order to provide access to alchemy instances.
+
+        Args:
+            activity (hamsterlib.Activity: Activity we want.
+            raw (bool): Wether to return the AlchemyActivity instead.
+
+        Returns:
+            hamsterlib.Activity: Activity.
+        """
+
+        try:
+            result = self.get_by_composite(activity.name, activity.category, raw=raw)
+        except KeyError:
+            result = self._add(activity, raw=raw)
+        if not raw:
+            result = result.as_hamster()
+        return result
+
+    def _add(self, activity, raw=False):
         """
         Args:
             activity (hamsterlib.Activity): Hamster activity
@@ -263,6 +288,7 @@ class ActivityManager(storage.BaseActivityManager):
             hamsterlib.Activity: Hamster activity representation of stored instance.
 
         Raises:
+            ValueError: If the passed activity has a PK.
             ValueError: If the category/activity.name combination to be added is
             already present in the db.
         """
@@ -290,7 +316,9 @@ class ActivityManager(storage.BaseActivityManager):
             alchemy_activity.category = AlchemyCategory(activity.category)
         self.store.session.add(alchemy_activity)
         self.store.session.commit()
-        return alchemy_activity.as_hamster()
+        if not raw:
+            return alchemy_activity.as_hamster()
+        return alchemy_activity
 
     def _update(self, activity):
         """
@@ -304,6 +332,8 @@ class ActivityManager(storage.BaseActivityManager):
 
         Raises:
             ValueError: If the new name/category.name combination is already taken.
+            ValueError: If the the passed activity does not have a PK assigned.
+            KeyError: If the the passed activity.pk can not be found.
         """
         if not activity.pk:
             message = _(
@@ -322,9 +352,11 @@ class ActivityManager(storage.BaseActivityManager):
             pass
 
         alchemy_activity = self.store.session.query(AlchemyActivity).get(activity.pk)
+        if not alchemy_activity:
+            raise KeyError(_("No activity with this pk can be found."))
         alchemy_activity.name = activity.name
-        alchemy_activity.category = self.store.categories.get_or_create(
-            activity.category, raw=True)
+        alchemy_activity.category = self.store.categories.get_or_create(activity.category,
+            raw=True)
         alchemy_activity.deleted = activity.deleted
         try:
             self.store.session.commit()
@@ -467,9 +499,14 @@ class FactManager(storage.BaseFactManager):
 
         Args:
             fact (hamsterlib.Fact): Fact to be added.
+            raw (bool): If ``True`` return ``AlchemyFact`` instead.
 
         Returns:
             hamsterlib.Fact: Fact as stored in the database
+
+        Raises:
+            ValueError: If the passed fact has a PK assigned. New facts should not have one.
+            ValueError: If the timewindow is already occupied.
         """
 
         if fact.pk:
@@ -480,23 +517,24 @@ class FactManager(storage.BaseFactManager):
             logger.debug(message)
             raise ValueError(message)
 
-        if self.get_all(fact.start, fact.end):
+        if not self._timeframe_is_free(fact.start, fact.end):
             message = _("Our database already contains facts for this facts timewindow."
                         "There can ever only be one fact at any given point in time")
             raise ValueError(message)
 
         alchemy_fact = AlchemyFact(fact)
+        alchemy_fact.activity = self.store.activities.get_or_create(fact.activity, raw=True)
         self.store.session.add(alchemy_fact)
         self.store.session.commit()
-        if not raw:
-            alchemy_fact = alchemy_fact.as_hamster()
         return alchemy_fact
 
-    def _update(self, fact):
-        """Update and existing fact with new values.
+    def _update(self, fact, raw=False):
+        """
+        Update and existing fact with new values.
 
         Args:
             fact (hamsterlib.fact): Fact instance holding updated values.
+            raw (bool): If ``True`` return ``AlchemyFact`` instead.
 
         Returns:
             hamsterlib.fact: Updated Fact
@@ -504,13 +542,31 @@ class FactManager(storage.BaseFactManager):
 
         Raises:
             KeyError: if a Fact with the relevant PK could not be found.
+            ValueError: If the the passed activity does not have a PK assigned.
+            ValueError: If the timewindow is already occupied.
         """
+        if not fact.pk:
+            message = _(
+                "The fact passed ('{!r}') does not seem to havea PK. We don't know"
+                "which entry to modify.".format(fact)
+            )
+            logger.debug(message)
+            raise ValueError(message)
+
+        if not self._timeframe_is_free(fact.start, fact.end):
+            message = _("Our database already contains facts for this facts timewindow."
+                        "There can ever only be one fact at any given point in time")
+            raise ValueError(message)
+
         alchemy_fact = self.store.session.query(AlchemyFact).get(fact.pk)
         if not alchemy_fact:
             raise KeyError(_("No fact with 'pk: {}' was found.".format(fact.pk)))
 
-        alchemy_fact.activity = AlchemyActivity(self.store.activities.get_or_create(
-            fact.activity.name, fact.activity.category, fact.activity.deleted))
+        alchemy_fact.start = fact.start
+        alchemy_fact.end = fact.end
+        alchemy_fact.description = fact.description
+        # [TODO] Handle tags
+        alchemy_fact.activity = self.store.activities.get_or_create(fact.activity, raw=True)
         self.store.session.commit()
         return fact
 
@@ -522,15 +578,29 @@ class FactManager(storage.BaseFactManager):
             fact (hamsterlib.Fact): Fact to be removed
         Returns:
             bool: Success status
+
+        Raises:
+            ValueError: If fact passed does not have an pk.
+            KeyError:If no fact with passed PK was found.
         """
+        if not fact.pk:
+            message = _(
+                "The fact passed ('{!r}') does not seem to havea PK. We don't know"
+                "which entry to remove.".format(fact)
+            )
+            logger.debug(message)
+            raise ValueError(message)
 
         alchemy_fact = self.store.session.query(AlchemyFact).get(fact.pk)
+        if not alchemy_fact:
+            raise KeyError(_("No fact with given pk was found!"))
         self.store.session.delete(alchemy_fact)
         self.store.session.commit()
         return True
 
-    def get(self, pk):
-        """Return a fact based on its PK.
+    def get(self, pk, raw=False):
+        """
+        Retrieve a fact based on its PK.
 
         Args:
             pk: PK of the fact to be retrieved
@@ -541,7 +611,12 @@ class FactManager(storage.BaseFactManager):
         Raises:
             KeyError: If no Fact of given key was found.
         """
-        return self.store.session.query(AlchemyFact).get(pk)
+        result = self.store.session.query(AlchemyFact).get(pk)
+        if not result:
+            raise KeyError(_("No fact with given PK found."))
+        if not raw:
+            result = result.as_hamster()
+        return result
 
     def get_all(self, start=None, end=None, search_term=''):
         """
@@ -555,14 +630,16 @@ class FactManager(storage.BaseFactManager):
 
         Returns:
             list: List of ``hamsterlib.Facts`` instances.
+
+        Raises:
+            ValueError: If start > end
         """
         # [FIXME] Figure out against what to match search_terms
+        if start and end:
+            if start < end:
+                raise ValueError(_("The end specified seems to be before the start."))
         results = self.store.session.query(AlchemyFact)
         if start and end:
-            # [FIXME]
-            # Account for (start or end)! Check with reference implementation.
-
-            # This assumes that start <= end!
             results = results.filter(and_(AlchemyFact.start >= start, AlchemyFact.end <= end))
         if search_term:
             results = results.join(AlchemyActivity).join(AlchemyCategory).filter(
@@ -573,3 +650,21 @@ class FactManager(storage.BaseFactManager):
         # [FIXME]
         # Depending on scale, this could be a problem.
         return [fact.as_hamster() for fact in results.all()]
+
+    def _timeframe_is_free(self, start, end):
+        """
+        Determine if a given timeframe already holds any facs start or endtime.
+
+        Returns:
+            bool: True if free, False if occupied.
+        """
+        query = self.store.session.query(AlchemyFact)
+        query = query.filter(or_(
+            and_(AlchemyFact.start >= start, AlchemyFact.start <= end),
+            and_(AlchemyFact.end >= start, AlchemyFact.end <= end),
+        ))
+        result = False
+        if not query.all():
+            result = True
+        return result
+

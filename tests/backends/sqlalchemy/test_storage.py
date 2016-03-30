@@ -338,8 +338,68 @@ class TestActivityManager():
         assert len(result) == 1
 
 
-#@python_2_unicode_compatible
-#class TestFactManager():
+@python_2_unicode_compatible
+class TestFactManager():
+
+    def test_add_new_valid_fact_new_activity(self, alchemy_store, fact):
+        """Make sure that adding a new valid fact with a new activity works as intended."""
+        old_fact_count = alchemy_store.session.query(AlchemyFact).count()
+        old_activity_count = alchemy_store.session.query(AlchemyCategory).count()
+        result = alchemy_store.facts._add(fact)
+        db_instance = alchemy_store.session.query(AlchemyFact).get(result.pk)
+        new_fact_count = alchemy_store.session.query(AlchemyFact).count()
+        new_activity_count = alchemy_store.session.query(AlchemyActivity).count()
+        assert old_fact_count < new_fact_count
+        assert old_activity_count < new_activity_count
+        assert db_instance.as_hamster().equal_fields(fact)
+
+    def test_add_new_valid_fact_existing_activity(self, alchemy_store, fact, existing_activity):
+        """Make sure that adding a new valid fact with an existing activity works as intended."""
+        #fact.activity = existing_activity.as_hamster()
+        fact.activity = existing_activity.as_hamster()
+        old_fact_count = alchemy_store.session.query(AlchemyFact).count()
+        old_activity_count = alchemy_store.session.query(AlchemyCategory).count()
+        result = alchemy_store.facts._add(fact)
+        db_instance = alchemy_store.session.query(AlchemyFact).get(result.pk)
+        new_fact_count = alchemy_store.session.query(AlchemyFact).count()
+        new_activity_count = alchemy_store.session.query(AlchemyActivity).count()
+        assert old_fact_count < new_fact_count
+        assert old_activity_count == new_activity_count
+        assert db_instance.as_hamster().equal_fields(fact)
+
+    def test_add_with_pk(self, alchemy_store, fact):
+        """Make sure that passing a fact with a PK raises error."""
+        fact.pk = 101
+        with pytest.raises(ValueError):
+            alchemy_store.facts._add(fact)
+
+    def test_add_occupied_timewindow(self, alchemy_store, fact, existing_fact):
+        """
+        Make sure that passing a fact with a timewindow that already has a fact raisess error.
+        """
+        fact.start = existing_fact.start - datetime.timedelta(days=4)
+        fact.end = existing_fact.start + datetime.timedelta(minutes=15)
+        with pytest.raises(ValueError):
+            alchemy_store.facts._add(fact)
+
+    def test_update_fact_new_valid_timeframe(self, alchemy_store, existing_fact, new_fact_values):
+        """Make sure updating an existing fact works as expected."""
+        fact = existing_fact.as_hamster()
+        new_values = new_fact_values(fact)
+        fact.pk = existing_fact.pk
+        fact.start = new_values['start']
+        fact.end = new_values['end']
+        old_fact_count = alchemy_store.session.query(AlchemyFact).count()
+        old_activity_count = alchemy_store.session.query(AlchemyCategory).count()
+        result = alchemy_store.facts._update(fact)
+        db_instance = alchemy_store.session.query(AlchemyFact).get(result.pk)
+        new_fact_count = alchemy_store.session.query(AlchemyFact).count()
+        new_activity_count = alchemy_store.session.query(AlchemyActivity).count()
+        assert old_fact_count == new_fact_count
+        assert old_activity_count == new_activity_count
+        assert db_instance.as_hamster().equal_fields(fact)
+
+
 #    def test_save_new(self, fact, alchemy_store):
 #        count_before = alchemy_store.session.query(AlchemyFact).count()
 #        result = alchemy_store.facts.save(fact)
@@ -360,14 +420,14 @@ class TestActivityManager():
 #        for key, value in new_values.items():
 #            assert result_dict[key] == value
 #
-#    def test_remove(self, existing_fact, alchemy_store):
-#        count_before = alchemy_store.session.query(AlchemyFact).count()
-#        result = alchemy_store.facts.remove(existing_fact)
-#        count_after = alchemy_store.session.query(AlchemyFact).count()
-#        assert count_after < count_before
-#        assert result is True
-#        assert alchemy_store.session.query(AlchemyFact).get(existing_fact.pk) is None
-#
+    def test_remove(self, existing_fact, alchemy_store):
+        count_before = alchemy_store.session.query(AlchemyFact).count()
+        result = alchemy_store.facts.remove(existing_fact)
+        count_after = alchemy_store.session.query(AlchemyFact).count()
+        assert count_after < count_before
+        assert result is True
+        assert alchemy_store.session.query(AlchemyFact).get(existing_fact.pk) is None
+
 #    def test_get(self, existing_fact, alchemy_store):
 #        result = alchemy_store.facts.get(existing_fact.pk)
 #        assert result == existing_fact
@@ -382,3 +442,24 @@ class TestActivityManager():
 #        end = start_datetime + datetime.timedelta(hours=5)
 #        result = alchemy_store.facts.get_all(start=start, end=end)
 #        assert len(result) == 1
+
+    def test_timeframe_is_free_false_start(self, alchemy_store, existing_fact):
+        """Make sure that a start within our timeframe returns expected result."""
+        start = existing_fact.start + datetime.timedelta(hours=1)
+        end = existing_fact.start + datetime.timedelta(days=20)
+        assert alchemy_store.facts._timeframe_is_free(start, end) is False
+
+    def test_timeframe_is_free_false_end(self, alchemy_store, existing_fact):
+        """Make sure that a end within our timeframe returns expected result."""
+        start = existing_fact.start - datetime.timedelta(days=20)
+        end = existing_fact.start + datetime.timedelta(hours=1)
+        assert alchemy_store.facts._timeframe_is_free(start, end) is False
+
+    def test_timeframe_is_free_true(self, alchemy_store, existing_fact):
+        """Make sure that a valid timeframe returns expected result."""
+        start = existing_fact.start - datetime.timedelta(days=20)
+        end = existing_fact.start - datetime.timedelta(seconds=1)
+        assert alchemy_store.facts._timeframe_is_free(start, end)
+
+
+
