@@ -5,7 +5,6 @@ from future.utils import python_2_unicode_compatible
 from builtins import str
 
 import csv
-from gettext import gettext as _
 
 from collections import namedtuple
 
@@ -38,7 +37,8 @@ class ReportWriter(object):
                 rendered in the output.
         """
         self.datetime_format = datetime_format
-        self.file = open(path, 'w', encoding='utf-8')
+        str(path)
+        self.file = open(path, 'w')
 
     def write_report(self, facts):
         """
@@ -117,6 +117,7 @@ class TSVWriter(ReportWriter):
             _("description"),
             _("duration minutes"),
         )
+
 
         self.csv_writer.writerow([h for h in headers])
 

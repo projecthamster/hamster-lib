@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from builtins import str
+from builtins import str as text
 
 import pytest
 import os.path
@@ -14,7 +14,7 @@ from hamsterlib import reports
 @pytest.fixture
 def path(tmpdir):
     path = tmpdir.mkdir('reports').join('report.txt').strpath
-    return str('/tmp/fooo')
+    return str(path)
 
 
 @pytest.fixture
