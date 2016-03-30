@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from future.utils import python_2_unicode_compatible
 from builtins import str
 
 import pytest
@@ -15,7 +14,6 @@ from hamsterlib import Category, Activity, Fact
 faker = faker_.Faker()
 
 
-@python_2_unicode_compatible
 class TestCategory(object):
     def test_init_valid(self, name_string_valid_parametrized, pk_valid_parametrized):
         """Make sure that Category constructor accepts all valid values."""
@@ -71,7 +69,6 @@ class TestCategory(object):
         assert '[{pk}] {name}'.format(pk=category.pk, name=category.name) == repr(category)
 
 
-@python_2_unicode_compatible
 class TestActivity(object):
     def test_init_valid(self, name_string_valid_parametrized, pk_valid_parametrized,
             category_valid_parametrized, deleted_valid_parametrized):
@@ -154,7 +151,6 @@ class TestActivity(object):
         assert repr(activity) == '[{pk}] {name}'.format(pk=activity.pk, name=activity.name)
 
 
-@python_2_unicode_compatible
 class TestFact(object):
     def test_fact_init_valid(self, activity, start_end_datetimes, pk_valid_parametrized,
             description_valid_parametrized, tag_list_valid_parametrized):

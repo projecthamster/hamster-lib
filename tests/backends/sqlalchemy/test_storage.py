@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 from builtins import str
-from future.utils import python_2_unicode_compatible
 
 import pytest
 import datetime
@@ -10,7 +9,6 @@ import datetime
 from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
 
 
-@python_2_unicode_compatible
 class TestCategoryManager():
     def test_add_new(self, category, alchemy_store):
         """
@@ -120,7 +118,6 @@ class TestCategoryManager():
         assert result.equal_fields(category)
 
 
-@python_2_unicode_compatible
 class TestActivityManager():
 
 
@@ -338,7 +335,6 @@ class TestActivityManager():
         assert len(result) == 1
 
 
-@python_2_unicode_compatible
 class TestFactManager():
 
     def test_add_new_valid_fact_new_activity(self, alchemy_store, fact):

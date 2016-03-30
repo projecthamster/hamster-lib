@@ -10,7 +10,6 @@ from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.orm.exc import FlushError, NoResultFound, MultipleResultsFound
 from sqlalchemy.exc import IntegrityError
 
-from gettext import gettext as _
 
 from . import objects
 from hamsterlib import storage

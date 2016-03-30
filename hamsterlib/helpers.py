@@ -1,7 +1,6 @@
 from collections import namedtuple
 import re
 import datetime
-from gettext import gettext as _
 
 
 TimeFrame = namedtuple('Timeframe', ('start_date', 'start_time',

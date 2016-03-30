@@ -10,7 +10,6 @@ import logging
 from hamsterlib.storage import BaseStore
 
 
-@python_2_unicode_compatible
 class TestControler:
     @pytest.mark.parametrize('storetype', ['sqlalchemy'])
     def test_get_store_valid(self, controler, storetype):

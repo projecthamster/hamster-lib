@@ -4,16 +4,24 @@ from __future__ import unicode_literals
 from builtins import str
 from future.utils import python_2_unicode_compatible
 
-from gettext import gettext as _
 import logging
+import gettext
 from collections import namedtuple
 import importlib
+import sys
 
 BackendRegistryEntry = namedtuple('BackendRegistryEntry', ('verbose_name', 'store_class'))
 
 REGISTERED_BACKENDS = {
     'sqlalchemy': BackendRegistryEntry('SQLAlchemy', 'hamsterlib.backends.sqlalchemy.SQLAlchemyStore'),
 }
+
+# See: https://wiki.python.org/moin/PortingToPy3k/BilingualQuickRef#gettext
+kwargs = {}
+if sys.version_info < (3,):
+    kwargs['unicode'] = True
+gettext.install('hamsterlib', **kwargs)
+
 
 
 @python_2_unicode_compatible
@@ -38,9 +46,7 @@ class HamsterControl(object):
     def __init__(self, config):
         self.config = config
         self.lib_logger = self._get_logger()
-        self.lib_logger.debug(_("HamsterControl initialized."))
         self.store = self._get_store()
-        self.lib_logger.debug(_("Store ({}) initialized.".format(self.store)))
         # convinience attributes
         self.categories = self.store.categories
         self.activities = self.store.activities

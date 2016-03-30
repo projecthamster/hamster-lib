@@ -6,7 +6,6 @@ from builtins import str
 
 import re
 from collections import namedtuple
-from gettext import gettext as _
 import datetime
 
 

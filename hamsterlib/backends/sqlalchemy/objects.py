@@ -8,10 +8,8 @@ from sqlalchemy import Table, Column, ForeignKey, Integer, Unicode, DateTime, Bo
 # from sqlalchemy.sql.expression import and_
 from sqlalchemy.orm import relationship, mapper  # , sessionmaker
 from sqlalchemy import UniqueConstraint
-from gettext import gettext as _
 
 from hamsterlib import Category, Activity, Fact
-from hamsterlib import objects
 
 
 DEFAULT_STRING_LENGTH = 254

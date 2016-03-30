@@ -6,7 +6,6 @@ from builtins import str
 
 import hamsterlib
 from hamsterlib import objects
-from gettext import gettext as _
 import datetime
 import hamsterlib.helpers as helpers
 # from future.utils import raise_from

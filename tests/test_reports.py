@@ -1,19 +1,20 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from future.utils import python_2_unicode_compatible
 from builtins import str
 
 import pytest
 import os.path
 import csv
+from io import open
 
 from hamsterlib import reports
 
 
 @pytest.fixture
 def path(tmpdir):
-    return tmpdir.mkdir('reports').join('report.txt').strpath
+    path = tmpdir.mkdir('reports').join('report.txt').strpath
+    return str('/tmp/fooo')
 
 
 @pytest.fixture
@@ -26,7 +27,6 @@ def tsv_writer(path):
     return reports.TSVWriter(path)
 
 
-@python_2_unicode_compatible
 class TestReportWriter(object):
     @pytest.mark.parametrize('datetime_format', [None, '%Y-%m-%d'])
     def test_init_stores_datetime_format(self, path, datetime_format):
@@ -72,7 +72,6 @@ class TestReportWriter(object):
         assert report_writer.file.closed
 
 
-@python_2_unicode_compatible
 class TestTSVWriter(object):
     def test_init_csv_writer(self, tsv_writer):
         """Make sure that initialition provides us with a ``csv.writer`` instance."""
