@@ -282,13 +282,13 @@ class TestFact(object):
 
     def test_as_tuple_include_pk(self, fact):
         """Make sure that conversion to a tuple matches our expectations."""
-        assert fact.as_tuple() == (fact.pk, fact.activity, fact.start, fact.end,
-            fact.description, fact.tags)
+        assert fact.as_tuple() == (fact.pk, fact.activity.as_tuple(include_pk=True),
+            fact.start, fact.end, fact.description, fact.tags)
 
     def test_as_tuple_exclude_pk(self, fact):
         """Make sure that conversion to a tuple matches our expectations."""
-        assert fact.as_tuple(include_pk=False) == (False, fact.activity, fact.start, fact.end,
-            fact.description, fact.tags)
+        assert fact.as_tuple(include_pk=False) == (False, fact.activity.as_tuple(include_pk=False),
+            fact.start, fact.end, fact.description, fact.tags)
 
     def test_equal_fields_true(self, fact):
         """Make sure that two facts that differ only in their PK compare equal."""

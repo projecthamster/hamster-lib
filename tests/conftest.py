@@ -302,8 +302,8 @@ def new_fact_values():
     """Provide guaranteed different Fact-values for a given Fact-instance."""
     def modify(fact):
         return {
-            'start': fact.start - datetime.timedelta(days=1),
-            'end': fact.end - datetime.timedelta(days=1),
+            'start': fact.start - datetime.timedelta(days=10),
+            'end': fact.end - datetime.timedelta(days=10),
             'description': fact.description + 'foobar',
         }
     return modify

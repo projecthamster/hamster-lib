@@ -16,7 +16,7 @@ from hamsterlib.backends.sqlalchemy import (AlchemyCategory, AlchemyActivity, Al
     SQLAlchemyStore)
 
 
-@pytest.fixture#(scope='session')
+@pytest.fixture#(scope='function')
 def alchemy_store(request):
     return SQLAlchemyStore('sqlite:///:memory:')
 

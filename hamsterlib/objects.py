@@ -194,12 +194,15 @@ class Activity(object):
         print(other)
         print(type(other))
         print(other.category)
+        print(40 * '-')
         print(self.as_tuple(include_pk=False))
         print(other.as_tuple(include_pk=False))
         return self.as_tuple(include_pk=False) == other.as_tuple(include_pk=False)
 
     def __eq__(self, other):
-        return self.as_tuple() == other.as_tuple()
+        if not isinstance(other, ActivityTuple):
+            other = other.as_tuple()
+        return self.as_tuple() == other
 
     def __str__(self):
         if self.category is None:
@@ -615,7 +618,8 @@ class Fact(object):
         pk = self.pk
         if not include_pk:
             pk = False
-        return FactTuple(pk, self.activity, self.start, self.end, self.description, self.tags)
+        return FactTuple(pk, self.activity.as_tuple(include_pk=include_pk), self.start,
+            self.end, self.description, self.tags)
 
     def equal_fields(self, other):
         """
@@ -635,7 +639,10 @@ class Fact(object):
         return self.as_tuple(include_pk=False) == other.as_tuple(include_pk=False)
 
     def __eq__(self, other):
-        return self.as_tuple() == other.as_tuple()
+        if not isinstance(other, FactTuple):
+            other = other.as_tuple()
+
+        return self.as_tuple() == other
 
     def __str__(self):
         time = self.start.strftime("%d-%m-%Y %H:%M")
