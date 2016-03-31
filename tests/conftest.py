@@ -29,3 +29,12 @@ def pk_valid_parametrized(request):
     """
     return request.param
 
+
+@pytest.fixture
+def new_category_values():
+    """Return garanteed modified values for a given category."""
+    def modify(category):
+        return {
+            'name': category.name + 'foobar',
+        }
+    return modify

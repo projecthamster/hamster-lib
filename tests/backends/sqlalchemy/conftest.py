@@ -69,8 +69,9 @@ def existing_category_valid_without_none_parametrized(request, category_factory,
 
 
 @pytest.fixture
-def set_of_existing_categories(category_factory):
-    return [category_factory() for i in range(5)]
+def set_of_categories(alchemy_category_factory):
+    """Provide a number of perstent facts at once."""
+    return [alchemy_category_factory() for i in range(5)]
 
 
 @pytest.fixture

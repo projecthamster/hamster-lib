@@ -9,6 +9,27 @@ import datetime
 from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
 
 
+# The reason we see a great deal of count == 0 statements is to make sure that
+# db rollback works as expected. Once we are confident in our sqlalchemy/pytest
+# setup those are not realy needed.
+
+class TestStore(object):
+    """Tests to make sure our store/test setup behaves as expected."""
+    def test_build_is_not_persistent(self, alchemy_store, alchemy_category_factory):
+        """Make sure that calling the factory with build() does not create a persistent db entry."""
+        assert alchemy_store.session.query(AlchemyCategory).count() == 0
+        alchemy_category_factory.build()
+        assert alchemy_store.session.query(AlchemyCategory).count() == 0
+
+    def test_create_is_persistent(self, alchemy_store, alchemy_category_factory):
+        """Make sure that calling the factory with () or create does creates a persistent db entry."""
+        assert alchemy_store.session.query(AlchemyCategory).count() == 0
+        alchemy_category_factory.create()
+        assert alchemy_store.session.query(AlchemyCategory).count() == 1
+        alchemy_category_factory()
+        assert alchemy_store.session.query(AlchemyCategory).count() == 2
+
+
 class TestCategoryManager():
     def test_add_new(self, alchemy_store, alchemy_category_factory):
         """
@@ -17,7 +38,8 @@ class TestCategoryManager():
         raw saved object, we look it up explicitly again.
         """
         assert alchemy_store.session.query(AlchemyCategory).count() == 0
-        category = alchemy_category_factory.build()
+        category = alchemy_category_factory.build().as_hamster()
+        category.pk = None
         assert alchemy_store.session.query(AlchemyCategory).count() == 0
         result = alchemy_store.categories._add(category)
         assert alchemy_store.session.query(AlchemyCategory).count() == 1
@@ -25,106 +47,117 @@ class TestCategoryManager():
         assert category.equal_fields(db_instance)
         assert category != db_instance
 
-#    def test_add_existing_name(self, alchemy_store, alchemy_alchemy_category):
-#        """Make sure that adding a alchemy_category with a name that is already present gives an error."""
-#        with pytest.raises(ValueError):
-#            alchemy_store.categories._add(alchemy_alchemy_category.as_hamster())
-#
-#    def test_add_with_pk(self, alchemy_store, alchemy_alchemy_category):
-#        """Make sure that adding a alchemy_category that already got an PK raisess an exception."""
-#        alchemy_category = alchemy_alchemy_category.as_hamster()
-#        alchemy_category.name += 'foobar'
-#        with pytest.raises(ValueError):
-#            alchemy_store.categories._add(alchemy_category)
-#
-#    def test_update(self, alchemy_store, alchemy_alchemy_category, new_alchemy_category_values):
-#        """Test that updateing a alchemy_category works as expected."""
-#        count_before = alchemy_store.session.query(AlchemyCategory).count()
-#        alchemy_category = alchemy_alchemy_category.as_hamster()
-#        new_values = new_alchemy_category_values(alchemy_category)
-#        for key, value in new_values.items():
-#            assert getattr(alchemy_category, key) != value
-#        for key, value in new_values.items():
-#            setattr(alchemy_category, key, value)
-#        alchemy_store.categories._update(alchemy_category)
-#        updated_alchemy_category = alchemy_store.session.query(AlchemyCategory).get(alchemy_category.pk)
-#        count_after = alchemy_store.session.query(AlchemyCategory).count()
-#        assert count_before == count_after
-#        assert alchemy_alchemy_category.as_hamster().equal_fields(updated_alchemy_category)
-#
-#    def test_update_without_pk(self, alchemy_store, alchemy_alchemy_category):
-#        alchemy_alchemy_category.pk = None
-#        with pytest.raises(ValueError):
-#            alchemy_store.categories._update(alchemy_alchemy_category.as_hamster())
-#
-#    def test_update_existing_name(self, alchemy_store, alchemy_alchemy_category_factory):
-#        """Make sure that renaming a given alchemy_category to a name already taken throws an error."""
-#        alchemy_category_1, alchemy_category_2 = (alchemy_alchemy_category_factory(), alchemy_alchemy_category_factory())
-#        alchemy_category = alchemy_category_2.as_hamster()
-#        alchemy_category.name = alchemy_category_1.name
-#        with pytest.raises(ValueError):
-#            alchemy_store.categories._update(alchemy_category)
-#
-#    def test_remove(self, alchemy_alchemy_category, alchemy_store):
-#        """Make sure passing a valid alchemy_category removes it from the db."""
-#        assert alchemy_store.session.query(AlchemyCategory).get(
-#            alchemy_alchemy_category.pk) is not None
-#        result = alchemy_store.categories.remove(alchemy_alchemy_category.as_hamster())
-#        assert result is None
-#        assert alchemy_store.session.query(AlchemyCategory).get(
-#            alchemy_alchemy_category.pk) is None
-#
-#    def test_remove_invalid_type(self, alchemy_store):
-#        """Make sure passing an invalid type raises error."""
-#        with pytest.raises(TypeError):
-#            alchemy_store.categories.remove({})
-#
-#    def test_remove_no_pk(self, alchemy_store, alchemy_category):
-#        """Ensure that passing a alchemy_category without an PK raises an error."""
-#        with pytest.raises(ValueError):
-#            alchemy_store.categories.remove(alchemy_category)
-#
-#    def test_get_existing_pk(self, alchemy_alchemy_category, alchemy_store):
-#        """Make sure method retrieves corresponding object."""
-#        result = alchemy_store.categories.get(alchemy_alchemy_category.pk)
-#        assert result == alchemy_alchemy_category
-#
-#    def test_get_non_existing_pk(self, alchemy_store, alchemy_alchemy_category):
-#        """Make sure we throw an error if PK can not be resolved."""
-#        with pytest.raises(KeyError):
-#            alchemy_store.categories.get(alchemy_alchemy_category.pk + 1)
-#
-#    def test_get_by_name(self, alchemy_alchemy_category, alchemy_store):
-#        """Make sure a alchemy_category can be retrieved by name."""
-#        result = alchemy_store.categories.get_by_name(alchemy_alchemy_category.name)
-#        assert result == alchemy_alchemy_category
-#
-#    def test_get_all(self, alchemy_store, set_of_existing_categories):
-#        result = alchemy_store.categories.get_all()
-#        assert len(result) == len(set_of_existing_categories)
-#        assert len(result) == alchemy_store.session.query(AlchemyCategory).count()
-#
-#    # Test convinience methods.
-#    def test_get_or_create_get(self, alchemy_store, alchemy_alchemy_category):
-#        """Test that if we pass a alchemy_category of existing name, we just return it."""
-#        old_count = alchemy_store.session.query(AlchemyCategory).count()
-#        result = alchemy_store.categories.get_or_create(alchemy_alchemy_category)
-#        new_count = alchemy_store.session.query(AlchemyCategory).count()
-#        assert old_count == new_count
-#        assert result == alchemy_alchemy_category
-#
-#    def test_get_or_create_new_name(self, alchemy_store, alchemy_category):
-#        """Make sure that passing a alchemy_category with new name creates and returns new instance."""
-#        old_count = alchemy_store.session.query(AlchemyCategory).count()
-#        result = alchemy_store.categories.get_or_create(alchemy_category)
-#        new_count = alchemy_store.session.query(AlchemyCategory).count()
-#        assert old_count < new_count
-#        assert result.equal_fields(alchemy_category)
-#
-#
-#class TestActivityManager():
-#
-#
+    def test_add_existing_name(self, alchemy_store, alchemy_category_factory):
+        """Make sure that adding a alchemy_category with a name that is already present gives an error."""
+        existing_category = alchemy_category_factory()
+        category = alchemy_category_factory.build().as_hamster()
+        category.name = existing_category.name
+        category.pk = None
+        with pytest.raises(ValueError):
+            alchemy_store.categories._add(category)
+
+    def test_add_with_pk(self, alchemy_store, alchemy_category_factory):
+        """Make sure that adding a alchemy_category that already got an PK raisess an exception."""
+        category = alchemy_category_factory().as_hamster()
+        category.name += 'foobar'
+        assert category.pk
+        with pytest.raises(ValueError):
+            alchemy_store.categories._add(category)
+
+    def test_update(self, alchemy_store, alchemy_category_factory, new_category_values):
+        """Test that updateing a alchemy_category works as expected."""
+        alchemy_store.session.query(AlchemyCategory).count() == 0
+        category = alchemy_category_factory().as_hamster()
+        new_values = new_category_values(category)
+        for key, value in new_values.items():
+            assert getattr(category, key) != value
+        for key, value in new_values.items():
+            setattr(category, key, value)
+        alchemy_store.categories._update(category)
+        db_instance = alchemy_store.session.query(AlchemyCategory).get(category.pk)
+        assert alchemy_store.session.query(AlchemyCategory).count() == 1
+        assert category.equal_fields(db_instance)
+
+    def test_update_without_pk(self, alchemy_store, alchemy_category_factory):
+        category = alchemy_category_factory().as_hamster()
+        category.pk = None
+        with pytest.raises(ValueError):
+            alchemy_store.categories._update(category)
+
+    def test_update_existing_name(self, alchemy_store, alchemy_category_factory):
+        """Make sure that renaming a given alchemy_category to a name already taken throws an error."""
+        category_1, category_2 = (alchemy_category_factory(), alchemy_category_factory())
+        category_2 = category_2.as_hamster()
+        category_2.name = category_1.name
+        with pytest.raises(ValueError):
+            alchemy_store.categories._update(category_2)
+
+    def test_remove(self, alchemy_store, alchemy_category_factory):
+        """Make sure passing a valid alchemy_category removes it from the db."""
+        category = alchemy_category_factory().as_hamster()
+        result = alchemy_store.categories.remove(category)
+        assert result is None
+        assert alchemy_store.session.query(AlchemyCategory).get(category.pk) is None
+
+    def test_remove_invalid_type(self, alchemy_store):
+        """Make sure passing an invalid type raises error."""
+        with pytest.raises(TypeError):
+            alchemy_store.categories.remove({})
+
+    def test_remove_no_pk(self, alchemy_store, alchemy_category_factory):
+        """Ensure that passing a alchemy_category without an PK raises an error."""
+        category = alchemy_category_factory.build().as_hamster()
+        category.pk = None
+        with pytest.raises(ValueError):
+            alchemy_store.categories.remove(category)
+
+    def test_get_existing_pk(self, alchemy_store, alchemy_category_factory):
+        """Make sure method retrieves corresponding object."""
+        category = alchemy_category_factory().as_hamster()
+        result = alchemy_store.categories.get(category.pk)
+        assert result == category
+
+    def test_get_non_existing_pk(self, alchemy_store, alchemy_category_factory):
+        """Make sure we throw an error if PK can not be resolved."""
+        alchemy_store.session.query(AlchemyCategory).count == 0
+        category = alchemy_category_factory()
+        alchemy_store.session.query(AlchemyCategory).count == 1
+        with pytest.raises(KeyError):
+            alchemy_store.categories.get(category.pk + 1)
+
+    def test_get_by_name(self, alchemy_category_factory, alchemy_store):
+        """Make sure a alchemy_category can be retrieved by name."""
+        category = alchemy_category_factory().as_hamster()
+        result = alchemy_store.categories.get_by_name(category.name)
+        assert result == category
+
+    def test_get_all(self, alchemy_store, set_of_categories):
+        result = alchemy_store.categories.get_all()
+        assert len(result) == len(set_of_categories)
+        assert len(result) == alchemy_store.session.query(AlchemyCategory).count()
+        for category in set_of_categories:
+            assert category.as_hamster() in result
+
+    # Test convinience methods.
+    def test_get_or_create_get(self, alchemy_store, alchemy_category_factory):
+        """Test that if we pass a alchemy_category of existing name, we just return it."""
+        alchemy_store.session.query(AlchemyCategory).count() == 0
+        category = alchemy_category_factory().as_hamster()
+        result = alchemy_store.categories.get_or_create(category)
+        alchemy_store.session.query(AlchemyCategory).count() == 1
+        assert result == category
+
+    def test_get_or_create_new_name(self, alchemy_store, alchemy_category_factory):
+        """Make sure that passing a category with new name creates and returns new instance."""
+        assert alchemy_store.session.query(AlchemyCategory).count() == 0
+        category = alchemy_category_factory.build().as_hamster()
+        category.pk = None
+        result = alchemy_store.categories.get_or_create(category)
+        assert alchemy_store.session.query(AlchemyCategory).count() == 1
+        assert result.equal_fields(category)
+
+
+class TestActivityManager():
 ##    def test_get_or_create_get(self, alchemy_store, existing_alchemy_activity):
 ##        alchemy_activity = existing_alchemy_activity.as_hamster()
 ##        result = alchemy_store.activities.get_or_create(alchemy_activity.name,
@@ -164,24 +197,22 @@ class TestCategoryManager():
 ##    #    assert result == existing_alchemy_activity
 ##    #    for key, value in new_values.items():
 ##    #        assert getattr(existing_alchemy_activity, key) == value
-#
-#    def test_add_new_with_new_alchemy_category(self, alchemy_store, alchemy_activity):
-#        """Test that adding a new alchemy_activity with new alchemy_category creates both."""
-#        old_alchemy_activity_count = alchemy_store.session.query(AlchemyActivity).count()
-#        old_alchemy_category_count = alchemy_store.session.query(AlchemyCategory).count()
-#        result = alchemy_store.activities._add(alchemy_activity)
-#        db_instance = alchemy_store.session.query(AlchemyActivity).get(result.pk)
-#        new_alchemy_activity_count = alchemy_store.session.query(AlchemyActivity).count()
-#        new_alchemy_category_count = alchemy_store.session.query(AlchemyCategory).count()
-#        assert old_alchemy_activity_count < new_alchemy_activity_count
-#        assert old_alchemy_category_count < new_alchemy_category_count
-#        assert db_instance.as_hamster().equal_fields(alchemy_activity)
-#        # This should not be needed
-#        assert db_instance.as_hamster().alchemy_category.equal_fields(alchemy_activity.alchemy_category)
-#
-#    def test_add_new_with_alchemy_alchemy_category(self, alchemy_store, alchemy_activity, alchemy_alchemy_category):
+
+    def test_add_new_with_new_category(self, alchemy_store, alchemy_activity_factory):
+        """Test that adding a new alchemy_activity with new alchemy_category creates both."""
+        assert alchemy_store.session.query(AlchemyActivity).count() == 0
+        assert alchemy_store.session.query(AlchemyCategory).count() == 0
+        activity = alchemy_activity_factory.build().as_hamster()
+        activity.pk = None
+        result = alchemy_store.activities._add(activity)
+        db_instance = alchemy_store.session.query(AlchemyActivity).get(result.pk)
+        assert alchemy_store.session.query(AlchemyActivity).count() == 1
+        assert alchemy_store.session.query(AlchemyCategory).count() == 1
+        assert db_instance.as_hamster().equal_fields(activity)
+
+#    def test_add_new_with_alchemy_category_factory(self, alchemy_store, alchemy_activity, alchemy_category_factory):
 #        """Test that adding a new alchemy_activity with existing alchemy_category does not create a new one."""
-#        alchemy_activity.alchemy_category = alchemy_alchemy_category.as_hamster()
+#        alchemy_activity.alchemy_category = alchemy_category_factory.as_hamster()
 #        old_alchemy_activity_count = alchemy_store.session.query(AlchemyActivity).count()
 #        old_alchemy_category_count = alchemy_store.session.query(AlchemyCategory).count()
 #        result = alchemy_store.activities._add(alchemy_activity)
@@ -225,10 +256,10 @@ class TestCategoryManager():
 #            alchemy_store.activities._update(alchemy_activity)
 #
 #    def test_update_with_existing_alchemy_category(self, alchemy_store, alchemy_alchemy_activity,
-#            alchemy_alchemy_category_factory):
+#            alchemy_category_factory_factory):
 #        """Test that updateting an alchemy_activity with existing alchemy_category does not create a new one."""
 #        alchemy_activity = alchemy_alchemy_activity.as_hamster()
-#        alchemy_activity.alchemy_category = alchemy_alchemy_category_factory().as_hamster()
+#        alchemy_activity.alchemy_category = alchemy_category_factory_factory().as_hamster()
 #        old_alchemy_activity_count = alchemy_store.session.query(AlchemyActivity).count()
 #        old_alchemy_category_count = alchemy_store.session.query(AlchemyCategory).count()
 #        alchemy_store.activities._update(alchemy_activity)

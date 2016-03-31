@@ -103,15 +103,6 @@ def category_valid_parametrized_without_none(request, category_factory,
     return category_factory(name=name_string_valid_parametrized)
 
 
-@pytest.fixture
-def new_category_values():
-    """Return garanteed modified values for a given category."""
-    def modify(category):
-        return {
-            'name': category.name + 'foobar',
-        }
-    return modify
-
 
 # Activities
 

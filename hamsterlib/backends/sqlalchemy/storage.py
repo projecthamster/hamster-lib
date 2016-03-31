@@ -126,7 +126,7 @@ class CategoryManager(storage.BaseCategoryManager):
         self.store.session.add(alchemy_category)
         try:
             self.store.session.commit()
-        except FlushError as e:
+        except IntegrityError as e:
             message = _(
                 "An error occured! Are you sure the category.name is not already present in our"
                 " database? Here is the full original exception: '{}'.".format(e)
