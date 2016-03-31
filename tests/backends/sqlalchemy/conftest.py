@@ -12,12 +12,12 @@ from pytest_factoryboy import register
 
 from . import factories, common
 
-from hamsterlib.backends.sqlalchemy import objects
+from hamsterlib.backends.sqlalchemy import objects, database
 from hamsterlib.backends.sqlalchemy.storage import SQLAlchemyStore
 
-register(factories.CategoryFactory)
-register(factories.ActivityFactory)
-register(factories.FactFactory)
+register(factories.AlchemyCategoryFactory)
+register(factories.AlchemyActivityFactory)
+register(factories.AlchemyFactFactory)
 
 
 @pytest.fixture

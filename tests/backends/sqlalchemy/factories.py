@@ -7,36 +7,36 @@ import datetime
 import factory
 import faker
 from . import common
-from hamsterlib import Category, Activity, Fact
+from hamsterlib.backends.sqlalchemy.objects import AlchemyCategory, AlchemyActivity, AlchemyFact
 
 
-class CategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
-    id = factory.Sequence(lambda n: n)
+class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
+    pk = factory.Sequence(lambda n: n)
     name = factory.Faker('word')
 
     class Meta:
-        model = Category
+        model = AlchemyCategory
         sqlalchemy_session = common.Session
 
 
-class ActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
+class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
     pk = factory.Sequence(lambda n: n)
     name = factory.Faker('sentence')
-    category = factory.SubFactory(CategoryFactory)
+    category = factory.SubFactory(AlchemyCategoryFactory)
     deleted = False
 
     class Meta:
-        model = Activity
+        model = AlchemyActivity
         sqlalchemy_session = common.Session
 
 
-class FactFactory(factory.alchemy.SQLAlchemyModelFactory):
+class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
     pk = factory.Sequence(lambda n: n)
-    activity = factory.SubFactory(ActivityFactory)
+    activity = factory.SubFactory(AlchemyActivityFactory)
     start = faker.Faker().date_time()
     end = start + datetime.timedelta(hours=3)
     description = factory.Faker('paragraph')
 
     class Meta:
-        model = Fact
+        model = AlchemyFact
         sqlalchemy_session = common.Session
