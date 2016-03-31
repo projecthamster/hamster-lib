@@ -15,9 +15,9 @@ from . import factories, common
 from hamsterlib.backends.sqlalchemy import objects
 from hamsterlib.backends.sqlalchemy.storage import SQLAlchemyStore
 
-register(factories.AlchemyCategoryFactory)
-register(factories.AlchemyActivityFactory)
-register(factories.AlchemyFactFactory)
+register(factories.CategoryFactory)
+register(factories.ActivityFactory)
+register(factories.FactFactory)
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ def alchemy_store(request, alchemy_runner):
 
 
 @pytest.fixture(params=[True, False])
-def existing_category_valid_parametrized(request, existing_category_factory,
+def existing_category_valid_parametrized(request, category_factory,
         name_string_valid_parametrized):
     """
     Provide a parametrized persisent category fixture.
@@ -50,14 +50,14 @@ def existing_category_valid_parametrized(request, existing_category_factory,
     """
 
     if request.param:
-        result = existing_category_factory(name=name_string_valid_parametrized)
+        result = category_factory(name=name_string_valid_parametrized)
     else:
         result = None
     return result
 
 
 @pytest.fixture
-def existing_category_valid_without_none_parametrized(request, alchemy_category_factory,
+def existing_category_valid_without_none_parametrized(request, category_factory,
         name_string_valid_parametrized):
     """
     Provide a parametrized persisent category fixture.
@@ -65,16 +65,16 @@ def existing_category_valid_without_none_parametrized(request, alchemy_category_
     This fixuture will represent a wide array of potential name charsets as well
     but not ``category=None``.
     """
-    return alchemy_category_factory(name=name_string_valid_parametrized)
+    return category_factory(name=name_string_valid_parametrized)
 
 
 @pytest.fixture
-def set_of_existing_categories(alchemy_category_factory):
-    return [alchemy_category_factory() for i in range(5)]
+def set_of_existing_categories(category_factory):
+    return [category_factory() for i in range(5)]
 
 
 @pytest.fixture
-def existing_activity_valid_parametrized(alchemy_activity_factory,
+def existing_activity_valid_parametrized(activity_factory,
         name_string_valid_parametrized, deleted_valid_parametrized):
     """
     Provide a parametrized persistent activity fixture.
@@ -87,16 +87,16 @@ def existing_activity_valid_parametrized(alchemy_activity_factory,
     # [TODO]
     # Parametrize category. In particular cover cases where category=None
 
-    return alchemy_activity_factory(name=name_string_valid_parametrized,
+    return activity_factory(name=name_string_valid_parametrized,
         deleted=deleted_valid_parametrized)
 
 
 
 @pytest.fixture
-def alchemy_fact_valid_parametrized(alchemy_store, alchemy_fact_factory,
+def alchemy_fact_valid_parametrized(alchemy_store, fact_factory,
         existing_activity_valid_parametrized, description_valid_parametrized,
         tag_list_valid_parametrized):
-    fact = alchemy_fact_factory(description=description_valid_parametrized,
+    fact = fact_factory(description=description_valid_parametrized,
         tags=tag_list_valid_parametrized)
     return fact
 
@@ -108,12 +108,12 @@ def start_datetime():
 
 
 @pytest.fixture
-def set_of_alchemy_facts(start_datetime, alchemy_fact_factory):
+def set_of_alchemy_facts(start_datetime, fact_factory):
     start = start_datetime
     result = []
     for i in range(5):
         end = start + datetime.timedelta(minutes=20)
-        fact = alchemy_fact_factory(start=start, end=end)
+        fact = fact_factory(start=start, end=end)
         result.append(fact)
         start = start + datetime.timedelta(days=1)
     return result
