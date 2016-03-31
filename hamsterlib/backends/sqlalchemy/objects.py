@@ -44,7 +44,7 @@ Note:
 
 @python_2_unicode_compatible
 class AlchemyCategory(Category):
-    def __init__(self, category):
+    def __init__(self, pk, name):
         """
         Initiate a new sqlalchemy activity instance.
 
@@ -56,13 +56,8 @@ class AlchemyCategory(Category):
             TypeError: If ``category`` is not a ``Category`` instance.
         """
 
-        if not isinstance(category, Category):
-            raise TypeError(_(
-                "hamsterlib.Category instance expected. Got {} instead".format(
-                    type(category))
-            ))
-        self.pk = category.pk
-        self.name = category.name
+        self.pk = pk
+        self.name = name
 
     def as_hamster(self):
         """Provide an convinient way to return it as a ``hamsterlib.Category`` instance."""
@@ -74,7 +69,7 @@ class AlchemyCategory(Category):
 
 @python_2_unicode_compatible
 class AlchemyActivity(Activity):
-    def __init__(self, activity):
+    def __init__(self, pk, name, category, deleted):
         """
         Initiate a new instance.
 
@@ -85,15 +80,11 @@ class AlchemyActivity(Activity):
         Raises:
             TypeError: If ``activity`` is not an ``Activity`` instance.
         """
-        if not isinstance(activity, Activity):
-            raise TypeError(_(
-                "hamsterlib.Activity instance expected. Got {} instead".format(
-                    type(activity))
-            ))
 
-        self.pk = activity.pk
-        self.name = activity.name
-        self.deleted = activity.deleted
+        self.pk = pk
+        self.name = name
+        self.category = category
+        self.deleted = deleted
 
     def as_hamster(self):
         """Provide an convinient way to return it as a ``hamsterlib.Activity`` instance."""
@@ -111,7 +102,7 @@ class AlchemyActivity(Activity):
 
 @python_2_unicode_compatible
 class AlchemyFact(Fact):
-    def __init__(self, fact):
+    def __init__(self, pk, activity, start, end, description):
         """
         Initiate a new instance.
 
@@ -123,16 +114,11 @@ class AlchemyFact(Fact):
             TypeError: If ``fact`` is not an ``Fact`` instance.
         """
 
-        if not isinstance(fact, Fact):
-            raise TypeError(_(
-                "hamsterlib.Fact instance expected. Got {} instead".format(
-                    type(fact))
-            ))
-
-        self.pk = fact.pk
-        self.start = fact.start
-        self.end = fact.end
-        self.description = fact.description
+        self.pk = pk
+        self.activity = activity
+        self.start = start
+        self.end = end
+        self.description = description
         # [FIXME]
         # We currently don't support tags on the actual db level!
 

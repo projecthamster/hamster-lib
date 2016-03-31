@@ -52,13 +52,17 @@ class SQLAlchemyStore(storage.BaseStore):
     data retrieval methods return only one item or throw an error alerting us the the
     inconsistency.
     """
-    def __init__(self, path):
+    def __init__(self, path, session=None):
         engine = create_engine(path)
         objects.metadata.bind = engine
         objects.metadata.create_all(engine)
 
-        Session = sessionmaker(bind=engine)
-        self.session = Session()
+        if not session:
+            #Session = sessionmaker(bind=engine)
+            Session = sessionmaker()
+            self.session = Session()
+        else:
+            self.session = session
         self.categories = CategoryManager(self)
         self.activities = ActivityManager(self)
         self.facts = FactManager(self)
@@ -118,7 +122,7 @@ class CategoryManager(storage.BaseCategoryManager):
             )
             logger.debug(message)
             raise ValueError(message)
-        alchemy_category = AlchemyCategory(category)
+        alchemy_category = AlchemyCategory(pk=None, name=category.name)
         self.store.session.add(alchemy_category)
         try:
             self.store.session.commit()
@@ -307,12 +311,13 @@ class ActivityManager(storage.BaseActivityManager):
         except KeyError:
             pass
 
-        alchemy_activity = AlchemyActivity(activity)
+        alchemy_activity = AlchemyActivity(None, activity.name, None,
+            activity.deleted)
         try:
             alchemy_activity.category = self.store.categories.get_by_name(
                 activity.category, raw=True)
         except KeyError:
-            alchemy_activity.category = AlchemyCategory(activity.category)
+            alchemy_activity.category = AlchemyCategory(None, activity.category.name)
         self.store.session.add(alchemy_activity)
         self.store.session.commit()
         if not raw:
@@ -521,7 +526,7 @@ class FactManager(storage.BaseFactManager):
                         "There can ever only be one fact at any given point in time")
             raise ValueError(message)
 
-        alchemy_fact = AlchemyFact(fact)
+        alchemy_fact = AlchemyFact(None, None, fact.start, fact.end, fact.description)
         alchemy_fact.activity = self.store.activities.get_or_create(fact.activity, raw=True)
         self.store.session.add(alchemy_fact)
         self.store.session.commit()

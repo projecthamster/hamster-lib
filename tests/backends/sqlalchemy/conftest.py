@@ -5,31 +5,45 @@ from builtins import str
 
 import pytest
 
-# from sqlalchemy import orm, create_engine
+from sqlalchemy import orm, create_engine
 import datetime
 
-# from . import factories
+from pytest_factoryboy import register
+
+from . import factories as alchemy_factory
+from . import common
 
 from ... import factories
 
 from hamsterlib.backends.sqlalchemy import (AlchemyCategory, AlchemyActivity, AlchemyFact,
     SQLAlchemyStore)
 
+from hamsterlib.backends.sqlalchemy import objects
 
-@pytest.fixture#(scope='function')
-def alchemy_store(request):
-    return SQLAlchemyStore('sqlite:///:memory:')
+register(alchemy_factory.AlchemyCategoryFactory)
+register(alchemy_factory.AlchemyActivityFactory)
+register(alchemy_factory.AlchemyFactFactory)
 
 
 @pytest.fixture
-def existing_category_factory(request, alchemy_store):
-    def generate(*args, **kwargs):
-        category = factories.CategoryFactory.build(*args, **kwargs)
-        alchemy_category = AlchemyCategory(category)
-        alchemy_store.session.add(alchemy_category)
-        alchemy_store.session.commit()
-        return alchemy_category
-    return generate
+def alchemy_runner(request):
+    engine = create_engine('sqlite:///:memory:')
+    objects.metadata.bind = engine
+    objects.metadata.create_all(engine)
+    common.Session.configure(bind=engine)
+
+    def fin():
+        common.Session.remove()
+
+    request.addfinalizer(fin)
+
+
+
+@pytest.fixture#(scope='function')
+def alchemy_store(request, alchemy_runner):
+    store = SQLAlchemyStore('sqlite:///:memory:', common.Session)
+    return store
+
 
 
 @pytest.fixture(params=[True, False])
@@ -61,48 +75,10 @@ def existing_category_valid_without_none_parametrized(request, existing_category
     return existing_category_factory(name=name_string_valid_parametrized)
 
 
-@pytest.fixture
-def existing_category(existing_category_factory):
-    return existing_category_factory()
-
 
 @pytest.fixture
-def set_of_existing_categories(existing_category_factory):
-    return [existing_category_factory() for i in range(5)]
-
-
-@pytest.fixture
-def existing_activity_factory(request, alchemy_store, category_factory):
-    """
-    Custom factory to provide a new persistent activity.
-
-    You may pass additional ``args`` or ``kwargs`` just like you would with a regular
-    factory-boy factory in order to fine tune instance parameters.
-
-    Note:
-        We use this a more transparent workaround to make sure that the new
-        instance is attached to the right session until we are confident we know
-        how to use factory boys own session assignment.
-    """
-    def generate(*args, **kwargs):
-        activity = factories.ActivityFactory.build(*args, **kwargs)
-        alchemy_activity = AlchemyActivity(activity)
-        alchemy_activity.category = AlchemyCategory(category_factory())
-        alchemy_store.session.add(alchemy_activity)
-        alchemy_store.session.commit()
-        return alchemy_activity
-    return generate
-
-
-@pytest.fixture
-def existing_activity(existing_activity_factory, existing_category_factory):
-    """
-    Provide a singe persisent activity.
-
-    Note:
-        Refer to factory docstring for details about why we implement this ourself.
-    """
-    return existing_activity_factory()
+def set_of_existing_categories(alchemy_category_factory):
+    return [alchemy_category_factory() for i in range(5)]
 
 
 @pytest.fixture
@@ -122,22 +98,6 @@ def existing_activity_valid_parametrized(existing_activity_factory, existing_cat
     return existing_activity_factory(name=name_string_valid_parametrized,
         deleted=deleted_valid_parametrized)
 
-
-@pytest.fixture
-def existing_fact_factory(request, alchemy_store, existing_activity_factory):
-    def generate(*args, **kwargs):
-        fact = factories.FactFactory.build(*args, **kwargs)
-        alchemy_fact = AlchemyFact(fact)
-        alchemy_fact.activity = existing_activity_factory()
-        alchemy_store.session.add(alchemy_fact)
-        alchemy_store.session.commit()
-        return alchemy_fact
-    return generate
-
-
-@pytest.fixture
-def existing_fact(existing_fact_factory):
-    return existing_fact_factory()
 
 
 @pytest.fixture

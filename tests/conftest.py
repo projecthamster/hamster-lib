@@ -35,7 +35,7 @@ def convert_time_to_datetime(time_string):
 
 
 # General Data
-@pytest.fixture(params='alpha cyrillic latin1 utf8'.split())
+@pytest.fixture(params='cyrillic utf8'.split())
 def name_string_valid_parametrized(request):
     """Provide a variety of strings that should be valid *names*."""
     return fauxfactory.gen_string(request.param)

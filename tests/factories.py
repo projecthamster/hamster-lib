@@ -7,6 +7,7 @@ from builtins import str
 import factory
 import faker
 import datetime
+import fauxfactory
 
 from hamsterlib import objects
 @python_2_unicode_compatible
@@ -16,7 +17,8 @@ class CategoryFactory(factory.Factory):
         model = objects.Category
 
     pk = None
-    name = factory.Faker('word')
+    #name = factory.Faker('word')
+    name = fauxfactory.gen_string('utf8')
 
 @python_2_unicode_compatible
 class ActivityFactory(factory.Factory):
