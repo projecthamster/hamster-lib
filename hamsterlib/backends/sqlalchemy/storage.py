@@ -648,7 +648,7 @@ class FactManager(storage.BaseFactManager):
         """
         # [FIXME] Figure out against what to match search_terms
         if start and end:
-            if start < end:
+            if start > end:
                 raise ValueError(_("The end specified seems to be before the start."))
         results = self.store.session.query(AlchemyFact)
         if start and end:
