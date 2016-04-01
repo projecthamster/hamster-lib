@@ -65,11 +65,13 @@ class SQLAlchemyStore(storage.BaseStore):
         Note:
             The ``session`` argument is mainly useful for tests.
         """
-
+        # [TODO]
+        # It takes more deliberation to decide how to handle engine creation if
+        # we recieve a session. Should be require the session to bring its own
+        # engine?
         engine = create_engine(path)
         objects.metadata.bind = engine
         objects.metadata.create_all(engine)
-
         if not session:
             Session = sessionmaker(bind=engine)
             self.session = Session()

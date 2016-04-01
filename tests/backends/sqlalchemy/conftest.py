@@ -119,7 +119,6 @@ def existing_activity_valid_parametrized(activity_factory,
         deleted=deleted_valid_parametrized)
 
 
-
 @pytest.fixture
 def alchemy_fact_valid_parametrized(alchemy_store, fact_factory,
         existing_activity_valid_parametrized, description_valid_parametrized,
@@ -127,7 +126,6 @@ def alchemy_fact_valid_parametrized(alchemy_store, fact_factory,
     fact = fact_factory(description=description_valid_parametrized,
         tags=tag_list_valid_parametrized)
     return fact
-
 
 
 @pytest.fixture
@@ -140,23 +138,6 @@ def set_of_alchemy_facts(start_datetime, fact_factory):
         result.append(fact)
         start = start + datetime.timedelta(days=1)
     return result
-
-
-# as_hamster versions
-# its not clear that they are needed anymore
-@pytest.fixture
-def alchemy_category_as_hamster(request, alchemy_category_factory):
-    """Hamsterized version of a category."""
-    category = alchemy_category_factory()
-    return category.as_hamster()
-
-
-@pytest.fixture
-def alchemy_activity_as_hamster(request, alchemy_activity_factory):
-    """Mocked hamsterized version of an activity."""
-    activity = alchemy_activity_factory.build()
-    activity.pk = None
-    return activity
 
 
 # Fallback hamster object fixtures. Unless we know how factories interact

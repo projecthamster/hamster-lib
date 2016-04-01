@@ -44,14 +44,6 @@ class TestStore(object):
         assert alchemy_category.pk
         assert alchemy_category.name
 
-    # Custom fixtures
-    def test_alchemy_activity_as_hamster(self, alchemy_store, alchemy_activity_as_hamster):
-        assert alchemy_store.session.query(AlchemyCategory).count() == 0
-        activity = alchemy_activity_as_hamster
-        assert alchemy_store.session.query(AlchemyCategory).count() == 0
-        assert activity.pk is None
-        assert activity.category
-        assert activity.category.pk
 
 
 class TestCategoryManager():
@@ -222,22 +214,19 @@ class TestActivityManager():
 ##    #    for key, value in new_values.items():
 ##    #        assert getattr(existing_alchemy_activity, key) == value
 
-    def test_add_new_with_new_category(self, alchemy_store, alchemy_activity_as_hamster):
+    def test_add_new_with_new_category(self, alchemy_store, activity, category):
         """Test that adding a new alchemy_activity with new alchemy_category creates both."""
         assert alchemy_store.session.query(AlchemyActivity).count() == 0
         assert alchemy_store.session.query(AlchemyCategory).count() == 0
-        activity = alchemy_activity_as_hamster
-        activity.category.pk = None
+        activity.category = category
         result = alchemy_store.activities._add(activity)
         db_instance = alchemy_store.session.query(AlchemyActivity).get(result.pk)
         assert alchemy_store.session.query(AlchemyActivity).count() == 1
         assert alchemy_store.session.query(AlchemyCategory).count() == 1
         assert db_instance.as_hamster().equal_fields(activity)
 
-    def test_add_new_with_existing_category(self, alchemy_store, alchemy_activity_as_hamster,
-            alchemy_category):
+    def test_add_new_with_existing_category(self, alchemy_store, activity, alchemy_category):
         """Test that adding a new alchemy_activity with existing alchemy_category does not create a new one."""
-        activity = alchemy_activity_as_hamster
         activity.category = alchemy_category.as_hamster()
         assert alchemy_store.session.query(AlchemyActivity).count() == 0
         assert alchemy_store.session.query(AlchemyCategory).count() == 1
