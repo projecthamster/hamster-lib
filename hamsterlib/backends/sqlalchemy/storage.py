@@ -679,4 +679,3 @@ class FactManager(storage.BaseFactManager):
         if not query.all():
             result = True
         return result
-

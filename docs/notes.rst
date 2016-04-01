@@ -91,4 +91,22 @@ Legacy Storage API notes
 * if an activity is created with ``temporary=True`` it will be marked as ``deleted=True``.
   why not set the attribute directly? Whats the role of a temporary activity?
 * ``__add_activity`` seems to return the created activities id
+* ``temporary`` seeems only to be relevant when creating/updateing facts.
+
+Things we try to improve
+------------------------
+
+* python >=2.7, >=3.4 support
+* full unicode support
+* full pep8 and 257 complience
+* >=95% test coverage
+* strict and honest *seperation of concerns*. We provide just the backend, but that we do proper.
+* cleaner, more object oriented pythonic code
+* 'one exit point' strategy for method return values. Reduce the spagettiness.
+* modular architecture.
+* focus on solid core functionality and only expand features once existing code
+  meets our standart.
+* better project layout including waffle.io, codeship.com and requirements.io
+* fully integrated and focused on PyPi distribution. All you need for production,
+  test or dev comes out of the box with regular python tools.
 
