@@ -17,6 +17,7 @@ class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = AlchemyCategory
         sqlalchemy_session = common.Session
+        force_flush = True
 
 
 class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -28,6 +29,7 @@ class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = AlchemyActivity
         sqlalchemy_session = common.Session
+        force_flush = True
 
 
 class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -40,3 +42,4 @@ class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = AlchemyFact
         sqlalchemy_session = common.Session
+        force_flush = True

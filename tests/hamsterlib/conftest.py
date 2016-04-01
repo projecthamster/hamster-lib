@@ -36,25 +36,6 @@ def convert_time_to_datetime(time_string):
 
 # General Data
 
-@pytest.fixture(params=(True, False, 0, 1, '', 'foobar'))
-def deleted_valid_parametrized(request):
-    return request.param
-
-
-@pytest.fixture
-def start_end_datetimes_from_offset():
-    """Generate start/end datetime tuple with given offset in minutes."""
-    def generate(offset):
-        end = datetime.datetime.now()
-        start = end - datetime.timedelta(minutes=offset)
-        return (start, end)
-    return generate
-
-
-@pytest.fixture
-def start_end_datetimes(start_end_datetimes_from_offset):
-    """Return a start/end-datetime-tuple."""
-    return start_end_datetimes_from_offset(15)
 
 
 # Controler
@@ -145,16 +126,6 @@ def list_of_facts(fact_factory):
         return facts
     return get_list_of_facts
 
-@pytest.fixture(params='alpha cyrillic latin1 utf8'.split())
-def description_valid_parametrized(request):
-    """Provide a variety of strings that should be valid *descriptions*."""
-    return fauxfactory.gen_string(request.param)
-
-@pytest.fixture(params='alpha cyrillic latin1 utf8'.split())
-def tag_list_valid_parametrized(request):
-    """Provide a variety of strings that should be valid *descriptions*."""
-    return [fauxfactory.gen_string(request.param) for i in range(4)]
-
 
 @pytest.fixture(params=('%M', '%H:%M'))
 def string_delta_format_parametrized(request):
@@ -182,17 +153,6 @@ def current_fact(fact_factory):
     """Provide a ``ongoing fact``. That is a fact that has started but not ended yet."""
     return fact_factory(start=datetime.datetime.now(), end=None)
 
-
-@pytest.fixture
-def new_fact_values():
-    """Provide guaranteed different Fact-values for a given Fact-instance."""
-    def modify(fact):
-        return {
-            'start': fact.start - datetime.timedelta(days=10),
-            'end': fact.end - datetime.timedelta(days=10),
-            'description': fact.description + 'foobar',
-        }
-    return modify
 
 
 @pytest.fixture(params=[
