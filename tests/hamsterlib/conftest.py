@@ -34,15 +34,13 @@ def convert_time_to_datetime(time_string):
         )
 
 
-# General Data
-
-
-
 # Controler
 @pytest.fixture
 def base_config():
     """Provide a generic baseline configuration."""
     return {
+        # [TODO]
+        # 'unsorted_localized' realy is a frontend thing and should go!
         'unsorted_localized': 'Unsorted',
         'store': 'sqlalchemy',
         'day_start': datetime.time(hour=5, minute=30, second=0),
@@ -50,18 +48,15 @@ def base_config():
     }
 
 
-# [TODO] Parametrize over all available stores.
 @pytest.yield_fixture
 def controler(base_config):
+    """Provide a basic controler."""
+    # [TODO] Parametrize over all available stores.
     controler = HamsterControl(base_config)
     yield controler
     controler.store.cleanup()
 
 # Categories
-
-
-
-
 @pytest.fixture(params=(None, True,))
 def category_valid_parametrized(request, category_factory, name_string_valid_parametrized):
     """Provide a variety of valid category fixtures."""
@@ -84,9 +79,7 @@ def category_valid_parametrized_without_none(request, category_factory,
     return category_factory(name=name_string_valid_parametrized)
 
 
-
 # Activities
-
 @pytest.fixture
 def activity_valid_parametrized(request, activity_factory, name_string_valid_parametrized,
         category_valid_parametrized, deleted_valid_parametrized):
