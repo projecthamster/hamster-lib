@@ -96,7 +96,7 @@ class AlchemyActivity(Activity):
 
 @python_2_unicode_compatible
 class AlchemyFact(Fact):
-    def __init__(self, pk, activity, start, end, description):
+    def __init__(self, pk, activity, start, end, description, tags):
         """
         Initiate a new instance.
 
@@ -115,6 +115,7 @@ class AlchemyFact(Fact):
         self.description = description
         # [FIXME]
         # We currently don't support tags on the actual db level!
+        self.tags = tags
 
     def as_hamster(self):
         """Provide an convinient way to return it as a ``hamsterlib.Fact`` instance."""

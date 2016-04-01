@@ -90,14 +90,13 @@ class CategoryManager(storage.BaseCategoryManager):
             raw (bool): Wether to return the AlchemyCategory instead.
 
         Returns:
-            hamsterlib.Category: Category.
+            hamsterlib.Category or None: Category.
         """
 
         if category:
             try:
                 category = self.get_by_name(category.name, raw=raw)
             except KeyError:
-                #category = objects.Category(category.name)
                 category = self._add(category, raw=raw)
         else:
             category = None
@@ -113,9 +112,10 @@ class CategoryManager(storage.BaseCategoryManager):
 
         Args:
             category (hamsterlib.Category): Hamster Category instance.
+            raw (bool): Wether to return the AlchemyCategory instead.
 
         Returns:
-            Category: Saved instance, as_hamster()
+            hamsterlib.Category: Saved instance, as_hamster()
 
         Raises:
             ValueError: If the name to be added is already present in the db.
@@ -160,7 +160,7 @@ class CategoryManager(storage.BaseCategoryManager):
         Raises:
             ValueError: If the new name is already taken.
             ValueError: If category passed does not have a PK.
-            KeyError:If no category with passed PK was found.
+            KeyError: If no category with passed PK was found.
         """
         if not category.pk:
             message = _(
@@ -195,6 +195,7 @@ class CategoryManager(storage.BaseCategoryManager):
             None: If everything went alright.
 
         Raises:
+            KeyError: If the ``Category`` can not be found by the backend.
             TypeError: If category passed is not an hamsterlib.Category instance.
             ValueError: If category passed does not have an pk.
         """
@@ -207,6 +208,9 @@ class CategoryManager(storage.BaseCategoryManager):
         if not category.pk:
             raise ValueError(_("PK-less Category. Are you trying to remove a new Category?"))
         alchemy_category = self.store.session.query(AlchemyCategory).get(category.pk)
+        if not alchemy_category:
+            message =  _("``Category`` can not be found by the backend.")
+            raise KeyError(message)
         self.store.session.delete(alchemy_category)
         self.store.session.commit()
 
@@ -215,7 +219,7 @@ class CategoryManager(storage.BaseCategoryManager):
         Return a category based on their pk.
 
         Args:
-            pk: PK of the category to be retrieved.
+            pk (int): PK of the category to be retrieved.
 
         Returns:
             hamsterlib.Category: Category matching given PK.
@@ -233,10 +237,12 @@ class CategoryManager(storage.BaseCategoryManager):
 
     def get_by_name(self, name, raw=False):
         """
-        Return a category based on its (unique?) name.
+        Return a category based on its name.
 
         Args:
             name (str): Unique name of the category.
+            raw (bool): Wether to return the AlchemyCategory instead.
+
 
         Returns:
             hamsterlib.Category: Category of given name.
@@ -260,7 +266,7 @@ class CategoryManager(storage.BaseCategoryManager):
         Get all categories.
 
         Returns:
-            list: List of all Categories present in the database. Results are ordered by name.
+            list: List of all Categories present in the database, ordered by lower(name).
         """
         return [alchemy_category for alchemy_category in (
             self.store.session.query(AlchemyCategory).order_by(AlchemyCategory.name).all())]
@@ -289,6 +295,8 @@ class ActivityManager(storage.BaseActivityManager):
 
     def _add(self, activity, raw=False):
         """
+        Add a new ``Activity`` instance to the databasse.
+
         Args:
             activity (hamsterlib.Activity): Hamster activity
 
@@ -298,7 +306,7 @@ class ActivityManager(storage.BaseActivityManager):
         Raises:
             ValueError: If the passed activity has a PK.
             ValueError: If the category/activity.name combination to be added is
-            already present in the db.
+                already present in the db.
         """
         if activity.pk:
             message = _(
@@ -384,18 +392,16 @@ class ActivityManager(storage.BaseActivityManager):
         """
         Remove an activity from our internal backend.
 
-        Note:
-            Should removeing the last activity of a category also trigger category
-            removal?
+        Args:
+            activity (hamsterlib.Activity): The activity to be removed.
 
-        :param activity: Activity to be removed
-        :type activity: Activity
+        Returns:
+            bool: True
 
-        :return: Success status
-        :rtype: bool
+        Raises:
+            KeyError: If the given ``Activity`` can not be found in the database.
         """
-        # [TODO] Check if this is the original functionality. Most likly we just
-        # need to set deleted marker isntead of deleting the actual instance.
+
         if not activity.pk:
             message = _("The activity you passed does not have a PK. Please provide one.")
             raise ValueError(message)
@@ -404,7 +410,11 @@ class ActivityManager(storage.BaseActivityManager):
         if not alchemy_activity:
             message = _("The activity you try to remove does not seem to exist.")
             raise KeyError(message)
-        self.store.session.delete(alchemy_activity)
+        if alchemy_activity.facts:
+            alchemy_activity.deleted = True
+            self.store.activities._update(alchemy_activity)
+        else:
+            self.store.session.delete(alchemy_activity)
         self.store.session.commit()
         return True
 
@@ -435,7 +445,7 @@ class ActivityManager(storage.BaseActivityManager):
 
         Args:
             name (str): The activities name.
-            category (str or None): The activities category
+            category (hamsterlib.Category or None): The activities category. May be None.
             raw (bool): Return the AlchemyActivity instead.
 
         Returns:
@@ -477,7 +487,7 @@ class ActivityManager(storage.BaseActivityManager):
 
     def get_all(self, category=None, search_term=''):
         """
-        Retrieve all activities stored in the backend.
+        Retrieve all matching activities stored in the backend.
 
         Args:
             category (hamsterlib.Category, optional): Limit activities to this category.
@@ -505,7 +515,6 @@ class ActivityManager(storage.BaseActivityManager):
 
 @python_2_unicode_compatible
 class FactManager(storage.BaseFactManager):
-
     def _add(self, fact, raw=False):
         """
         Add a new fact to the database.
@@ -535,7 +544,7 @@ class FactManager(storage.BaseFactManager):
                         "There can ever only be one fact at any given point in time")
             raise ValueError(message)
 
-        alchemy_fact = AlchemyFact(None, None, fact.start, fact.end, fact.description)
+        alchemy_fact = AlchemyFact(None, None, fact.start, fact.end, fact.description, None)
         alchemy_fact.activity = self.store.activities.get_or_create(fact.activity, raw=True)
         self.store.session.add(alchemy_fact)
         self.store.session.commit()
@@ -551,7 +560,6 @@ class FactManager(storage.BaseFactManager):
 
         Returns:
             hamsterlib.fact: Updated Fact
-
 
         Raises:
             KeyError: if a Fact with the relevant PK could not be found.
@@ -589,6 +597,7 @@ class FactManager(storage.BaseFactManager):
 
         Args:
             fact (hamsterlib.Fact): Fact to be removed
+
         Returns:
             bool: Success status
 
@@ -645,14 +654,8 @@ class FactManager(storage.BaseFactManager):
 
         Returns:
             list: List of ``hamsterlib.Facts`` instances.
-
-        Raises:
-            ValueError: If start > end
         """
         # [FIXME] Figure out against what to match search_terms
-        if start and end:
-            if start > end:
-                raise ValueError(_("The end specified seems to be before the start."))
         results = self.store.session.query(AlchemyFact)
         if start and end:
             results = results.filter(and_(AlchemyFact.start >= start, AlchemyFact.end <= end))
@@ -669,6 +672,10 @@ class FactManager(storage.BaseFactManager):
     def _timeframe_is_free(self, start, end):
         """
         Determine if a given timeframe already holds any facs start or endtime.
+
+        Args:
+            start (datetime): *Start*-datetime that needs to be validated.
+            end (datetime): *End*-datetime that needs to be validated.
 
         Returns:
             bool: True if free, False if occupied.

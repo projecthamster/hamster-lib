@@ -11,11 +11,17 @@ from builtins import str
 #        assert category.equal_fields(alchemy_category)
 #
 #
-#class TestAlchemyActivity():
-#    def test_as_hamster(self, alchemy_activity):
-#        """Make sure that conversion into a ``hamsterlib.Activity```works as expected."""
-#        activity = alchemy_activity.as_hamster()
-#        assert activity.equal_fields(alchemy_activity)
+class TestAlchemyActivity():
+    def test_as_hamster(self, alchemy_store, alchemy_activity):
+        """Make sure that conversion into a ``hamsterlib.Activity```works as expected."""
+        activity = alchemy_activity.as_hamster()
+        assert activity.equal_fields(alchemy_activity)
+
+    def test_activity_has_facts(self, alchemy_store, alchemy_fact):
+        """Make sure that an activity can access ``Fact`` instances."""
+        assert alchemy_fact.activity
+        activity = alchemy_fact.activity
+        assert activity.facts
 #
 #
 #class TestAlchemyFact():

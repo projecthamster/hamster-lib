@@ -38,6 +38,7 @@ class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
     start = faker.Faker().date_time()
     end = start + datetime.timedelta(hours=3)
     description = factory.Faker('paragraph')
+    tags = []
 
     class Meta:
         model = AlchemyFact

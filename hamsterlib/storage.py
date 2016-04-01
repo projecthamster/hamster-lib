@@ -15,7 +15,9 @@ import hamsterlib.helpers as helpers
 Module containing base classes intended to be inherited from when implementing storage backends.
 
 Note:
-    This is propably going to be replaced by a ``ABC``-bases solution.
+    * This is propably going to be replaced by a ``ABC``-bases solution.
+    * Basic sanity checks could be done here then. This would mean we just need to test
+        them once and our actual backends focus on the CRUD implementation.
 """
 
 
@@ -64,14 +66,11 @@ class BaseCategoryManager(BaseManager):
             TypeError: If the ``category`` parameter is not a valid ``Category`` instance.
         """
 
-        # We split this into two seperate steps to make validation easier to
-        # extend. And yes I know we are supposed to duck-type, but I always feel
-        # more comftable validating untrusted input this way.
         if not isinstance(category, objects.Category):
             raise TypeError(_("You need to pass a hamster category"))
 
         # We don't check for just ``category.pk`` becauses we don't want to make
-        # assumptions about the PK beeing an int.
+        # assumptions about the PK beeing an int or beeing >0.
         if category.pk or category.pk == 0:
             result = self._update(category)
         else:
@@ -95,7 +94,7 @@ class BaseCategoryManager(BaseManager):
             category (hamsterlib.Category or None): The categories.
 
         Returns:
-            hamsterlib.Category: The retrieved or created category. Either way,
+            hamsterlib.Category or None: The retrieved or created category. Either way,
                 the returned Category will contain all data from the backend, including
                 its primary key.
         """
@@ -121,8 +120,10 @@ class BaseCategoryManager(BaseManager):
             hamsterlib.Category: Newly created ``Category`` instance.
 
         Raises:
-            ValueError: When the category name was alreadyy present! It is supposed to be
+            ValueError: When the category name was already present! It is supposed to be
             unique.
+            ValueError: If category passed already got an PK. Indicating that update would
+                be more apropiate.
 
         Note:
             * Legacy version stored the proper name as well as a ``lower(name)`` version
@@ -144,6 +145,7 @@ class BaseCategoryManager(BaseManager):
             KeyError: If the ``Category`` can not be found by the backend.
             ValueError: If the ``Category().name`` is already beeing used by
                 another ``Category`` instance.
+            ValueError: If category passed does not have a PK.
         """
         raise NotImplementedError
 
@@ -162,6 +164,8 @@ class BaseCategoryManager(BaseManager):
 
         Raises:
             KeyError: If the ``Category`` can not be found by the backend.
+            TypeError: If category passed is not an hamsterlib.Category instance.
+            ValueError: If category passed does not have an pk.
         """
         raise NotImplementedError
 
@@ -186,7 +190,7 @@ class BaseCategoryManager(BaseManager):
         Look up a category by its name.
 
         Args:
-            name (str): Name of the ``Category`` to we want to fetch.
+            name (str): Unique ame of the ``Category`` to we want to fetch.
 
         Returns:
             hamsterlib.Category: ``Category`` with given name.
@@ -220,19 +224,9 @@ class BaseActivityManager(BaseManager):
 
         Returns:
             hamsterlib.Activity: The saved ``Activity``.
-
-        Raises:
-            ValueError: If the category/activity.name combination was alreadyy present!
         """
 
         if activity.pk or activity.pk == 0:
-            # [FIXME]
-            # It appears that[activity.name + activity.category] is supposed to
-            # be unique (see ``storage.db __change_category()``).
-            # That means that if we update the category of an activity we need
-            # to ensure that particular combination does not exist already.
-            # We still need to contemplate if this is to be handled on the
-            # controler or storage-backend level.
             result = self._update(activity)
         else:
             result = self._add(activity)
@@ -243,9 +237,7 @@ class BaseActivityManager(BaseManager):
         Convinience method to either get an activity matching the specs or create a new one.
 
         Args:
-            name (str): Activity name
-            category (hamsterlib.Category): The activities category
-            deleted (bool): If the to be created category is marked as deleted.
+            activity (hamsterlib.Activity): The activity we want.
 
         Returns:
             hamsterlib.Activity: The retrieved or created activity
@@ -257,17 +249,20 @@ class BaseActivityManager(BaseManager):
                 deleted=activity.deleted))
         return activity
 
-    def _add(self, activity, temporary=False):
+    def _add(self, activity):
         """
         Add a new ``Activity`` instance to the databasse.
 
         Args:
             activity (hamsterlib.Activity): The ``Activity`` to be added.
-            temporary (bool, optional): If ``True``, the fact will be created with
-                ``Fact.deleted = True``. Defaults to ``False``.
 
         Returns:
             hamsterlib.Activity: The newly created ``Activity``.
+
+        Raises:
+            ValueError: If the passed activity has a PK.
+            ValueError: If the category/activity.name combination to be added is
+                already present in the db.
 
         Note:
             According to ``storage.db.Storage.__add_activity``: when adding a new activity
@@ -285,6 +280,16 @@ class BaseActivityManager(BaseManager):
 
         Which activity to refer to is determined by the passed PK new values
         are taken from passed activity as well.
+
+        Args:
+            activity (hamsterlib.Activity): Activity to be updated.
+
+        Returns:
+            hamsterlib.Activity: Updated activity.
+        Raises:
+            ValueError: If the new name/category.name combination is already taken.
+            ValueError: If the the passed activity does not have a PK assigned.
+            KeyError: If the the passed activity.pk can not be found.
 
         Note:
             Seems to modify ``index``.
@@ -308,6 +313,10 @@ class BaseActivityManager(BaseManager):
 
         Raises:
             KeyError: If the given ``Activity`` can not be found in the database.
+
+        Note:
+            Should removing the last activity of a category also trigger category
+            removal?
         """
         raise NotImplementedError
 
@@ -319,7 +328,7 @@ class BaseActivityManager(BaseManager):
             pk (int): Primary key of the activity
 
         Returns:
-            hamsterlib.Activity: Activity matchin primary key.
+            hamsterlib.Activity: Activity matching primary key.
 
         Raises:
             KeyError: If the primary key can not be found in the database.
@@ -328,13 +337,13 @@ class BaseActivityManager(BaseManager):
 
     def get_by_composite(self, name, category):
         """
-        Lookup for a supposedly unique ``Activityname`` / ``Category`` pair.
+        Lookup for unique 'name/category.name'-composite key.
 
         This method utilizes that to return the corresponding entry or None.
 
         Args:
             name (str): Name of the ``Activities`` in question.
-            category (hamsterlib.Category): ``Category`` of the activities.
+            category (hamsterlib.Category or None): ``Category`` of the activities. May be None.
 
         Returns:
             hamsterlib.Activity: The correspondig activity
@@ -347,17 +356,20 @@ class BaseActivityManager(BaseManager):
 
     def get_all(self, category=None, search_term=''):
         """
-        Return all activities.
+        Return all matching activities.
 
         Args:
-            category (hamsterlib.Category, optional): Category to filter by. Defaults to ``None``.
-                If ``None``, return all activities without a category.
-            search_term (str): (Sub-)String that needs to be present in the ``Article.name`` in
-                order to be considered for the resulti``Article.name`` in
-                    order to be considered for the resulting list.
+            category (hamsterlib.Category, optional): Limit activities to this category.
+                Defaults to ``None``.
+            search_term (str, optional): Limit activities to those matching this string
+                a substring in their name. Defaults to ``empty string``.
 
         Returns:
-            list: List of activities
+            list: List of ``hamsterlib.Activity`` instances matching constrains. This list
+                is ordered by ``Activity.name``.
+
+        Note:
+            Can search terms be prefixed with 'not'?
         """
         raise NotImplementedError
 
@@ -370,8 +382,8 @@ class BaseFactManager(BaseManager):
         Save a Fact to our selected backend.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be saved. Needs to be complete otherwise this will
-            fail.
+            fact (hamsterlib.Fact): Fact to be saved. Needs to be complete otherwise
+            this will fail.
 
         Returns:
             hamsterlib.Fact: Saved Fact.
@@ -382,6 +394,55 @@ class BaseFactManager(BaseManager):
         else:
             result = self._add(fact)
         return result
+
+    def _add(self, fact):
+        """
+        Add a new ``Fact`` to the backend.
+
+        Args:
+            fact (hamsterlib.Fact): Fact to be added.
+
+        Returns:
+            hamsterlib.Fact: Added ``Fact``.
+
+        Raises:
+            ValueError: If the passed fact has a PK assigned. New facts should not have one.
+            ValueError: If the timewindow is already occupied.
+        """
+        raise NotImplementedError
+
+    def _update(self, fact):
+        """
+        Update and existing fact with new values.
+
+        Args:
+            fact (hamsterlib.fact): Fact instance holding updated values.
+
+        Returns:
+            hamsterlib.fact: Updated Fact
+
+        Raises:
+            KeyError: if a Fact with the relevant PK could not be found.
+            ValueError: If the the passed activity does not have a PK assigned.
+            ValueError: If the timewindow is already occupied.
+        """
+        raise NotImplementedError
+
+    def remove(self, fact):
+        """
+        Remove a given ``Fact`` from the backend.
+
+        Args:
+            fact (hamsterlib.Fact): ``Fact`` instance to be removed.
+
+        Returns:
+            bool: Success status
+
+        Raises:
+            ValueError: If fact passed does not have an pk.
+            KeyError: If the ``Fact`` specified could not be found in the backend.
+        """
+        raise NotImplementedError
 
     def get(self, pk):
         """
@@ -400,7 +461,8 @@ class BaseFactManager(BaseManager):
 
     def get_all(self, start=None, end=None, filter_term=''):
         """
-        Return a list of ``Facts`` matching given criterias.
+        Return all facts within a given timeframe (beginning of start_date
+        end of end_date) that match given search terms.
 
         Args:
             start_date (datetime.datetime, optional): Consider only Facts starting at or after
@@ -414,7 +476,7 @@ class BaseFactManager(BaseManager):
                 or a ``datetime.time`` which will be considered as today.
                 Defaults to ``None``.
             filter_term (str, optional): Only consider ``Facts`` with this string as part of their
-                associated ``Activity.name``.
+                associated ``Activity.name``
 
         Returns:
             list: List of ``Facts`` matching given specifications.
@@ -425,8 +487,9 @@ class BaseFactManager(BaseManager):
             ValueError: If ``end`` is before ``start``.
 
         Note:
-            This public function only provides some sanity checks and normalization. The actual
+            * This public function only provides some sanity checks and normalization. The actual
             backend query is handled by ``_get_all``.
+            * ``search_term`` should be prefixable with ``not`` in order to invert matching.
         """
 
         if start is not None:
@@ -462,6 +525,28 @@ class BaseFactManager(BaseManager):
 
         return self._get_all(start, end, filter_term)
 
+    def _get_all(self, start=None, end=None, search_terms=''):
+        """
+        Return a list of ``Facts`` matching given criterias.
+
+        Args:
+            start_date (datetime.datetime, optional): Consider only Facts starting at or after
+                this datetime. Defaults to ``None``.
+            end_date (datetime.datetime): Consider only Facts ending before or at
+                this datetime. Defaults to ``None``.
+            filter_term (str, optional): Only consider ``Facts`` with this string as part of their
+                associated ``Activity.name``.
+
+        Returns:
+            list: List of ``Facts`` matching given specifications.
+
+        Note:
+            In contrast to the public ``get_all``, this method actually handles the
+            backend query.
+        """
+        raise NotImplementedError
+
+
     def get_today(self):
         """
         Return all facts for today, while respecting ``day_start``.
@@ -475,55 +560,15 @@ class BaseFactManager(BaseManager):
             helpers.end_day_to_datetime(today, self.store.config)
         )
 
-    def _get_all(self, start=None, end=None, search_terms=''):
+    def _timeframe_is_free(self, start, end):
         """
-        Return a list of ``Facts`` matching given criterias.
+        Determine if a given timeframe already holds any facs start or endtime.
 
         Args:
-            start_date (datetime.datetime, optional): Consider only Facts starting at or after
-                this date. Defaults to ``None``.
-            end_date (datetime.datetime): Consider only Facts ending before or at
-                this date. Defaults to ``None``.
-            filter_term (str, optional): Only consider ``Facts`` with this string as part of their
-                associated ``Activity.name``.
+            start (datetime): *Start*-datetime that needs to be validated.
+            end (datetime): *End*-datetime that needs to be validated.
 
         Returns:
-            list: List of ``Facts`` matching given specifications.
-
-        Note:
-            In contrast to the public ``get_all``, this method actually handles the backend query.
-        """
-        raise NotImplementedError
-
-    def _add(self, fact):
-        """
-        Add a new ``Fact`` to the backend.
-
-        Args:
-            fact (hamsterlib.Fact): Fact to be added.
-
-        Returns:
-            hamsterlib.Fact: Added ``Fact``.
-
-        Returns:
-            hamsterlib.Fact: Added ``Fact``.
-        """
-        raise NotImplementedError
-
-    def _update(self, fact):
-        raise NotImplementedError
-
-    def remove(self, fact):
-        """
-        Remove a given ``Fact`` from the backend.
-
-        Args:
-            fact (hamsterlib.Fact): ``Fact`` instance to be removed.
-
-        Returns:
-            None: If everything worked as intended.
-
-        Raises:
-            KeyError: If the ``Fact`` specified could not be found in the backend.
+            bool: True if free, False if occupied.
         """
         raise NotImplementedError
