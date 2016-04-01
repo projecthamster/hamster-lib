@@ -18,6 +18,7 @@ def start_end_datetimes_from_offset():
 # Attribute fixtures (non-parametrized)
 @pytest.fixture
 def name():
+    """Randomized, valid but non-parametrized name string."""
     return fauxfactory.gen_utf8()
 
 @pytest.fixture
@@ -28,6 +29,9 @@ def start_end_datetimes(start_end_datetimes_from_offset):
 
 @pytest.fixture
 def start_datetime():
+    """Provide an arbitrary datetime."""
+    # [TODO]
+    # Fixtures using this could propably be refactored using a cleaner way.
     return datetime.datetime.now()
 
 

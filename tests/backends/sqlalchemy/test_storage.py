@@ -45,7 +45,6 @@ class TestStore(object):
         assert alchemy_category.name
 
 
-
 class TestCategoryManager():
     def test_add_new(self, alchemy_store, alchemy_category_factory):
         """
@@ -157,10 +156,10 @@ class TestCategoryManager():
     # Test convinience methods.
     def test_get_or_create_get(self, alchemy_store, alchemy_category_factory):
         """Test that if we pass a alchemy_category of existing name, we just return it."""
-        alchemy_store.session.query(AlchemyCategory).count() == 0
+        assert alchemy_store.session.query(AlchemyCategory).count() == 0
         category = alchemy_category_factory().as_hamster()
         result = alchemy_store.categories.get_or_create(category)
-        alchemy_store.session.query(AlchemyCategory).count() == 1
+        assert alchemy_store.session.query(AlchemyCategory).count() == 1
         assert result == category
 
     def test_get_or_create_new_name(self, alchemy_store, alchemy_category_factory):
@@ -174,45 +173,61 @@ class TestCategoryManager():
 
 
 class TestActivityManager():
-##    def test_get_or_create_get(self, alchemy_store, existing_alchemy_activity):
-##        alchemy_activity = existing_alchemy_activity.as_hamster()
-##        result = alchemy_store.activities.get_or_create(alchemy_activity.name,
-##            alchemy_activity.alchemy_category)
-##        assert alchemy_activity.name == result.name
-##        assert alchemy_activity.pk == result.pk
-##        assert result.alchemy_category.pk == alchemy_activity.alchemy_category.pk
-##
-##    def test_get_or_create_new(self, alchemy_store, alchemy_activity):
-##        result = alchemy_store.activities.get_or_create(alchemy_activity.name,
-##            alchemy_activity.alchemy_category)
-##        print(alchemy_activity)
-##        print(result)
-##        assert result.name == alchemy_activity.name
-##        assert result.alchemy_category.name == alchemy_activity.alchemy_category.name
-#    #def test_save_new(self, alchemy_activity, alchemy_store):
-#    #    # [TODO]
-#    #    # This should not be needed as ``save`` is a basestore method.
-#    #    assert alchemy_activity.pk is None
-#    #    count_before = alchemy_store.session.query(AlchemyActivity).count()
-#    #    result = alchemy_store.activities._add(alchemy_activity)
-#    #    count_after = alchemy_store.session.query(AlchemyActivity).count()
-#    #    assert count_before < count_after
-#    #    assert result.name == alchemy_activity.name
-#
-##    #def test_save_existing(self, existing_alchemy_activity, new_alchemy_activity_values,
-##    #        alchemy_store):
-##    #    # [TODO]
-##    #    # This should not be needed as ``save`` is a basestore method.
-##    #    count_before = alchemy_store.session.query(AlchemyActivity).count()
-##    #    new_values = new_alchemy_activity_values(existing_alchemy_activity.as_hamster())
-##    #    for attr, value in new_values.items():
-##    #        setattr(existing_alchemy_activity, attr, value)
-##    #    result = alchemy_store.activities.save(existing_alchemy_activity)
-##    #    count_after = alchemy_store.session.query(AlchemyActivity).count()
-##    #    assert count_before == count_after
-##    #    assert result == existing_alchemy_activity
-##    #    for key, value in new_values.items():
-##    #        assert getattr(existing_alchemy_activity, key) == value
+    def test_get_or_create_get(self, alchemy_store, alchemy_activity):
+        """
+        Make sure that passing an existing activity retrieves the corresponding instance.
+
+        Note:
+            * The activity will is be looked up by its composite key, so not to
+            make any assumptions on the existence of a PK.
+        """
+        activity = alchemy_activity.as_hamster()
+        assert alchemy_store.session.query(AlchemyActivity).count() == 1
+        assert alchemy_store.session.query(AlchemyCategory).count() == 1
+        result = alchemy_store.activities.get_or_create(activity)
+        assert result == activity
+        assert alchemy_store.session.query(AlchemyActivity).count() == 1
+        assert alchemy_store.session.query(AlchemyCategory).count() == 1
+
+    def test_get_or_create_new(self, alchemy_store, activity):
+        """
+        Make sure that passing a new activity create a new persitent instance.
+
+        Note:
+            * The activity will is be looked up by its composite key, so not to
+            make any assumptions on the existence of a PK.
+        """
+        assert alchemy_store.session.query(AlchemyActivity).count() == 0
+        assert alchemy_store.session.query(AlchemyCategory).count() == 0
+        result = alchemy_store.activities.get_or_create(activity)
+        assert result.equal_fields(activity)
+        assert alchemy_store.session.query(AlchemyActivity).count() == 1
+        assert alchemy_store.session.query(AlchemyCategory).count() == 1
+
+    def test_save_new(self, activity, alchemy_store):
+        """Make sure that saving a new activity add a new persistent instance."""
+        # [TODO]
+        # This should not be needed as ``save`` is a basestore method.
+        # Its just a case of 'better save than sorry.
+        assert activity.pk is None
+        count_before = alchemy_store.session.query(AlchemyActivity).count()
+        result = alchemy_store.activities._add(activity)
+        count_after = alchemy_store.session.query(AlchemyActivity).count()
+        assert count_before < count_after
+        assert result.equal_fields(activity)
+
+    def test_save_existing(self, alchemy_store, alchemy_activity, alchemy_category_factory):
+        """Make sure that saving an existing activity add no new persistent instance."""
+        # [TODO]
+        # This should not be needed as ``save`` is a basestore method.
+        activity = alchemy_activity.as_hamster()
+        activity.category = alchemy_category_factory()
+        assert alchemy_store.session.query(AlchemyActivity).count() == 1
+        assert alchemy_store.session.query(AlchemyCategory).count() == 2
+        result = alchemy_store.activities.save(activity)
+        assert result == activity
+        assert alchemy_store.session.query(AlchemyActivity).count() == 1
+        assert alchemy_store.session.query(AlchemyCategory).count() == 2
 
     def test_add_new_with_new_category(self, alchemy_store, activity, category):
         """Test that adding a new alchemy_activity with new alchemy_category creates both."""

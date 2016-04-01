@@ -286,8 +286,6 @@ class ActivityManager(storage.BaseActivityManager):
             result = self.get_by_composite(activity.name, activity.category, raw=raw)
         except KeyError:
             result = self._add(activity, raw=raw)
-        if not raw:
-            result = result.as_hamster()
         return result
 
     def _add(self, activity, raw=False):
