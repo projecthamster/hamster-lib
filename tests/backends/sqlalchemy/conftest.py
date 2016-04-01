@@ -22,9 +22,25 @@ register(factories.AlchemyCategoryFactory)
 register(factories.AlchemyActivityFactory)
 register(factories.AlchemyFactFactory)
 
-
+# SQLAlchemy fixtures
 @pytest.fixture
 def alchemy_runner(request):
+    """
+    Provide a dedicated mock-db bound to a session object.
+
+    The session object we refer to here is loaded at global test start as import
+    and is also used by our ``AlchemyFactories``.
+
+    After each testrun the ``Session.remove()`` makes sure that each test gets a new
+    session and there is only one at a time.
+
+    We do not actually clear any tables (for example with ``self.session.rollback()``
+    but simply provide a all new database as part of this fixture. This is surely
+    wasteful but does for now.
+
+    Note:
+        [Reference](http://factoryboy.readthedocs.org/en/latest/orms.html#sqlalchemy)
+    """
     engine = create_engine('sqlite:///:memory:')
     objects.metadata.bind = engine
     objects.metadata.create_all(engine)
@@ -35,16 +51,19 @@ def alchemy_runner(request):
 
     request.addfinalizer(fin)
 
-
-# We are sometimes tempted not using hamsterObjects at all. but as our tests
-# expect them as input we need them!
-
-
 @pytest.fixture
 def alchemy_store(request, alchemy_runner):
+    """
+    Provide a SQLAlchemyStore that uses our test-session.
+
+    Note:
+        The engine created as part of the store.__init__() goes simply unused.
+    """
     store = SQLAlchemyStore('sqlite:///:memory:', common.Session)
     return store
 
+# We are sometimes tempted not using hamsterlib.objects at all. but as our tests
+# expect them as input we need them!
 
 @pytest.fixture(params=[True, False])
 def existing_category_valid_parametrized(request, category_factory,
@@ -112,11 +131,6 @@ def alchemy_fact_valid_parametrized(alchemy_store, fact_factory,
 
 
 @pytest.fixture
-def start_datetime():
-    return datetime.datetime.now()
-
-
-@pytest.fixture
 def set_of_alchemy_facts(start_datetime, fact_factory):
     start = start_datetime
     result = []
@@ -127,6 +141,7 @@ def set_of_alchemy_facts(start_datetime, fact_factory):
         start = start + datetime.timedelta(days=1)
     return result
 
+
 # as_hamster versions
 # its not clear that they are needed anymore
 @pytest.fixture
@@ -134,6 +149,7 @@ def alchemy_category_as_hamster(request, alchemy_category_factory):
     """Hamsterized version of a category."""
     category = alchemy_category_factory()
     return category.as_hamster()
+
 
 @pytest.fixture
 def alchemy_activity_as_hamster(request, alchemy_activity_factory):
@@ -144,18 +160,18 @@ def alchemy_activity_as_hamster(request, alchemy_activity_factory):
 
 
 # Fallback hamster object fixtures. Unless we know how factories interact
+@pytest.fixture
+def category(request, name):
+    return Category(name, None)
 
-@pytest.fixture(params=[fauxfactory.gen_string('utf8')])
-def category(request):
-    return Category(request.param, None)
-
-@pytest.fixture(params=[fauxfactory.gen_string('utf8')])
-def activity(request, category):
-    return Activity(request.param, pk=None, category=category, deleted=False)
 
 @pytest.fixture
-def fact(request, activity, start_end_datetimes, description_valid_parametrized):
+def activity(request, name, category):
+    return Activity(name, pk=None, category=category, deleted=False)
+
+
+@pytest.fixture
+def fact(request, activity, start_end_datetimes, description):
+    """Provide a basic ``hamsterlib.fact`` with some parametrized values."""
     start, end = start_end_datetimes
-    return Fact(activity, start, end, pk=None, description=description_valid_parametrized)
-
-
+    return Fact(activity, start, end, pk=None, description=description)

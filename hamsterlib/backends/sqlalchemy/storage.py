@@ -53,13 +53,25 @@ class SQLAlchemyStore(storage.BaseStore):
     inconsistency.
     """
     def __init__(self, path, session=None):
+        """
+        Set up the store.
+
+        Args:
+            path (str): Specifies the database to be used. See SQLAlchemy docs for
+                details.
+            session (SQLALcheny Session object, optional): Provide a dedicated session
+                to be used. Defaults to ``None``.
+
+        Note:
+            The ``session`` argument is mainly useful for tests.
+        """
+
         engine = create_engine(path)
         objects.metadata.bind = engine
         objects.metadata.create_all(engine)
 
         if not session:
-            #Session = sessionmaker(bind=engine)
-            Session = sessionmaker()
+            Session = sessionmaker(bind=engine)
             self.session = Session()
         else:
             self.session = session

@@ -3,6 +3,7 @@ import pytest
 import fauxfactory
 import datetime
 
+
 # Helper fixtures
 @pytest.fixture
 def start_end_datetimes_from_offset():
@@ -16,9 +17,23 @@ def start_end_datetimes_from_offset():
 
 # Attribute fixtures (non-parametrized)
 @pytest.fixture
+def name():
+    return fauxfactory.gen_utf8()
+
+@pytest.fixture
 def start_end_datetimes(start_end_datetimes_from_offset):
     """Return a start/end-datetime-tuple."""
     return start_end_datetimes_from_offset(15)
+
+
+@pytest.fixture
+def start_datetime():
+    return datetime.datetime.now()
+
+
+@pytest.fixture
+def description():
+    return fauxfactory.gen_iplum()
 
 
 # New value generation
@@ -78,17 +93,13 @@ def deleted_valid_parametrized(request):
     return request.param
 
 
-
-
-
-
 @pytest.fixture(params='alpha cyrillic latin1 utf8'.split())
 def description_valid_parametrized(request):
     """Provide a variety of strings that should be valid *descriptions*."""
     return fauxfactory.gen_string(request.param)
 
+
 @pytest.fixture(params='alpha cyrillic latin1 utf8'.split())
 def tag_list_valid_parametrized(request):
     """Provide a variety of strings that should be valid *descriptions*."""
     return [fauxfactory.gen_string(request.param) for i in range(4)]
-
