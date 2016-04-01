@@ -628,10 +628,12 @@ class FactManager(storage.BaseFactManager):
             result = result.as_hamster()
         return result
 
-    def get_all(self, start=None, end=None, search_term=''):
+    def _get_all(self, start=None, end=None, search_term=''):
         """
         Return all facts within a given timeframe (beginning of start_date
         end of end_date) that match given search terms.
+
+        ``get_all`` already took care of any normalization required.
 
         If no timeframe is given, return all facts?
 

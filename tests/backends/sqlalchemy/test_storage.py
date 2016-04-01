@@ -479,14 +479,14 @@ class TestFactManager():
         assert result == fact
 
     def test_get_all(self, set_of_alchemy_facts, alchemy_store):
-        result = alchemy_store.facts.get_all()
+        result = alchemy_store.facts._get_all()
         assert len(result) == len(set_of_alchemy_facts)
         assert len(result) == alchemy_store.session.query(AlchemyFact).count()
 
     def test_get_all_with_datetimes(self, start_datetime, set_of_alchemy_facts, alchemy_store):
         start = start_datetime
         end = start + datetime.timedelta(hours=5)
-        result = alchemy_store.facts.get_all(start=start, end=end)
+        result = alchemy_store.facts._get_all(start=start, end=end)
         assert len(result) == 1
 
     def test_timeframe_is_free_false_start(self, alchemy_store, alchemy_fact):
