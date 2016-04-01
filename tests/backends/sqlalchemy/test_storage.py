@@ -441,27 +441,14 @@ class TestFactManager():
         assert old_alchemy_activity_count == new_alchemy_activity_count
         assert db_instance.as_hamster().equal_fields(fact)
 
+    def test_save_new(self, fact, alchemy_store):
+        count_before = alchemy_store.session.query(AlchemyFact).count()
+        result = alchemy_store.facts.save(fact)
+        count_after = alchemy_store.session.query(AlchemyFact).count()
+        assert count_before < count_after
+        assert result.activity.name == fact.activity.name
+        assert result.description == fact.description
 
-##    def test_save_new(self, fact, alchemy_store):
-##        count_before = alchemy_store.session.query(AlchemyFact).count()
-##        result = alchemy_store.facts.save(fact)
-##        count_after = alchemy_store.session.query(AlchemyFact).count()
-##        assert count_before < count_after
-##        assert result.alchemy_activity.name == fact.alchemy_activity.name
-##        assert result.description == fact.description
-##
-##    def test_save_existing(self, existing_fact, new_fact_values, alchemy_store):
-##        count_before = alchemy_store.session.query(AlchemyFact).count()
-##        new_values = new_fact_values(existing_fact.as_hamster())
-##        for key, value in new_values.items():
-##            setattr(existing_fact, key, value)
-##        result = alchemy_store.facts.save(existing_fact)
-##        count_after = alchemy_store.session.query(AlchemyFact).count()
-##        assert count_before == count_after
-##        result_dict = result.as_dict()
-##        for key, value in new_values.items():
-##            assert result_dict[key] == value
-##
     def test_remove(self, alchemy_store, alchemy_fact):
         count_before = alchemy_store.session.query(AlchemyFact).count()
         fact = alchemy_fact.as_hamster()
@@ -471,20 +458,21 @@ class TestFactManager():
         assert result is True
         assert alchemy_store.session.query(AlchemyFact).get(fact.pk) is None
 
-##    def test_get(self, alchemy_fact, alchemy_store):
-##        result = alchemy_store.facts.get(alchemy_fact.pk)
-##        assert result == alchemy_fact
-##
-##    def test_get_all(self, set_of_alchemy_facts, alchemy_store):
-##        result = alchemy_store.facts.get_all()
-##        assert len(result) == len(set_of_alchemy_facts)
-##        assert len(result) == alchemy_store.session.query(AlchemyFact).count()
-##
-##    def test_get_all_with_datetimes(self, start_datetime, set_of_alchemy_facts, alchemy_store):
-##        start = start_datetime
-##        end = start_datetime + datetime.timedelta(hours=5)
-##        result = alchemy_store.facts.get_all(start=start, end=end)
-##        assert len(result) == 1
+    def test_get(self, alchemy_store, alchemy_fact):
+        fact = alchemy_fact.as_hamster()
+        result = alchemy_store.facts.get(fact.pk)
+        assert result == fact
+
+    def test_get_all(self, set_of_alchemy_facts, alchemy_store):
+        result = alchemy_store.facts.get_all()
+        assert len(result) == len(set_of_alchemy_facts)
+        assert len(result) == alchemy_store.session.query(AlchemyFact).count()
+
+    def test_get_all_with_datetimes(self, start_datetime, set_of_alchemy_facts, alchemy_store):
+        start = start_datetime
+        end = start + datetime.timedelta(hours=5)
+        result = alchemy_store.facts.get_all(start=start, end=end)
+        assert len(result) == 1
 
     def test_timeframe_is_free_false_start(self, alchemy_store, alchemy_fact):
         """Make sure that a start within our timeframe returns expected result."""

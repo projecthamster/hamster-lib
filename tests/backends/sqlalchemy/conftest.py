@@ -52,6 +52,7 @@ def alchemy_runner(request):
     request.addfinalizer(fin)
 
 @pytest.fixture
+# [TODO] We propably want this to autouse=True
 def alchemy_store(request, alchemy_runner):
     """
     Provide a SQLAlchemyStore that uses our test-session.
@@ -80,7 +81,6 @@ def existing_category_valid_parametrized(request, category_factory,
     else:
         result = None
     return result
-
 
 
 @pytest.fixture
@@ -119,40 +119,83 @@ def existing_activity_valid_parametrized(activity_factory,
         deleted=deleted_valid_parametrized)
 
 
-@pytest.fixture
-def alchemy_fact_valid_parametrized(alchemy_store, fact_factory,
-        existing_activity_valid_parametrized, description_valid_parametrized,
-        tag_list_valid_parametrized):
-    fact = fact_factory(description=description_valid_parametrized,
-        tags=tag_list_valid_parametrized)
-    return fact
+#@pytest.fixture
+#def alchemy_fact_valid_parametrized(alchemy_store, fact_factory,
+#        existing_activity_valid_parametrized, description_valid_parametrized,
+#        tag_list_valid_parametrized):
+#    fact = fact_factory(description=description_valid_parametrized,
+#        tags=tag_list_valid_parametrized)
+#    return fact
 
 
 @pytest.fixture
-def set_of_alchemy_facts(start_datetime, fact_factory):
+def set_of_alchemy_facts(start_datetime, alchemy_fact_factory):
+    """
+    Provide a multitude of generic persistent facts.
+
+    Facts have one day offset from each other and last 20 minutes each.
+    """
     start = start_datetime
     result = []
     for i in range(5):
         end = start + datetime.timedelta(minutes=20)
-        fact = fact_factory(start=start, end=end)
+        fact = alchemy_fact_factory(start=start, end=end)
         result.append(fact)
         start = start + datetime.timedelta(days=1)
     return result
 
 
-# Fallback hamster object fixtures. Unless we know how factories interact
+# Fallback hamster object and factory fixtures. Unless we know how factories
+# interact.
 @pytest.fixture
-def category(request, name):
-    return Category(name, None)
-
-
-@pytest.fixture
-def activity(request, name, category):
-    return Activity(name, pk=None, category=category, deleted=False)
+def category_factory(request, name):
+    def generate():
+        return Category(name, None)
+    return generate
 
 
 @pytest.fixture
-def fact(request, activity, start_end_datetimes, description):
-    """Provide a basic ``hamsterlib.fact`` with some parametrized values."""
-    start, end = start_end_datetimes
-    return Fact(activity, start, end, pk=None, description=description)
+def category(request, category_factory):
+    return category_factory()
+
+
+@pytest.fixture
+def activity_factory(request, name, category_factory):
+    """
+    Provide a ``hamsterlib.Activity`` factory.
+
+    Note:
+        * The returned activity will have a *new* category associated as well.
+        * Values are randomized but *not parametrized*.
+    """
+    def generate():
+        category = category_factory()
+        return Activity(name, pk=None, category=category, deleted=False)
+    return generate
+
+
+@pytest.fixture
+def activity(request, activity_factory):
+    return activity_factory()
+
+
+@pytest.fixture
+def fact_factory(request, activity_factory, start_end_datetimes, description):
+    """
+    Provide a ``hamsterlib.Fact`` factory.
+
+    Note:
+        * The returned fact will have a *new* activity (and by consequence category)
+        associated as well.
+        * Values are randomized but *not parametrized*.
+    """
+    def generate():
+        activity = activity_factory()
+        start, end = start_end_datetimes
+        return Fact(activity, start, end, pk=None, description=description)
+    return generate
+
+
+@pytest.fixture
+def fact(request, fact_factory):
+    return fact_factory()
