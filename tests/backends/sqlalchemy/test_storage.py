@@ -229,6 +229,12 @@ class TestActivityManager():
         assert alchemy_store.session.query(AlchemyActivity).count() == 1
         assert alchemy_store.session.query(AlchemyCategory).count() == 2
 
+    def test_activity_without_category(self, alchemy_store, activity):
+        """Add a new activity without an category."""
+        activity.category = None
+        result = alchemy_store.activities._add(activity)
+        assert result.equal_fields(activity)
+
     def test_add_new_with_new_category(self, alchemy_store, activity, category):
         """Test that adding a new alchemy_activity with new alchemy_category creates both."""
         assert alchemy_store.session.query(AlchemyActivity).count() == 0

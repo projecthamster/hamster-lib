@@ -147,7 +147,6 @@ class CategoryManager(storage.BaseCategoryManager):
             alchemy_category = alchemy_category.as_hamster()
         return alchemy_category
 
-
     def _update(self, category):
         """
         Update a given Category.
@@ -319,11 +318,15 @@ class ActivityManager(storage.BaseActivityManager):
 
         alchemy_activity = AlchemyActivity(None, activity.name, None,
             activity.deleted)
-        try:
-            alchemy_activity.category = self.store.categories.get_by_name(
-                activity.category, raw=True)
-        except KeyError:
-            alchemy_activity.category = AlchemyCategory(None, activity.category.name)
+        if activity.category:
+            try:
+                category = self.store.categories.get_by_name(
+                    activity.category.name, raw=True)
+            except KeyError:
+                category = AlchemyCategory(None, activity.category.name)
+        else:
+            category = None
+        alchemy_activity.category = category
         self.store.session.add(alchemy_activity)
         self.store.session.commit()
         if not raw:
