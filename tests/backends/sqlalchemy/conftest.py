@@ -13,7 +13,7 @@ from pytest_factoryboy import register
 
 from . import factories, common
 
-from hamsterlib.backends.sqlalchemy import objects, database
+from hamsterlib.backends.sqlalchemy import objects
 from hamsterlib.backends.sqlalchemy.storage import SQLAlchemyStore
 
 from hamsterlib import Category, Activity, Fact

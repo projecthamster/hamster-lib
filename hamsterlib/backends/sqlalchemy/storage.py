@@ -7,13 +7,14 @@ from future.utils import python_2_unicode_compatible
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import and_, or_
-from sqlalchemy.orm.exc import FlushError, NoResultFound, MultipleResultsFound
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 
 
 from . import objects
 from hamsterlib import storage
 from .objects import AlchemyCategory, AlchemyActivity, AlchemyFact
+from hamsterlib import Category, Activity, Fact
 
 import logging
 
