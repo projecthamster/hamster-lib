@@ -23,7 +23,6 @@ if sys.version_info < (3,):
 gettext.install('hamsterlib', **kwargs)
 
 
-
 @python_2_unicode_compatible
 class HamsterControl(object):
     """

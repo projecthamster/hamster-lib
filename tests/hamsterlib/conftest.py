@@ -39,9 +39,6 @@ def convert_time_to_datetime(time_string):
 def base_config():
     """Provide a generic baseline configuration."""
     return {
-        # [TODO]
-        # 'unsorted_localized' realy is a frontend thing and should go!
-        'unsorted_localized': 'Unsorted',
         'store': 'sqlalchemy',
         'day_start': datetime.time(hour=5, minute=30, second=0),
         'db-path': 'sqlite:///:memory:',
