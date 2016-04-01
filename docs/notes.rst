@@ -38,48 +38,12 @@ troubleshooting heuristics and 'lessons learned' may be documented here for now.
   Popular candidates are lookup- and count queries.
   One way to get around this using instances of classes not tracked/mapped by SQLAlchemy.
 
-* resurrect/temporary for ``add_fact`` is about checking for preexisting activities
-  by using ``__get_activity_by_name``. If True we will consider 'deleted' activities
-  and stick this to our new fact.
-
-* ``get_tag_ids`` seems to create tags that have been passed if they do not exist
-
-* activities flagged as ``temporary`` dont get ressurected (``__add_fact``).
-
-* ``categories.get_all`` returns ordered by activity name
-  (``hamster.storage.db.__get_category_activities``).
-
-* seperate ``storage.__get_activities`` is dedicated to autocomplete. we summerized its usecase
-  under the regular one so far.
-  The difference seems to be that autocomplete reasonable needs a way to retrieve *all*
-  activity names, irrespective of category association. This should be coverable by
-  adding a ``categories=False`` flag to our default method. Worth noting: considers only
-  non-deleted activities. Activities are returned ordered by their corresponding facts start time
-  with the 'latests' beeing first. Maybe it is actually cleaner to add a dedicated
-  method like this once we get to autocomplete.
-
-* If an activity gets *removed* we check if it has a fact associated. If so, the activity
-  id merely marked as 'deleted', if not it is beeing removed from the backend.
-
-* if a category is beeing removed, set all related activities to activity.category=None. Then
-  delete persistent category.
-
-* according to ``storage.db.Storage.__add_activity`` when adding a new activity with a
-  new category, this category does not get created but instead this activity.category=None.
-  This makes sense as categories passed are just id, we however can pass full category objects.
-  At the same time, this aproach allows to add arbitrary category.id as activity.category
-  without checking their existence. this may lead to db anomalies.
-
-* if an activity is created with ``temporary=True`` it will be marked as ``deleted=True``.
-  why not set the attribute directly? Whats the role of a temporary activity?
-
-* ``__add_activity`` seems to return the created activities id
-
 Not supported legacy 'functionality'
 -----------------------------------
 Not now:
+
 * ``search_name``
-* index
+* indexing
 * autocomplete
 * ``resurrect``/``temporary`` mechanic
 * ``get facts`` can inverse search_terms
@@ -88,6 +52,7 @@ Not now:
 * migration from old database aka ``run_fixtures``.
 
 Opted against:
+
 * ``__solve_overlaps``
 * ``__squeeze_in``
 * ``__touch_fact)``
@@ -99,3 +64,31 @@ Legacy Storage API notes
 * ``update_activity`` seems to modify index for facts in which the activity was reference.
 * ``add_category`` stores the verbose name and a lower(name) version as ``search_name``.
 * Fact parsing code: ``hamster.lib.parse_fact``
+* resurrect/temporary for ``add_fact`` is about checking for preexisting activities
+  by using ``__get_activity_by_name``. If True we will consider 'deleted' activities
+  and stick this to our new fact.
+* ``get_tag_ids`` seems to create tags that have been passed if they do not exist
+* activities flagged as ``temporary`` dont get ressurected (``__add_fact``).
+* ``categories.get_all`` returns ordered by activity name
+  (``hamster.storage.db.__get_category_activities``).
+* seperate ``storage.__get_activities`` is dedicated to autocomplete. we summerized its usecase
+  under the regular one so far.
+  The difference seems to be that autocomplete reasonable needs a way to retrieve *all*
+  activity names, irrespective of category association. This should be coverable by
+  adding a ``categories=False`` flag to our default method. Worth noting: considers only
+  non-deleted activities. Activities are returned ordered by their corresponding facts start time
+  with the 'latests' beeing first. Maybe it is actually cleaner to add a dedicated
+  method like this once we get to autocomplete.
+* If an activity gets *removed* we check if it has a fact associated. If so, the activity
+  id merely marked as 'deleted', if not it is beeing removed from the backend.
+* if a category is beeing removed, set all related activities to activity.category=None. Then
+  delete persistent category.
+* according to ``storage.db.Storage.__add_activity`` when adding a new activity with a
+  new category, this category does not get created but instead this activity.category=None.
+  This makes sense as categories passed are just id, we however can pass full category objects.
+  At the same time, this aproach allows to add arbitrary category.id as activity.category
+  without checking their existence. this may lead to db anomalies.
+* if an activity is created with ``temporary=True`` it will be marked as ``deleted=True``.
+  why not set the attribute directly? Whats the role of a temporary activity?
+* ``__add_activity`` seems to return the created activities id
+
