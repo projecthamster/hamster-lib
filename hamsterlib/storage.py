@@ -420,7 +420,7 @@ class BaseFactManager(BaseManager):
         if start is not None:
             if isinstance(start, datetime.datetime):
                 # isinstance(datetime.datetime, datetime.date) returns True,
-                # which is why we need to except this case first.
+                # which is why we need to catch this case first.
                 pass
             elif isinstance(start, datetime.date):
                 start = datetime.datetime.combine(start, self.store.config['day_start'])

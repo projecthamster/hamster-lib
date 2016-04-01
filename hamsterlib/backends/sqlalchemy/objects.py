@@ -24,14 +24,8 @@ The reason we are not mapping our native hamster objects directly is that this s
 to break the flexible plugable backend architecture as SQLAlchemy establishes the mapping
 right away. This may be avoidable and should be investigates later on.
 
-Our AlchemyObjects do not contain any nested/related-references. In particular there
-is neither a ``AlchemyActivity.category`` nor a ``AlchemyFact.activity``. Any such
-reference needs to be added manually. Right now our fixtures are the only ones
-instanciated those models and they do it manually.
-Maybe it is preferable to add storage methods for instance creation which just accept
-hamster objects and return fully populated AlchemyObjects.
-Then again, another alternative would be to just get proper alchemy factories up and running,
-this way we wouldnt need a manual init method to begin with.
+If those classes are instanciated manually any nested related instance needs to be added
+manually.
 
 Note:
     Our dedicated SQLAlchemy objects do not perform any general data validation

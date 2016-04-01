@@ -43,6 +43,10 @@ def end_day_to_datetime(end_day, config):
         consider even points in time up to ``2015-04-02 5:29``. That is to represent that a
         *work day*
         does not match *calendar days*.
+
+    Note:
+        An alternative implementation for the similar problem in legacy hamster:
+            ``hamster.storage.db.Storage.__get_todays_facts``.
     """
 
     day_start_time = config['day_start']
