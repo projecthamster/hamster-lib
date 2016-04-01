@@ -37,3 +37,7 @@ troubleshooting heuristics and 'lessons learned' may be documented here for now.
   autoflush/commit.
   Popular candidates are lookup- and count queries.
   One way to get around this using instances of classes not tracked/mapped by SQLAlchemy.
+
+* resurrect/temporary for ``add_fact`` is about checking for preexisting activities
+  by using ``__get_activity_by_name``. If True we will consider 'deleted' activities
+  and stick this to our new fact.

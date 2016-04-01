@@ -5,7 +5,7 @@ from builtins import str
 from future.utils import python_2_unicode_compatible
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker  # , mapper, relationship
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.orm.exc import FlushError, NoResultFound, MultipleResultsFound
 from sqlalchemy.exc import IntegrityError
@@ -13,18 +13,11 @@ from sqlalchemy.exc import IntegrityError
 
 from . import objects
 from hamsterlib import storage
-from hamsterlib import Category, Activity  # , Fact
 from .objects import AlchemyCategory, AlchemyActivity, AlchemyFact
 
 import logging
 
 logger = logging.getLogger('hamsterlib')
-
-"""
-A striking reason for having id for PKs is to deal with the updating of instances.
-If the PK is the name or such, and we want to update an existing instances spelling, it
-would be tricky to retrieve the old version if all we have is the new name.
-"""
 
 
 @python_2_unicode_compatible

@@ -15,16 +15,7 @@ import hamsterlib.helpers as helpers
 Module containing base classes intended to be inherited from when implementing storage backends.
 
 Note:
-    In lack of a better place to store this thought, here for now:
-    Our dbus service assumes/imposes that PKs are always >= 0 integers.
-    Whilst this is usualy the way to go, its worth noting as a constraint.
-
-    resurrect/temporary for ``add_fact`` is about checking for preexisting activities
-    by using ``__get_activity_by_name``. If True we will consider 'deleted' activities
-    and stick this to our new fact.
-
-    Later versions of this lib should get rid of deliberate PK-fields for ``Category``
-    and ``Activity`` and use their natural pk or natural composite key respectivly.
+    This is propably going to be replaced by a ``ABC``-bases solution.
 """
 
 
