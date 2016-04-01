@@ -123,6 +123,10 @@ class BaseCategoryManager(BaseManager):
         Raises:
             ValueError: When the category name was alreadyy present! It is supposed to be
             unique.
+
+        Note:
+            * Legacy version stored the proper name as well as a ``lower(name)`` version
+            in a dedicated field named ``search_name``.
         """
         raise NotImplementedError
 
@@ -146,6 +150,9 @@ class BaseCategoryManager(BaseManager):
     def remove(self, category):
         """
         Remove a category.
+
+        Any ``Activity`` referencing the passed category will be set to
+        ``Activity().category=None``.
 
         Args:
             category (hamsterlib.Category): Category to be updated.
@@ -194,7 +201,7 @@ class BaseCategoryManager(BaseManager):
         Return a list of all categories.
 
         Returns:
-            list: List of ``Categories``.
+            list: List of ``Categories``, ordered by ``lower(name).
         """
         raise NotImplementedError
 
@@ -263,30 +270,35 @@ class BaseActivityManager(BaseManager):
             hamsterlib.Activity: The newly created ``Activity``.
 
         Note:
-            For referece see ``storage.db.__add_activity()``.
+            According to ``storage.db.Storage.__add_activity``: when adding a new activity
+            with a new category, this category does not get created but instead this
+            activity.category=None. This makes sense as categories passed are just ids, we
+            however can pass full category objects. At the same time, this aproach allows
+            to add arbitrary category.id as activity.category without checking their existence.
+            this may lead to db anomalies.
         """
         raise NotImplementedError
 
     def _update(self, activity):
+        """
+        Update values for a given activity.
+
+        Which activity to refer to is determined by the passed PK new values
+        are taken from passed activity as well.
+
+        Note:
+            Seems to modify ``index``.
+        """
+
         raise NotImplementedError
 
     def remove(self, activity):
         """
         Remove an ``Activity`` from the database.import
 
-        Args:
-            activity (hamsterlib.Activity): The activity to be removed.
-
-        Returns:
-            bool: True
-
-        Raises:
-            KeyError: If the given ``Activity`` can not be found in the database.
-        """
-        raise NotImplementedError
-    def remove(self, activity):
-        """
-        Remove an ``Activity`` from the database.import
+        If the activity to be removed is associated with any ``Fact``-instances,
+        we set ``activity.deleted=True`` instead of deleting it properly.
+        If it is not, we delete it from the backend.
 
         Args:
             activity (hamsterlib.Activity): The activity to be removed.

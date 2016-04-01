@@ -6,8 +6,8 @@ These notes are just a dumping ground for semanitic information extracted from l
 while dealing with its codebase that is not documented/obvious. Also, some basic
 troubleshooting heuristics and 'lessons learned' may be documented here for now.
 
-* Names seem to be case sensitive. This should propably be documented properly with
-  regards to search/filter.
+* Why all this buisiness with ``search_names``, which are lowercase versions of proper names?
+  Is it because cases insesitive matching was not available? or due to performence considerations?
 
 * It looks like the dbus client assume PKs to be > 0 and uses 0 as marker for failure.
   Would be great if we can change that on the frontend instead of working around that.
@@ -42,6 +42,7 @@ Not supported legacy 'functionality'
 -----------------------------------
 Not now:
 
+* tags
 * ``search_name``
 * indexing
 * autocomplete
@@ -60,17 +61,8 @@ Opted against:
 
 Legacy Storage API notes
 ------------------------
-* ``get_categories`` returns ordered by lower(name).
-* ``update_activity`` seems to modify index for facts in which the activity was reference.
-* ``add_category`` stores the verbose name and a lower(name) version as ``search_name``.
-* Fact parsing code: ``hamster.lib.parse_fact``
-* resurrect/temporary for ``add_fact`` is about checking for preexisting activities
-  by using ``__get_activity_by_name``. If True we will consider 'deleted' activities
-  and stick this to our new fact.
 * ``get_tag_ids`` seems to create tags that have been passed if they do not exist
 * activities flagged as ``temporary`` dont get ressurected (``__add_fact``).
-* ``categories.get_all`` returns ordered by activity name
-  (``hamster.storage.db.__get_category_activities``).
 * seperate ``storage.__get_activities`` is dedicated to autocomplete. we summerized its usecase
   under the regular one so far.
   The difference seems to be that autocomplete reasonable needs a way to retrieve *all*
@@ -79,19 +71,18 @@ Legacy Storage API notes
   non-deleted activities. Activities are returned ordered by their corresponding facts start time
   with the 'latests' beeing first. Maybe it is actually cleaner to add a dedicated
   method like this once we get to autocomplete.
-* If an activity gets *removed* we check if it has a fact associated. If so, the activity
-  id merely marked as 'deleted', if not it is beeing removed from the backend.
-* if a category is beeing removed, set all related activities to activity.category=None. Then
-  delete persistent category.
-* according to ``storage.db.Storage.__add_activity`` when adding a new activity with a
-  new category, this category does not get created but instead this activity.category=None.
-  This makes sense as categories passed are just id, we however can pass full category objects.
-  At the same time, this aproach allows to add arbitrary category.id as activity.category
-  without checking their existence. this may lead to db anomalies.
+
+Dismissed:
+* resurrect/temporary for ``add_fact`` is about checking for preexisting activities
+  by using ``__get_activity_by_name``. If True we will consider 'deleted' activities
+  and stick this to our new fact.
+
+  * We don't do temporary facts.
+
 * if an activity is created with ``temporary=True`` it will be marked as ``deleted=True``.
   why not set the attribute directly? Whats the role of a temporary activity?
-* ``__add_activity`` seems to return the created activities id
-* ``temporary`` seeems only to be relevant when creating/updateing facts.
+  * This is only used when creating *temporary facts* in order to prevent proper activities
+    beeing created for them. We don't do temporary facts, so we can ommit this.
 
 Things we try to improve
 ------------------------
