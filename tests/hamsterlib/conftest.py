@@ -4,12 +4,14 @@ from builtins import str
 
 import pytest
 import fauxfactory
+import pickle
 import datetime
 import faker as faker_
 from pytest_factoryboy import register
 
 from . import factories
 from hamsterlib.lib import HamsterControl
+from hamsterlib import helpers
 
 
 register(factories.CategoryFactory)
@@ -35,6 +37,14 @@ def convert_time_to_datetime(time_string):
 
 
 # Controler
+
+@pytest.fixture
+def tmp_fact(base_config, fact):
+    """Provide an existing 'ongoing fact'."""
+    fact.end = None
+    with open(helpers._get_tmp_fact_path(base_config), 'wb') as fobj:
+        pickle.dump(fact, fobj)
+    return fact
 
 
 @pytest.yield_fixture

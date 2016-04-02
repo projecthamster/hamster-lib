@@ -6,18 +6,17 @@ from builtins import str
 import pytest
 from freezegun import freeze_time
 import datetime
+import pickle
+import os.path
 
 from hamsterlib.storage import BaseStore
+from hamsterlib import Fact
+from hamsterlib import helpers
 
 
 # Fixtures
 @pytest.fixture
-def store_path():
-    return 'foobar'
-
-
-@pytest.fixture
-def basestore(store_path, base_config):
+def basestore(base_config):
     store = BaseStore(base_config)
     return store
 
@@ -162,6 +161,15 @@ class TestActivityManager:
 
 
 class TestFactManager:
+    def test_save_tmp_fact(self, basestore, fact, mocker):
+        """
+        Make sure that passing a fact without end (aka 'ongoing fact') triggers the right method.
+        """
+        basestore.facts._start_tmp_fact = mocker.MagicMock()
+        fact.end = None
+        basestore.facts.save(fact)
+        assert basestore.facts._start_tmp_fact.called
+
     def test_add(self, basestore, fact):
         with pytest.raises(NotImplementedError):
             basestore.facts._add(fact)
@@ -243,3 +251,40 @@ class TestFactManager:
     def test__get_all(self, basestore):
         with pytest.raises(NotImplementedError):
             basestore.facts._get_all()
+
+    def test_start_tmp_fact_new(self, basestore, fact):
+        """Make sure that a valid new fact creates persistent file with proper content."""
+        fact.end = None
+        basestore.facts._start_tmp_fact(fact)
+        with open(helpers._get_tmp_fact_path(basestore.config), 'rb') as fobj:
+            new_fact = pickle.load(fobj)
+            assert isinstance(new_fact, Fact)
+            assert new_fact == fact
+
+    def test_start_tmp_fact_existsing(self, basestore, fact, tmp_fact):
+        """Make sure that starting an new 'ongoing fact' if we already got one throws error."""
+        fact.end = None
+        with pytest.raises(ValueError):
+            basestore.facts._start_tmp_fact(fact)
+
+    def test_start_tmp_fact_with_end(self, basestore, fact):
+        """Make sure that starting an new 'ongoing fact' if we already got one throws error."""
+        with pytest.raises(ValueError):
+            basestore.facts._start_tmp_fact(fact)
+
+    def test_stop_tmp_fact(self, basestore, base_config, tmp_fact, fact, mocker):
+        """Make sure we can stop an 'ongoing fact' and that it will have an end set."""
+        basestore.facts._add = mocker.MagicMock()
+        basestore.facts._stop_tmp_fact()
+        assert basestore.facts._add.called
+        fact_to_be_added = basestore.facts._add.call_args[0][0]
+        assert fact_to_be_added.end
+        fact_to_be_added.end = None
+        assert fact == fact_to_be_added
+        assert os.path.exists(helpers._get_tmp_fact_path(base_config)) is False
+    def test_stop_tmp_fact_non_existing(self, basestore):
+        """Make sure that trying to call stop when there is no 'ongoing fact' raises error."""
+        with pytest.raises(ValueError):
+            basestore.facts._stop_tmp_fact()
+
+

@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from future.utils import python_2_unicode_compatible
 from builtins import str
 import logging
+import pickle
+import os
 
 import hamsterlib
 from hamsterlib import objects
@@ -395,6 +397,8 @@ class BaseFactManager(BaseManager):
 
         if fact.pk or fact.pk == 0:
             result = self._update(fact)
+        elif fact.end is None:
+            result = self._start_tmp_fact(fact)
         else:
             result = self._add(fact)
         return result
@@ -576,3 +580,54 @@ class BaseFactManager(BaseManager):
             bool: True if free, False if occupied.
         """
         raise NotImplementedError
+
+    def _start_tmp_fact(self, fact):
+        """
+        Store new ongoing fact in persistent tmp file
+
+        Args:
+            fact (hamsterlib.Fact): Fact to be stored.
+
+        Returns:
+            hamsterlib.Fact: Fact stored.
+
+        Raises:
+            ValueError: If we already have a ongoing fact running.
+            ValueError: If the fact passed does have an end and hence does not
+                qualify for an 'ongoing fact'.
+        """
+        if fact.end:
+            raise ValueError(_("The passed fact has an end specified."))
+
+        tmp_fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        if tmp_fact:
+            message = _("Trying to start with ongoing fact already present.")
+            self.store.logger.debug(message)
+            raise ValueError(message)
+        else:
+            with open(helpers._get_tmp_fact_path(self.store.config), 'wb') as fobj:
+                pickle.dump(fact, fobj)
+            self.store.logger.debug(_("New temporary fact started."))
+        return fact
+
+    def _stop_tmp_fact(self):
+        """
+        Stop current 'ongoing fact'.
+
+        Returns:
+            hamsterlib.Fact: The stored fact.
+
+        Raises:
+            ValueError: If there is no currently 'ongoing fact' present.
+        """
+        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        if fact:
+            fact.end = datetime.datetime.now()
+            result = self._add(fact)
+            os.remove(helpers._get_tmp_fact_path(self.store.config))
+            self.store.logger.debug(_("Temporary fact stoped."))
+        else:
+            message = _("Trying to stop a non existing ongoing fact.")
+            self.store.logger.debug(message)
+            raise ValueError(message)
+        return result

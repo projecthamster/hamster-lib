@@ -1,7 +1,18 @@
 from collections import namedtuple
 import re
 import datetime
+import pickle
+from hamsterlib import Fact
+import os.path
 
+
+"""
+This module provides several convinience and intermediate functions to perform common tasks.
+
+Most of these deal with computing intermediate values or results. Whilst not rocket
+science it is preferable to use those instead of implementing you own in order to ensure
+consistent and tested behaviour.
+"""
 
 TimeFrame = namedtuple('Timeframe', ('start_date', 'start_time',
     'end_date', 'end_time', 'offset'))
@@ -241,3 +252,41 @@ def parse_time(time):
             "Sting does not seem to be in one of our supported time formats."
         ))
     return result
+
+
+# Non public helpers
+# These should be of very little use for any client module.
+def _load_tmp_fact(filepath):
+    """
+    Load an 'ongoing fact' from a given location.
+
+    Args:
+        filepath: Full path to the tmpfile location.
+
+    Returns:
+        hamsterlib.Fact: ``Fact`` representing the 'ongoing fact'. Returns ``False``
+            if no file was found.
+
+    Raises:
+        TypeError: If for some reason our stored instance is no instance of
+            ``hamsterlib.Fact``.
+    """
+
+    try:
+        with open(filepath, 'rb') as fobj:
+            fact = pickle.load(fobj)
+    except IOError:
+        fact = False
+    else:
+        if not isinstance(fact, Fact):
+            raise TypeError(_(
+                "Something went wrong. It seems our pickled file does not contain"
+                " valid Fact instance. [Content: '{content}'; Type: {type}".format(
+                    content=fact, type=type(fact))
+            ))
+    return fact
+
+def _get_tmp_fact_path(config):
+    """Convinience function to assemble the tmpfile_path from config settings."""
+    return os.path.join(config['work_dir'], config['tmpfile_name'])
+

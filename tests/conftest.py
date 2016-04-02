@@ -6,12 +6,14 @@ import datetime
 
 
 @pytest.fixture
-def base_config():
+def base_config(tmpdir):
     """Provide a generic baseline configuration."""
     return {
+        'work_dir': tmpdir.mkdir('hamsterlib').strpath,
         'store': 'sqlalchemy',
         'day_start': datetime.time(hour=5, minute=30, second=0),
         'db_path': 'sqlite:///:memory:',
+        'tmpfile_name': 'hamsterlib.fact',
     }
 
 # Helper fixtures
