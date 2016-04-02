@@ -33,10 +33,12 @@ def name():
     """Randomized, valid but non-parametrized name string."""
     return fauxfactory.gen_utf8()
 
+
 @pytest.fixture
 def start_end_datetimes(start_end_datetimes_from_offset):
     """Return a start/end-datetime-tuple."""
     return start_end_datetimes_from_offset(15)
+
 
 @pytest.fixture
 def start_datetime():

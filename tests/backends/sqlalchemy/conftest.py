@@ -3,19 +3,16 @@
 from __future__ import unicode_literals
 
 import pytest
-
 from sqlalchemy import create_engine
 import datetime
-import fauxfactory
 
 from pytest_factoryboy import register
 
 from . import factories, common
-
 from hamsterlib.backends.sqlalchemy import objects
 from hamsterlib.backends.sqlalchemy.storage import SQLAlchemyStore
-
 from hamsterlib import Category, Activity, Fact
+
 
 register(factories.AlchemyCategoryFactory)
 register(factories.AlchemyActivityFactory)
@@ -149,60 +146,3 @@ def fact_factory(request, activity_factory, start_end_datetimes, description):
 @pytest.fixture
 def fact(request, fact_factory):
     return fact_factory()
-
-
-# Stale fixture
-#@pytest.fixture(params=[True, False])
-#def existing_category_valid_parametrized(request, category_factory,
-#        name_string_valid_parametrized):
-#    """
-#    Provide a parametrized persisent category fixture.
-#
-#    This fixuture will represent a wide array of potential name charsets as well
-#    as a ``category=None`` version.
-#    """
-#
-#    if request.param:
-#        result = category_factory(name=name_string_valid_parametrized)
-#    else:
-#        result = None
-#    return result
-#
-#
-#@pytest.fixture
-#def existing_category_valid_without_none_parametrized(request, category_factory,
-#        name_string_valid_parametrized):
-#    """
-#    Provide a parametrized persisent category fixture.
-#
-#    This fixuture will represent a wide array of potential name charsets as well
-#    but not ``category=None``.
-#    """
-#    return category_factory(name=name_string_valid_parametrized)
-
-
-#@pytest.fixture
-#def existing_activity_valid_parametrized(activity_factory,
-#        name_string_valid_parametrized, deleted_valid_parametrized):
-#    """
-#    Provide a parametrized persistent activity fixture.
-#
-#    We make heavy usage of parametrized sub fixtures to generate a wide variation of
-#    possible persistent activities. Please refer to each used fixtures docstring
-#    for details on what is covered.
-#    """
-#
-#    # [TODO]
-#    # Parametrize category. In particular cover cases where category=None
-#
-#    return activity_factory(name=name_string_valid_parametrized,
-#        deleted=deleted_valid_parametrized)
-#
-
-#@pytest.fixture
-#def alchemy_fact_valid_parametrized(alchemy_store, fact_factory,
-#        existing_activity_valid_parametrized, description_valid_parametrized,
-#        tag_list_valid_parametrized):
-#    fact = fact_factory(description=description_valid_parametrized,
-#        tags=tag_list_valid_parametrized)
-#    return fact
