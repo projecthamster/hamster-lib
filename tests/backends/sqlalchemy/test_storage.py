@@ -113,11 +113,6 @@ class TestCategoryManager():
         assert result is None
         assert alchemy_store.session.query(AlchemyCategory).get(category.pk) is None
 
-    def test_remove_invalid_type(self, alchemy_store):
-        """Make sure passing an invalid type raises error."""
-        with pytest.raises(TypeError):
-            alchemy_store.categories.remove({})
-
     def test_remove_no_pk(self, alchemy_store, alchemy_category_factory):
         """Ensure that passing a alchemy_category without an PK raises an error."""
         category = alchemy_category_factory.build().as_hamster()

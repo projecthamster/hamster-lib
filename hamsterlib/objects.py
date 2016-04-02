@@ -190,12 +190,6 @@ class Activity(object):
             with a freshly created backend instance. As the latter will propably have a
             primary key assigned now and so ``__eq__`` would fail.
         """
-        print(other)
-        print(type(other))
-        print(other.category)
-        print(40 * '-')
-        print(self.as_tuple(include_pk=False))
-        print(other.as_tuple(include_pk=False))
         return self.as_tuple(include_pk=False) == other.as_tuple(include_pk=False)
 
     def __eq__(self, other):
