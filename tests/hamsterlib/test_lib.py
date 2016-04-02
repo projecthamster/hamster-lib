@@ -33,16 +33,3 @@ class TestControler:
         # assert len(logger.handlers) == 1
         assert isinstance(logger.handlers[0], logging.NullHandler)
 
-    @pytest.mark.xfail
-    def test_parse_raw_fact_with_persistent_activity(self, controler,
-            raw_fact_with_persistent_activity):
-        raw_fact, expectation = raw_fact_with_persistent_activity
-        fact = controler.parse_raw_fact(raw_fact)
-        assert fact.start == expectation['start']
-        assert fact.end == expectation['end']
-        assert fact.activity.name == expectation['activity']
-        if fact.activity.category:
-            assert fact.activity.category._name == expectation['category']
-        else:
-            assert expectation['category'] is None
-        assert fact.description == expectation['description']
