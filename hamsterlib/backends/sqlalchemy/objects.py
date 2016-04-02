@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from builtins import str
 from future.utils import python_2_unicode_compatible
 
 from sqlalchemy import Table, Column, ForeignKey, Integer, Unicode, DateTime, Boolean, MetaData

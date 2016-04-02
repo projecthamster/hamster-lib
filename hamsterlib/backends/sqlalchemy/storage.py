@@ -14,7 +14,6 @@ from sqlalchemy.exc import IntegrityError
 from . import objects
 from hamsterlib import storage
 from .objects import AlchemyCategory, AlchemyActivity, AlchemyFact
-from hamsterlib import Category, Activity, Fact
 
 import logging
 
@@ -197,20 +196,13 @@ class CategoryManager(storage.BaseCategoryManager):
 
         Raises:
             KeyError: If the ``Category`` can not be found by the backend.
-            TypeError: If category passed is not an hamsterlib.Category instance.
             ValueError: If category passed does not have an pk.
         """
-        # [FIXME] Figure our what exactly does it mean to remove a category.
-
-        if not isinstance(category, Category):
-            raise TypeError(_(
-                "Category instance expected. Got {} instead.".format(type(category))
-            ))
         if not category.pk:
             raise ValueError(_("PK-less Category. Are you trying to remove a new Category?"))
         alchemy_category = self.store.session.query(AlchemyCategory).get(category.pk)
         if not alchemy_category:
-            message =  _("``Category`` can not be found by the backend.")
+            message = _("``Category`` can not be found by the backend.")
             raise KeyError(message)
         self.store.session.delete(alchemy_category)
         self.store.session.commit()

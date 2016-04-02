@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 from future.utils import python_2_unicode_compatible
-from builtins import str
+
 import logging
 import pickle
 import os
@@ -11,7 +11,6 @@ import hamsterlib
 from hamsterlib import objects
 import datetime
 import hamsterlib.helpers as helpers
-# from future.utils import raise_from
 
 
 """
@@ -553,7 +552,6 @@ class BaseFactManager(BaseManager):
             backend query.
         """
         raise NotImplementedError
-
 
     def get_today(self):
         """

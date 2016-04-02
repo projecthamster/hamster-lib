@@ -1,9 +1,8 @@
 # -*- encoding: utf-8 -*-
+
 from __future__ import unicode_literals
-from builtins import str
 
 import pytest
-import fauxfactory
 import pickle
 import datetime
 import faker as faker_
@@ -55,6 +54,7 @@ def controler(base_config):
     yield controler
     controler.store.cleanup()
 
+
 # Categories
 @pytest.fixture(params=(None, True,))
 def category_valid_parametrized(request, category_factory, name_string_valid_parametrized):
@@ -85,6 +85,7 @@ def activity_valid_parametrized(request, activity_factory, name_string_valid_par
     """Provide a huge array of possible activity versions. Including None."""
     return activity_factory(name=name_string_valid_parametrized,
             category=category_valid_parametrized, deleted=deleted_valid_parametrized)
+
 
 @pytest.fixture
 def new_activity_values(category):
@@ -124,7 +125,6 @@ def string_delta_format_parametrized(request):
     """Provide all possible format option for ``Fact().get_string_delta()``."""
     return request.param
 
-#
 
 @pytest.fixture
 def today_fact(fact_factory):
@@ -144,7 +144,6 @@ def not_today_fact(fact_factory):
 def current_fact(fact_factory):
     """Provide a ``ongoing fact``. That is a fact that has started but not ended yet."""
     return fact_factory(start=datetime.datetime.now(), end=None)
-
 
 
 @pytest.fixture(params=[

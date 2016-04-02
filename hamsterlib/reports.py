@@ -118,7 +118,6 @@ class TSVWriter(ReportWriter):
             _("duration minutes"),
         )
 
-
         self.csv_writer.writerow([h for h in headers])
 
     def _write_fact(self, fact):

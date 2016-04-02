@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from builtins import str
 
 import pytest
 import datetime
@@ -16,13 +15,13 @@ from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, Alc
 class TestStore(object):
     """Tests to make sure our store/test setup behaves as expected."""
     def test_build_is_not_persistent(self, alchemy_store, alchemy_category_factory):
-        """Make sure that calling the factory with build() does not create a persistent db entry."""
+        """Make sure that calling ``factory.build()`` does not create a persistent db entry."""
         assert alchemy_store.session.query(AlchemyCategory).count() == 0
         alchemy_category_factory.build()
         assert alchemy_store.session.query(AlchemyCategory).count() == 0
 
     def test_create_is_persistent(self, alchemy_store, alchemy_category_factory):
-        """Make sure that calling the factory with () or create does creates a persistent db entry."""
+        """Make sure that ``factory()`` or ``create()`` does creates a persistent db entry."""
         assert alchemy_store.session.query(AlchemyCategory).count() == 0
         alchemy_category_factory.create()
         assert alchemy_store.session.query(AlchemyCategory).count() == 1
@@ -63,7 +62,7 @@ class TestCategoryManager():
         assert category != db_instance
 
     def test_add_existing_name(self, alchemy_store, alchemy_category_factory):
-        """Make sure that adding a alchemy_category with a name that is already present gives an error."""
+        """Make sure that adding a category with a name that is already present gives an error."""
         existing_category = alchemy_category_factory()
         category = alchemy_category_factory.build().as_hamster()
         category.name = existing_category.name
@@ -100,7 +99,7 @@ class TestCategoryManager():
             alchemy_store.categories._update(category)
 
     def test_update_existing_name(self, alchemy_store, alchemy_category_factory):
-        """Make sure that renaming a given alchemy_category to a name already taken throws an error."""
+        """Make sure that renaming a given alchemy_category to a taken name throws an error."""
         category_1, category_2 = (alchemy_category_factory(), alchemy_category_factory())
         category_2 = category_2.as_hamster()
         category_2.name = category_1.name
@@ -247,7 +246,7 @@ class TestActivityManager():
         assert db_instance.as_hamster().equal_fields(activity)
 
     def test_add_new_with_existing_category(self, alchemy_store, activity, alchemy_category):
-        """Test that adding a new alchemy_activity with existing alchemy_category does not create a new one."""
+        """Test that adding a new activity with existing category does not create a new one."""
         activity.category = alchemy_category.as_hamster()
         assert alchemy_store.session.query(AlchemyActivity).count() == 0
         assert alchemy_store.session.query(AlchemyCategory).count() == 1
@@ -282,7 +281,7 @@ class TestActivityManager():
 
     def test_update_with_existing_name_and_existing_category_name(self, alchemy_store,
             activity, alchemy_activity, alchemy_category_factory):
-        """Make sure that calling update with a taken name/alchemy_category.name raises exception."""
+        """Make sure that calling update with a taken composite key raises exception."""
         assert alchemy_store.session.query(AlchemyActivity).count() == 1
         assert alchemy_store.session.query(AlchemyCategory).count() == 1
         category = alchemy_category_factory()
@@ -295,7 +294,7 @@ class TestActivityManager():
 
     def test_update_with_existing_category(self, alchemy_store, alchemy_activity,
             alchemy_category_factory):
-        """Test that updateting an alchemy_activity with existing alchemy_category does not create a new one."""
+        """Test that updateting an activity with existing category does not create a new one."""
         activity = alchemy_activity.as_hamster()
         category = alchemy_category_factory().as_hamster()
         assert alchemy_activity.category != category
@@ -346,7 +345,7 @@ class TestActivityManager():
         assert result is not alchemy_activity
 
     def test_get_existing_raw(self, alchemy_store, alchemy_activity):
-        """Make sure that retrieving an existing alchemy alchemy_activity by pk works as intended."""
+        """Make sure that retrieving an existing alchemy_activity by pk works as intended."""
         result = alchemy_store.activities.get(alchemy_activity.pk, raw=True)
         assert result == alchemy_activity
         assert result is alchemy_activity
@@ -420,7 +419,7 @@ class TestFactManager():
         assert db_instance.as_hamster().equal_fields(fact)
 
     def test_add_new_valid_fact_existing_activity(self, alchemy_store, fact, alchemy_activity):
-        """Make sure that adding a new valid fact with an existing alchemy_activity works as intended."""
+        """Make sure that adding a new valid fact with an existing activity works as intended."""
         fact.activity = alchemy_activity.as_hamster()
         assert alchemy_store.session.query(AlchemyFact).count() == 0
         assert alchemy_store.session.query(AlchemyActivity).count() == 1

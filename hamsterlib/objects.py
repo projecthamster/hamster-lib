@@ -448,6 +448,7 @@ class Fact(object):
 
         activity = Activity(activity_name, category=category)
         return cls(activity, start, end=end, description=description)
+
     @property
     def start(self):
         return self._start
@@ -655,4 +656,3 @@ class Fact(object):
         if self.end:
             time = "%s - %s" % (time, self.end.strftime("%H:%M"))
         return "%s %s" % (time, self.serialized_name)
-

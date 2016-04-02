@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from builtins import str as text
 
 import pytest
 import os.path
@@ -107,4 +106,3 @@ class TestTSVWriter(object):
             line = next(reader)
         print(line)
         assert tuple(line) == fact_tuple
-

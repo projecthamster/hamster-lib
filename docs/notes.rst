@@ -45,6 +45,7 @@ Not now:
 * tags
 * ``search_name``
 * indexing
+* ical export
 * autocomplete
 * ``resurrect``/``temporary`` mechanic
 * ``get facts`` can inverse search_terms

@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from builtins import str
 from future.utils import python_2_unicode_compatible
 
 import logging
@@ -13,7 +12,8 @@ import sys
 BackendRegistryEntry = namedtuple('BackendRegistryEntry', ('verbose_name', 'store_class'))
 
 REGISTERED_BACKENDS = {
-    'sqlalchemy': BackendRegistryEntry('SQLAlchemy', 'hamsterlib.backends.sqlalchemy.SQLAlchemyStore'),
+    'sqlalchemy': BackendRegistryEntry('SQLAlchemy',
+        'hamsterlib.backends.sqlalchemy.SQLAlchemyStore'),
 }
 
 # See: https://wiki.python.org/moin/PortingToPy3k/BilingualQuickRef#gettext

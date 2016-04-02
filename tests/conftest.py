@@ -4,7 +4,6 @@ import fauxfactory
 import datetime
 
 
-
 @pytest.fixture
 def base_config(tmpdir):
     """Provide a generic baseline configuration."""
@@ -15,6 +14,7 @@ def base_config(tmpdir):
         'db_path': 'sqlite:///:memory:',
         'tmpfile_name': 'hamsterlib.fact',
     }
+
 
 # Helper fixtures
 @pytest.fixture
@@ -37,7 +37,6 @@ def name():
 def start_end_datetimes(start_end_datetimes_from_offset):
     """Return a start/end-datetime-tuple."""
     return start_end_datetimes_from_offset(15)
-
 
 @pytest.fixture
 def start_datetime():

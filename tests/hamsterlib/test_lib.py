@@ -1,8 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from future.utils import python_2_unicode_compatible
-from builtins import str
 
 import pytest
 import logging

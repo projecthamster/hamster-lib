@@ -1,6 +1,5 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
-from builtins import str
 
 
 import pytest
@@ -282,9 +281,8 @@ class TestFactManager:
         fact_to_be_added.end = None
         assert fact == fact_to_be_added
         assert os.path.exists(helpers._get_tmp_fact_path(base_config)) is False
+
     def test_stop_tmp_fact_non_existing(self, basestore):
         """Make sure that trying to call stop when there is no 'ongoing fact' raises error."""
         with pytest.raises(ValueError):
             basestore.facts._stop_tmp_fact()
-
-
