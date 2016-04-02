@@ -4,6 +4,16 @@ import fauxfactory
 import datetime
 
 
+
+@pytest.fixture
+def base_config():
+    """Provide a generic baseline configuration."""
+    return {
+        'store': 'sqlalchemy',
+        'day_start': datetime.time(hour=5, minute=30, second=0),
+        'db_path': 'sqlite:///:memory:',
+    }
+
 # Helper fixtures
 @pytest.fixture
 def start_end_datetimes_from_offset():

@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 from future.utils import python_2_unicode_compatible
 from builtins import str
+import logging
 
 import hamsterlib
 from hamsterlib import objects
@@ -25,8 +26,11 @@ Note:
 class BaseStore(object):
     """A controlers Store provides unified interfaces to interact with our stored enteties."""
 
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, config):
+        self.config = config
+        self.path = config['db_path']
+        self.logger = logging.getLogger('hamsterlib.storage')
+        self.logger.addHandler(logging.NullHandler())
         self.categories = BaseCategoryManager(self)
         self.activities = BaseActivityManager(self)
         self.facts = BaseFactManager(self)

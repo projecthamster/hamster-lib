@@ -46,7 +46,7 @@ class SQLAlchemyStore(storage.BaseStore):
     data retrieval methods return only one item or throw an error alerting us the the
     inconsistency.
     """
-    def __init__(self, path, session=None):
+    def __init__(self, config, session=None):
         """
         Set up the store.
 
@@ -59,11 +59,12 @@ class SQLAlchemyStore(storage.BaseStore):
         Note:
             The ``session`` argument is mainly useful for tests.
         """
+        super(SQLAlchemyStore, self).__init__(config)
         # [TODO]
         # It takes more deliberation to decide how to handle engine creation if
         # we recieve a session. Should be require the session to bring its own
         # engine?
-        engine = create_engine(path)
+        engine = create_engine(self.path)
         objects.metadata.bind = engine
         objects.metadata.create_all(engine)
         if not session:
