@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 from future.utils import python_2_unicode_compatible
-from builtins import str
+from builtins import str as text
 
 import csv
 
@@ -37,7 +37,7 @@ class ReportWriter(object):
                 rendered in the output.
         """
         self.datetime_format = datetime_format
-        str(path)
+        text(path)
         self.file = open(path, 'w')
 
     def write_report(self, facts):
@@ -76,12 +76,12 @@ class ReportWriter(object):
         description = fact.description or ''
 
         return FactTuple(
-            start=fact.start.strftime(self.datetime_format),
-            end=fact.end.strftime(self.datetime_format),
-            activity=fact.activity.name,
-            duration=fact.get_string_delta('%H:%M'),
-            category=category,
-            description=description,
+            start=text(fact.start.strftime(self.datetime_format)),
+            end=text(fact.end.strftime(self.datetime_format)),
+            activity=text(fact.activity.name),
+            duration=text(fact.get_string_delta('%H:%M')),
+            category=text(category),
+            description=text(description),
         )
 
     def _write_fact(self, fact):

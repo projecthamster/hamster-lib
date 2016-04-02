@@ -104,5 +104,4 @@ class TestTSVWriter(object):
             reader = csv.reader(fobj, dialect='excel-tab')
             next(reader)
             line = next(reader)
-        print(line)
         assert tuple(line) == fact_tuple

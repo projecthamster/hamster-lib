@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 from future.utils import python_2_unicode_compatible
-from builtins import str
+from builtins import str as text
 
 import re
 from collections import namedtuple
@@ -39,7 +39,7 @@ class Category(object):
         if not name:
             # Catching ``None`` and ``empty string``.
             raise ValueError(_("You need to specify a name."))
-        self._name = str(name)
+        self._name = text(name)
 
     def as_tuple(self, include_pk=True):
         """
@@ -93,7 +93,7 @@ class Category(object):
         return '{name}'.format(name=self.name)
 
     def __repr__(self):
-        return '[{pk}] {name}'.format(pk=self.pk, name=self.name)
+        return str('[{pk}] {name}'.format(pk=repr(self.pk), name=repr(self.name)))
 
 
 @python_2_unicode_compatible
@@ -132,7 +132,7 @@ class Activity(object):
         if not name:
             # Catching ``None``
             raise ValueError(_("You need to specify a name."))
-        self._name = str(name)
+        self._name = text(name)
 
     @classmethod
     def create_from_composite(cls, name, category_name, deleted=False):
@@ -206,10 +206,10 @@ class Activity(object):
 
     def __repr__(self):
         if self.category is None:
-            string = '[{pk}] {name}'.format(pk=self.pk, name=self.name)
+            string = str('[{pk}] {name}').format(pk=repr(self.pk), name=repr(self.name))
         else:
-            string = '[{pk}] {name} ({category})'.format(
-                pk=self.pk, name=self.name, category=self.category.name)
+            string = str('[{pk}] {name} ({category})').format(
+                pk=repr(self.pk), name=repr(self.name), category=repr(self.category.name))
         return string
 
 
@@ -507,7 +507,7 @@ class Fact(object):
         Normalize all descriptions that evaluate to ``False``. Store everything else as string.
         """
         if description:
-            description = str(description)
+            description = text(description)
         else:
             description = None
         self._description = description
@@ -543,7 +543,7 @@ class Fact(object):
         """
         seconds = int(self.delta.total_seconds())
         if format == '%M':
-            result = str(int(seconds / 60))
+            result = text(int(seconds / 60))
         elif format == '%H:%M':
             print(seconds)
             result = '{hours:02d}:{minutes:02d}'.format(hours=int(seconds / 3600),
@@ -583,7 +583,7 @@ class Fact(object):
                 * '-minutes': Relative time in minutes from the current date and time.
             * Our version of this method does not contain time information!
         """
-        result = str(self.activity.name)
+        result = text(self.activity.name)
 
         if self.category:
             result += "@%s" % self.category.name
@@ -648,5 +648,5 @@ class Fact(object):
     def __repr__(self):
         time = self.start.strftime("%d-%m-%Y %H:%M")
         if self.end:
-            time = "%s - %s" % (time, self.end.strftime("%H:%M"))
-        return "%s %s" % (time, self.serialized_name)
+            time = str('%s - %s') % (time, self.end.strftime("%H:%M"))
+        return str('%s %s') % (time, repr(self.serialized_name))

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from builtins import str
+from builtins import str as text
 
 import pytest
 import copy
@@ -62,11 +62,13 @@ class TestCategory(object):
 
     def test__str__(self, category):
         """Test string representation."""
-        assert '{name}'.format(name=category.name) == str(category)
+        assert '{name}'.format(name=category.name) == text(category)
 
     def test__repr__(self, category):
         """Test debug representation."""
-        assert '[{pk}] {name}'.format(pk=category.pk, name=category.name) == repr(category)
+        print(type(repr(category)))
+        print(repr(category))
+        assert str('[{pk}] {name}').format(pk=repr(category.pk), name=repr(category.name)) == repr(category)
 
 
 class TestActivity(object):
@@ -134,21 +136,22 @@ class TestActivity(object):
 
     def test__str__without_category(self, activity):
         activity.category = None
-        assert str(activity) == '{name}'.format(name=activity.name)
+        assert text(activity) == '{name}'.format(name=activity.name)
 
     def test__str__with_category(self, activity):
-        assert str(activity) == '{name} ({category})'.format(
+        assert text(activity) == '{name} ({category})'.format(
             name=activity.name, category=activity.category.name)
 
     def test__repr__with_category(self, activity):
         """Make sure our debugging representation matches our expectations."""
-        assert repr(activity) == '[{pk}] {name} ({category})'.format(
-            pk=activity.pk, name=activity.name, category=activity.category.name)
+        assert repr(activity) == str('[{pk}] {name} ({category})').format(
+            pk=repr(activity.pk), name=repr(activity.name), category=repr(activity.category.name))
 
     def test__repr__without_category(self, activity):
         """Make sure our debugging representation matches our expectations."""
         activity.category = None
-        assert repr(activity) == '[{pk}] {name}'.format(pk=activity.pk, name=activity.name)
+        assert repr(activity) == str('[{pk}] {name}').format(pk=repr(activity.pk),
+            name=repr(activity.name))
 
 
 class TestFact(object):
@@ -318,25 +321,25 @@ class TestFact(object):
             start=fact.start.strftime("%d-%m-%Y %H:%M"),
             end=fact.end.strftime("%H:%M"),
             serialized_name=fact.serialized_name)
-        assert str(fact) == expectation
+        assert text(fact) == expectation
 
     def test__str__no_end(self, fact):
         fact.end = None
         expectation = '{start} {serialized_name}'.format(
             start=fact.start.strftime("%d-%m-%Y %H:%M"),
             serialized_name=fact.serialized_name)
-        assert str(fact) == expectation
+        assert text(fact) == expectation
 
     def test__repr__(self, fact):
-        expectation = '{start} - {end} {serialized_name}'.format(
+        expectation = str('{start} - {end} {serialized_name}').format(
             start=fact.start.strftime("%d-%m-%Y %H:%M"),
             end=fact.end.strftime("%H:%M"),
-            serialized_name=fact.serialized_name)
+            serialized_name=repr(fact.serialized_name))
         assert repr(fact) == expectation
 
     def test__repr__no_end(self, fact):
         fact.end = None
-        expectation = '{start} {serialized_name}'.format(
+        expectation = str('{start} {serialized_name}').format(
             start=fact.start.strftime("%d-%m-%Y %H:%M"),
-            serialized_name=fact.serialized_name)
+            serialized_name=repr(fact.serialized_name))
         assert repr(fact) == expectation
