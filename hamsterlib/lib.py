@@ -59,12 +59,14 @@ class HamsterControl(object):
         as well as all additional configuration.
         """
 
-        backend = REGISTERED_BACKENDS[self.config['store']]
+        backend = REGISTERED_BACKENDS.get(self.config['store'])
+        if not backend:
+            raise KeyError(_("No or invalid storage specified."))
         import_path, storeclass = tuple(backend.store_class.rsplit('.', 1))
 
         backend_module = importlib.import_module(import_path)
         cls = getattr(backend_module, storeclass)
-        return cls(self.config['db-path'])
+        return cls(self.config)
 
     def _get_logger(self):
         """
@@ -74,6 +76,6 @@ class HamsterControl(object):
         wants to use logging needs to setup its required handlers itself.
         """
 
-        lib_logger = logging.getLogger(__name__)
+        lib_logger = logging.getLogger('hamsterlib.lib')
         lib_logger.addHandler(logging.NullHandler())
         return lib_logger

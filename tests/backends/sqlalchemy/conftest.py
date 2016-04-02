@@ -55,14 +55,16 @@ def alchemy_runner(request):
 
 @pytest.fixture
 # [TODO] We propably want this to autouse=True
-def alchemy_store(request, alchemy_runner):
+def alchemy_store(request, alchemy_runner, base_config):
     """
     Provide a SQLAlchemyStore that uses our test-session.
 
     Note:
         The engine created as part of the store.__init__() goes simply unused.
     """
-    store = SQLAlchemyStore('sqlite:///:memory:', common.Session)
+    config = base_config.copy()
+    config.update({'store': 'sqlalchemy'})
+    store = SQLAlchemyStore(config, common.Session)
     return store
 
 

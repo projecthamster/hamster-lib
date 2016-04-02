@@ -10,6 +10,7 @@ import datetime
 from hamsterlib.storage import BaseStore
 
 
+# Fixtures
 @pytest.fixture
 def store_path():
     return 'foobar'
@@ -17,14 +18,14 @@ def store_path():
 
 @pytest.fixture
 def basestore(store_path, base_config):
-    store = BaseStore(store_path)
-    store.config = base_config
+    store = BaseStore(base_config)
     return store
 
 
+# Tests
 class TestBaseStore():
-    def test_init(self, store_path):
-        assert BaseStore(store_path).path == store_path
+    def test_init(self, base_config):
+        assert BaseStore(base_config).path == base_config['db_path']
 
     def test_cleanup(self, basestore):
         with pytest.raises(NotImplementedError):

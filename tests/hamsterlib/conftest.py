@@ -35,14 +35,6 @@ def convert_time_to_datetime(time_string):
 
 
 # Controler
-@pytest.fixture
-def base_config():
-    """Provide a generic baseline configuration."""
-    return {
-        'store': 'sqlalchemy',
-        'day_start': datetime.time(hour=5, minute=30, second=0),
-        'db-path': 'sqlite:///:memory:',
-    }
 
 
 @pytest.yield_fixture
