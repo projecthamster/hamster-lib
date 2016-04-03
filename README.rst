@@ -48,6 +48,8 @@ Features
 * >= 95% test coverage
 * Extensive documentation
 * Focus on clean, maintainable code.
+* CI via codeship_
+.. _codeship: https://codeship.com
 
 Todo
 ----
