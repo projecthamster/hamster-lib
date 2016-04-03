@@ -22,13 +22,17 @@ class TestStore(object):
         alchemy_category_factory.build()
         assert alchemy_store.session.query(AlchemyCategory).count() == 0
 
-    def test_create_is_persistent(self, alchemy_store, alchemy_category_factory):
-        """Make sure that ``factory()`` or ``create()`` does creates a persistent db entry."""
+    def test_factory_call_persistent(self, alchemy_store, alchemy_category_factory):
+        """Make sure that ``factory()`` does creates a persistent db entry."""
         assert alchemy_store.session.query(AlchemyCategory).count() == 0
-        alchemy_category_factory.create()
-        assert alchemy_store.session.query(AlchemyCategory).count() == 1
         alchemy_category_factory()
-        assert alchemy_store.session.query(AlchemyCategory).count() == 2
+        assert alchemy_store.session.query(AlchemyCategory).count() == 1
+
+    def test_create_is_persistent(self, alchemy_store, alchemy_category_factory):
+        """Make sure that  ``create()`` does creates a persistent db entry."""
+        assert alchemy_store.session.query(AlchemyCategory).count() == 0
+        alchemy_category_factory()
+        assert alchemy_store.session.query(AlchemyCategory).count() == 1
 
     def test_build_pk(self, alchemy_store, alchemy_category_factory):
         """Make sure that factory instances have no pk assigned."""
