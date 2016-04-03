@@ -545,7 +545,6 @@ class Fact(object):
         if format == '%M':
             result = text_type(int(seconds / 60))
         elif format == '%H:%M':
-            print(seconds)
             result = '{hours:02d}:{minutes:02d}'.format(hours=int(seconds / 3600),
                 minutes=int((seconds % 3600) / 60))
         else:

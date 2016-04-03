@@ -67,7 +67,7 @@ class SQLAlchemyStore(storage.BaseStore):
         objects.metadata.bind = engine
         objects.metadata.create_all(engine)
         if not session:
-            Session = sessionmaker(bind=engine)
+            Session = sessionmaker(bind=engine)  # NOQA
             self.session = Session()
         else:
             self.session = session

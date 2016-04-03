@@ -67,8 +67,6 @@ class TestCategory(object):
 
     def test__repr__(self, category):
         """Test debug representation."""
-        print(type(repr(category)))
-        print(repr(category))
         assert str('[{pk}] {name}').format(
             pk=repr(category.pk), name=repr(category.name)) == repr(category)
 
@@ -313,7 +311,6 @@ class TestFact(object):
 
     def test__eq__true(self, fact):
         """Make sure that two identical facts return ``True``."""
-        print(type(fact))
         other = copy.deepcopy(fact)
         assert fact is not other
         assert fact == other
