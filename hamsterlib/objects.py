@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 from future.utils import python_2_unicode_compatible
 from builtins import str as text
+from six import text_type
 
 import re
 from collections import namedtuple
@@ -39,7 +40,7 @@ class Category(object):
         if not name:
             # Catching ``None`` and ``empty string``.
             raise ValueError(_("You need to specify a name."))
-        self._name = text(name)
+        self._name = text_type(name)
 
     def as_tuple(self, include_pk=True):
         """
@@ -132,7 +133,7 @@ class Activity(object):
         if not name:
             # Catching ``None``
             raise ValueError(_("You need to specify a name."))
-        self._name = text(name)
+        self._name = text_type(name)
 
     @classmethod
     def create_from_composite(cls, name, category_name, deleted=False):
@@ -507,7 +508,7 @@ class Fact(object):
         Normalize all descriptions that evaluate to ``False``. Store everything else as string.
         """
         if description:
-            description = text(description)
+            description = text_type(description)
         else:
             description = None
         self._description = description

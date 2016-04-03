@@ -2,10 +2,11 @@
 
 from __future__ import unicode_literals
 from future.utils import python_2_unicode_compatible
-from builtins import str as text
+from six import text_type
+
 
 import csv
-
+import sys
 from collections import namedtuple
 
 
@@ -37,8 +38,10 @@ class ReportWriter(object):
                 rendered in the output.
         """
         self.datetime_format = datetime_format
-        text(path)
-        self.file = open(path, 'w')
+        if sys.version_info < (3,):
+            self.file = open(path, 'wb')
+        else:
+            self.file = open(path, 'w', encoding='utf-8')
 
     def write_report(self, facts):
         """
@@ -76,12 +79,12 @@ class ReportWriter(object):
         description = fact.description or ''
 
         return FactTuple(
-            start=text(fact.start.strftime(self.datetime_format)),
-            end=text(fact.end.strftime(self.datetime_format)),
-            activity=text(fact.activity.name),
-            duration=text(fact.get_string_delta('%H:%M')),
-            category=text(category),
-            description=text(description),
+            start=fact.start.strftime(self.datetime_format),
+            end=fact.end.strftime(self.datetime_format),
+            activity=fact.activity.name,
+            duration=fact.get_string_delta('%H:%M'),
+            category=text_type(category),
+            description=description,
         )
 
     def _write_fact(self, fact):
@@ -108,7 +111,6 @@ class TSVWriter(ReportWriter):
     def __init__(self, path):
         super(TSVWriter, self).__init__(path)
         self.csv_writer = csv.writer(self.file, dialect='excel-tab')
-
         headers = (
             _("start time"),
             _("end time"),
@@ -117,8 +119,20 @@ class TSVWriter(ReportWriter):
             _("description"),
             _("duration minutes"),
         )
+        results = []
+        for h in headers:
+            if sys.version_info < (3, 0):
+                results.append(text_type(h).encode('utf-8'))
+            else:
+                results.append(text_type(h))
 
-        self.csv_writer.writerow([h for h in headers])
+        self.csv_writer.writerow(results)
 
-    def _write_fact(self, fact):
-        self.csv_writer.writerow(fact)
+    def _write_fact(self, fact_tuple):
+        results = []
+        for value in fact_tuple:
+            if sys.version_info < (3, 0):
+                results.append(text_type(value).encode('utf-8'))
+            else:
+                results.append(text_type(value))
+        self.csv_writer.writerow(results)

@@ -68,7 +68,8 @@ class TestCategory(object):
         """Test debug representation."""
         print(type(repr(category)))
         print(repr(category))
-        assert str('[{pk}] {name}').format(pk=repr(category.pk), name=repr(category.name)) == repr(category)
+        assert str('[{pk}] {name}').format(
+            pk=repr(category.pk), name=repr(category.name)) == repr(category)
 
 
 class TestActivity(object):
