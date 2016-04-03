@@ -1,15 +1,16 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from builtins import str as text
 
-import pytest
 import copy
 import datetime
+from builtins import str as text
+
 import faker as faker_
+import pytest
 from freezegun import freeze_time
 
-from hamsterlib import Category, Activity, Fact
+from hamsterlib import Activity, Category, Fact
 
 faker = faker_.Faker()
 

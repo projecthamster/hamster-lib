@@ -1,14 +1,13 @@
 # - coding: utf-8 -
 
 from __future__ import unicode_literals
-from future.utils import python_2_unicode_compatible
-from six import text_type
-
 
 import csv
 import sys
 from collections import namedtuple
 
+from future.utils import python_2_unicode_compatible
+from six import text_type
 
 """
 Module to provide generic reporting capabilities for easy adaption by clients.

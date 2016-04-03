@@ -2,8 +2,9 @@
 
 from __future__ import unicode_literals
 
-import pytest
 import logging
+
+import pytest
 
 from hamsterlib.storage import BaseStore
 

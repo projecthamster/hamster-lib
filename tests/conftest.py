@@ -1,7 +1,7 @@
-import pytest
+import datetime
 
 import fauxfactory
-import datetime
+import pytest
 
 
 @pytest.fixture

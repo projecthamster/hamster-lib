@@ -3,11 +3,13 @@
 from __future__ import unicode_literals
 
 import datetime
-import pytest
 import os.path
-from hamsterlib import helpers
-from freezegun import freeze_time
 import pickle
+
+import pytest
+from freezegun import freeze_time
+
+from hamsterlib import helpers
 
 
 class TestGetDayEnd(object):

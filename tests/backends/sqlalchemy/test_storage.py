@@ -2,10 +2,12 @@
 
 from __future__ import unicode_literals
 
-import pytest
 import datetime
 
-from hamsterlib.backends.sqlalchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
+import pytest
+
+from hamsterlib.backends.sqlalchemy import (AlchemyActivity, AlchemyCategory,
+                                            AlchemyFact)
 
 
 # The reason we see a great deal of count == 0 statements is to make sure that

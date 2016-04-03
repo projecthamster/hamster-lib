@@ -1,11 +1,13 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from six import text_type
+
+import csv
+import os.path
 
 import pytest
-import os.path
-import csv
+from six import text_type
+
 from hamsterlib import reports
 
 

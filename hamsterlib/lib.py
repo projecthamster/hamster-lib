@@ -1,13 +1,14 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from future.utils import python_2_unicode_compatible
 
-import logging
 import gettext
-from collections import namedtuple
 import importlib
+import logging
 import sys
+from collections import namedtuple
+
+from future.utils import python_2_unicode_compatible
 
 BackendRegistryEntry = namedtuple('BackendRegistryEntry', ('verbose_name', 'store_class'))
 

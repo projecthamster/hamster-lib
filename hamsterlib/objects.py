@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from future.utils import python_2_unicode_compatible
-from six import text_type
 
+import datetime
 import re
 from collections import namedtuple
-import datetime
 
+from future.utils import python_2_unicode_compatible
+from six import text_type
 
 CategoryTuple = namedtuple('CategoryTuple', ('pk', 'name'))
 ActivityTuple = namedtuple('ActivityTuple', ('pk', 'name', 'category', 'deleted'))

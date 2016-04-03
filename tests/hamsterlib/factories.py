@@ -1,12 +1,13 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
-from future.utils import python_2_unicode_compatible
+
+import datetime
 
 import factory
 import faker
-import datetime
 import fauxfactory
+from future.utils import python_2_unicode_compatible
 
 from hamsterlib import objects
 

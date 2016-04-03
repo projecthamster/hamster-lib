@@ -1,14 +1,13 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
+
 from future.utils import python_2_unicode_compatible
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer,
+                        MetaData, Table, Unicode, UniqueConstraint)
+from sqlalchemy.orm import mapper, relationship
 
-from sqlalchemy import Table, Column, ForeignKey, Integer, Unicode, DateTime, Boolean, MetaData
-from sqlalchemy.orm import relationship, mapper
-from sqlalchemy import UniqueConstraint
-
-from hamsterlib import Category, Activity, Fact
-
+from hamsterlib import Activity, Category, Fact
 
 DEFAULT_STRING_LENGTH = 254
 

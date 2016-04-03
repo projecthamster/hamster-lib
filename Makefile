@@ -88,7 +88,7 @@ docs:
 	$(BROWSER) docs/_build/html/index.html
 
 isort:
-	isort --recursive setup.py timetrackerimp/ tests/
+	isort --recursive setup.py hamsterlib/ tests/
 
 
 servedocs: docs

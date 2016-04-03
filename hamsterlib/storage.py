@@ -1,16 +1,17 @@
 # -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
+
+import datetime
+import logging
+import os
+import pickle
+
 from future.utils import python_2_unicode_compatible
 
-import logging
-import pickle
-import os
-
 import hamsterlib
-from hamsterlib import objects
-import datetime
 import hamsterlib.helpers as helpers
+from hamsterlib import objects
 
 
 """

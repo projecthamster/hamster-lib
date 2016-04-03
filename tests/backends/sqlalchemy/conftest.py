@@ -2,17 +2,17 @@
 
 from __future__ import unicode_literals
 
-import pytest
-from sqlalchemy import create_engine
 import datetime
 
+import pytest
 from pytest_factoryboy import register
+from sqlalchemy import create_engine
 
-from . import factories, common
+from hamsterlib import Activity, Category, Fact
 from hamsterlib.backends.sqlalchemy import objects
 from hamsterlib.backends.sqlalchemy.storage import SQLAlchemyStore
-from hamsterlib import Category, Activity, Fact
 
+from . import common, factories
 
 register(factories.AlchemyCategoryFactory)
 register(factories.AlchemyActivityFactory)

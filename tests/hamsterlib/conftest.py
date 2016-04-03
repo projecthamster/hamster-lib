@@ -2,16 +2,17 @@
 
 from __future__ import unicode_literals
 
-import pytest
-import pickle
 import datetime
+import pickle
+
 import faker as faker_
+import pytest
 from pytest_factoryboy import register
 
-from . import factories
-from hamsterlib.lib import HamsterControl
 from hamsterlib import helpers
+from hamsterlib.lib import HamsterControl
 
+from . import factories
 
 register(factories.CategoryFactory)
 register(factories.ActivityFactory)

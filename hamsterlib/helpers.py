@@ -1,10 +1,10 @@
-from collections import namedtuple
-import re
 import datetime
-import pickle
-from hamsterlib import Fact
 import os.path
+import pickle
+import re
+from collections import namedtuple
 
+from hamsterlib import Fact
 
 """
 This module provides several convinience and intermediate functions to perform common tasks.

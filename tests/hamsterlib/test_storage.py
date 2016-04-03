@@ -1,16 +1,15 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 
+import datetime
+import os.path
+import pickle
 
 import pytest
 from freezegun import freeze_time
-import datetime
-import pickle
-import os.path
 
+from hamsterlib import Fact, helpers
 from hamsterlib.storage import BaseStore
-from hamsterlib import Fact
-from hamsterlib import helpers
 
 
 # Fixtures
