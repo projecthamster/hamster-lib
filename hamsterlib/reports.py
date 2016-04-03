@@ -38,6 +38,11 @@ class ReportWriter(object):
                 rendered in the output.
         """
         self.datetime_format = datetime_format
+        # No matter through what loops we jump, at the end of the day py27
+        # ``writerow`` will insist on casting our data to binary str()
+        # instances. This clearly conflics with any generic open() that provides
+        # transparent text input/output and would take care of the encoding
+        # instead.
         if sys.version_info < (3,):
             self.file = open(path, 'wb')
         else:
@@ -121,18 +126,17 @@ class TSVWriter(ReportWriter):
         )
         results = []
         for h in headers:
+            data = text_type(h)
             if sys.version_info < (3, 0):
-                results.append(text_type(h).encode('utf-8'))
-            else:
-                results.append(text_type(h))
-
+                data = data.encode('utf-8')
+            results.append(data)
         self.csv_writer.writerow(results)
 
     def _write_fact(self, fact_tuple):
         results = []
         for value in fact_tuple:
+            data = text_type(value)
             if sys.version_info < (3, 0):
-                results.append(text_type(value).encode('utf-8'))
-            else:
-                results.append(text_type(value))
+                data = data.encode('utf-8')
+            results.append(data)
         self.csv_writer.writerow(results)

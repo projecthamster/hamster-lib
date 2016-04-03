@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 from future.utils import python_2_unicode_compatible
-from builtins import str as text
 from six import text_type
 
 import re
@@ -544,7 +543,7 @@ class Fact(object):
         """
         seconds = int(self.delta.total_seconds())
         if format == '%M':
-            result = text(int(seconds / 60))
+            result = text_type(int(seconds / 60))
         elif format == '%H:%M':
             print(seconds)
             result = '{hours:02d}:{minutes:02d}'.format(hours=int(seconds / 3600),
@@ -584,7 +583,7 @@ class Fact(object):
                 * '-minutes': Relative time in minutes from the current date and time.
             * Our version of this method does not contain time information!
         """
-        result = text(self.activity.name)
+        result = text_type(self.activity.name)
 
         if self.category:
             result += "@%s" % self.category.name

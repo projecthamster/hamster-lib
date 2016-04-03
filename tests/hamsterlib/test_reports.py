@@ -5,7 +5,6 @@ from six import text_type
 
 import pytest
 import os.path
-import sys
 import csv
 from hamsterlib import reports
 
@@ -80,48 +79,36 @@ class TestTSVWriter(object):
     def test_init_heading(self, path, tsv_writer):
         """Make sure that initialition writes header as expected."""
 
-        expectation = (
+        expectations = (
             'start time',
             'end time',
-            'activityöß',
+            'activity',
             'category',
             'description',
             'duration minutes',
         )
 
         tsv_writer._close()
-        # with codecs.open(path, 'r', encoding='utf-8') as fobj:
         with open(path, 'r') as fobj:
             reader = csv.reader(fobj, dialect='excel-tab')
             header = next(reader)
-        for item in header:
-            i = header.index(item)
-            item == expectation[i]
+        for field, expectation in zip(header, expectations):
+            if isinstance(field, text_type):
+                assert field == expectation
+            else:
+                assert field.decode('utf-8') == expectation
 
     def test__write_fact(self, path, fact, tsv_writer):
         """Make sure the writen fact is what we expect."""
-        # [TODO]
-        # Spliting the code path works but is mighty ugly. However, we
-        # encountered numerous problems finding a unified solution.
-        # Try again later or once we finaly drop py27 support.
         fact_tuple = tsv_writer._fact_to_tuple(fact)
         tsv_writer._write_fact(fact_tuple)
         tsv_writer._close()
-        if sys.version_info < (3, 0):
-            # python 2 prefers binary and then decode
-            with open(path, 'rb') as fobj:
-                reader = csv.reader(fobj, dialect='excel-tab')
-                reader.next()
-                line = reader.next()
-                for i in line:
-                    index = line.index(i)
-                    assert i.decode('utf-8') == fact_tuple[index]
-        else:
-            # python 3 insists on text, so we can iterate over
-            with open(path, 'r', encoding='utf-8') as fobj:
-                reader = csv.reader(fobj, dialect='excel-tab')
-                next(reader)
-                line = next(reader)
-                for i in line:
-                    index = line.index(i)
-                    assert i == fact_tuple[index]
+        with open(path, 'r') as fobj:
+            reader = csv.reader(fobj, dialect='excel-tab')
+            next(reader)
+            line = next(reader)
+            for field, expectation in zip(line, fact_tuple):
+                if isinstance(field, text_type):
+                    assert field == expectation
+                else:
+                    assert field.decode('utf-8') == expectation
