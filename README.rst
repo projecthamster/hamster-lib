@@ -15,13 +15,54 @@ hamsterlib
 
 A library for common timetracking functionality.
 
+``hamsterlib`` aims to be a replacement for ``projecthamster``  backend
+library.  While we are not able to funcction as a  straight forward drop-in
+replacement we try very hard to stay as compatible as possible. As a consequence
+clients are able to switch to ``hamsterlib`` by merely changing some basic 
+calls. Most of the semantics and return value will be as before.
+
+This itself points to a mayor arcitectural shift in the way ``hamsterlib`` aproaches
+timetracking. We are firm belivers in *do one thing, and do it good*. The tried and
+tested unix toolbox principle. As such we focus on providing usefull backend
+functionality and helper methods so clients (dbus interfaces, CLIs or graphical UIs)
+can build uppon a solid consistent base and focus on their specific requirements.
+
+Incompabilities
+---------------
+Despite our efforts to stay backwards compatible we did deliberatly break the way
+Facts withour end dates are handled. We think allowing for them in any persistent
+backend creates a data constistency nightmare and so far there seems no conceavable
+use case for it let alone an obvious semantic.
+What we do allow for is *one* ``ongoing fact``. That is a fact that has a start,
+but no enddate. For detail, please refer to the documentation.
+
+
 * Free software: GPL3
 * Documentation: https://hamsterlib.readthedocs.org.
 
 Features
 --------
 
-* TODO
+* Full python >=2.7 and >=3.4 compability
+* Full unicode support
+* >= 95% test coverage
+* Extensive documentation
+* Focus on clean, maintainable code.
+
+Todo
+----
+
+This early release is mainly meant as a rough proof of concept at this stage. It
+showcases our API as well as our general design decissions.
+As such there are a few functionalities/details of the original ``projecthamster``
+backend that we wish to allow for, but are not provided so far.
+These are:
+
+* Tags (we accept them but they are not stored so far.)
+* ical export
+* autocomplete related methods
+* trophies (The jury is still out on if and how we want to support those.)
+* migrations from old databases.
 
 Credits
 ---------
@@ -30,6 +71,5 @@ Tools used in rendering this package:
 
 *  Cookiecutter_
 *  `cookiecutter-pypackage`_
-
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
