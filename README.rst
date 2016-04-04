@@ -15,8 +15,8 @@ hamsterlib
         :target: https://waffle.io/elbenfreund/hamsterlib
         :alt: 'Stories in Ready' 
 
-.. image:: https://readthedocs.org/projects/hamsterlib/badge/?version=latest
-        :target: https://readthedocs.org/projects/hamsterlib/?badge=latest
+.. image:: https://readthedocs.org/projects/hamsterlib/badge/?version=master
+        :target: https://readthedocs.org/projects/hamsterlib/?badge=master
         :alt: Documentation Status
 
 (A badges refer to ``master``)
