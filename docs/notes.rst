@@ -50,7 +50,6 @@ Not now:
 * ``resurrect``/``temporary`` mechanic
 * ``get facts`` can inverse search_terms
 * trophies
-* config via anything but a configfile
 * migration from old database aka ``run_fixtures``.
 
 Opted against:

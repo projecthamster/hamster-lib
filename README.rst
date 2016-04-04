@@ -6,7 +6,7 @@ hamsterlib
         :target: https://pypi.python.org/pypi/hamsterlib
 
 .. image:: https://img.shields.io/travis/elbenfreund/hamsterlib.svg
-        :target: https://travis-ci.org/elbenfreund/hamsterlib
+        :target: https://codeship.org/elbenfreund/hamsterlib
 
 .. image:: https://readthedocs.org/projects/hamsterlib/badge/?version=latest
         :target: https://readthedocs.org/projects/hamsterlib/?badge=latest
@@ -27,18 +27,7 @@ tested unix toolbox principle. As such we focus on providing usefull backend
 functionality and helper methods so clients (dbus interfaces, CLIs or graphical UIs)
 can build uppon a solid consistent base and focus on their specific requirements.
 
-Incompabilities
----------------
-Despite our efforts to stay backwards compatible we did deliberatly break the way
-Facts withour end dates are handled. We think allowing for them in any persistent
-backend creates a data constistency nightmare and so far there seems no conceavable
-use case for it let alone an obvious semantic.
-What we do allow for is *one* ``ongoing fact``. That is a fact that has a start,
-but no enddate. For detail, please refer to the documentation.
 
-
-* Free software: GPL3
-* Documentation: https://hamsterlib.readthedocs.org.
 
 Features
 --------
@@ -48,8 +37,18 @@ Features
 * >= 95% test coverage
 * Extensive documentation
 * Focus on clean, maintainable code.
-* CI via codeship_
+* Free software: GPL3
+* All you need for production, test or dev environments comes out of the box
+  with regular python tools.
+
 .. _codeship: https://codeship.com
+
+Additional Resources
+--------------------
+* `Documentation by 'read the docs' <https://hamsterlib.readthedocs.org>`_
+* `Project management with 'waffles' <https://waffle.io/elbenfreund/hamsterlib>`_
+* `CI thanks to 'codeship' <https://codeship.com/elbenfreund/hamsterlib>`_
+* `Coverage reports by 'codecov' <https://codecov.io/elbenfreund/hamsterlib>`_
 
 Todo
 ----
@@ -65,6 +64,15 @@ These are:
 * autocomplete related methods
 * trophies (The jury is still out on if and how we want to support those.)
 * migrations from old databases.
+
+Incompabilities
+---------------
+Despite our efforts to stay backwards compatible we did deliberatly break the way
+Facts withour end dates are handled. We think allowing for them in any persistent
+backend creates a data constistency nightmare and so far there seems no conceavable
+use case for it let alone an obvious semantic.
+What we do allow for is *one* ``ongoing fact``. That is a fact that has a start,
+but no enddate. For detail, please refer to the documentation.
 
 Credits
 ---------

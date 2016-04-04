@@ -11,10 +11,10 @@ controler. All that is required to initialize it is that you pass it a ``dict`` 
 configuration information. Right now, all that is needed are the following key/value
 pairs::
 
-        'work_dir': ``path``,
-        'store': 'sqlalchemy',
+        'work_dir': ``path``; Where to store any temporary data
+        'store': 'sqlalchemy'; refer to ``hamsterlib.lib.REGISTERED_BACKENDS``
         'db_path': ``sqlalchemy db path``,
-        'tmpfile_name': filename under which any 'ongoing fact' will be saved
+        'tmpfile_name': filename; under which any 'ongoing fact' will be saved
 
 ``hamsterlib.HamsterControl`` initializes the store and provides a general logger.
 Besides that ``HamsterControl.categories``, ``HamsterControl.activities`` and 
