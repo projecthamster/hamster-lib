@@ -8,7 +8,7 @@ hamsterlib
 .. image:: https://img.shields.io/codeship/30ec8f70-dbc9-0133-f7bf-561c728b2028/master.svg
         :target: https://codeship.org/elbenfreund/hamsterlib
 
-.. image:: https://img.shields.io/codecov/github/elbenfreund/hamsterlib/master.svg
+.. image:: https://img.shields.io/codecov/c/github/elbenfreund/hamsterlib/master.svg
         :target: https://codecov.io/github/elbenfreund/hamsterlib
 
 .. image:: https://badge.waffle.io/elbenfreund/hamsterlib.svg?label=ready&title=Ready
@@ -18,6 +18,8 @@ hamsterlib
 .. image:: https://readthedocs.org/projects/hamsterlib/badge/?version=latest
         :target: https://readthedocs.org/projects/hamsterlib/?badge=latest
         :alt: Documentation Status
+
+(A badges refer to ``master``)
 
 A library for common timetracking functionality.
 
