@@ -18,7 +18,7 @@ class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
     pk = factory.Sequence(lambda n: n)
 
     @factory.sequence
-    def name(n):
+    def name(n):  # NOQA
         return '{name} - {key}'.format(name=factory.Faker('word'), key=n)
 
     class Meta:
