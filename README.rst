@@ -5,13 +5,19 @@ hamsterlib
 .. image:: https://img.shields.io/pypi/v/hamsterlib.svg
         :target: https://pypi.python.org/pypi/hamsterlib
 
-.. image:: https://img.shields.io/travis/elbenfreund/hamsterlib.svg
+.. image:: https://img.shields.io/codeship/30ec8f70-dbc9-0133-f7bf-561c728b2028/master.svg
         :target: https://codeship.org/elbenfreund/hamsterlib
+
+.. image:: https://img.shields.io/codecov/github/elbenfreund/hamsterlib/master.svg
+        :target: https://codecov.io/github/elbenfreund/hamsterlib
+
+.. image:: https://badge.waffle.io/elbenfreund/hamsterlib.svg?label=ready&title=Ready
+        :target: https://waffle.io/elbenfreund/hamsterlib
+        :alt: 'Stories in Ready' 
 
 .. image:: https://readthedocs.org/projects/hamsterlib/badge/?version=latest
         :target: https://readthedocs.org/projects/hamsterlib/?badge=latest
         :alt: Documentation Status
-
 
 A library for common timetracking functionality.
 
@@ -28,7 +34,6 @@ functionality and helper methods so clients (dbus interfaces, CLIs or graphical 
 can build uppon a solid consistent base and focus on their specific requirements.
 
 
-
 Features
 --------
 
@@ -42,6 +47,13 @@ Features
   with regular python tools.
 
 .. _codeship: https://codeship.com
+
+First Steps
+-----------
+* Build dev environment: ``make develop``
+* Build the documentation localy: ``make docs``
+* Run just the tests: ``make test``
+* Run entire test suite including linters and coverage: ``make test-all``
 
 Additional Resources
 --------------------
