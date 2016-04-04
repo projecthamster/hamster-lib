@@ -1,2 +1,2 @@
-from .objects import Category, Activity, Fact
-from .lib import HamsterControl
+from .lib import HamsterControl  # NOQA
+from .objects import Activity, Category, Fact  # NOQA

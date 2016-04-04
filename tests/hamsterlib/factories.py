@@ -1,34 +1,40 @@
 # -*- encoding: utf-8 -*-
+
 from __future__ import unicode_literals
+
+import datetime
 
 import factory
 import faker
-import datetime
+import fauxfactory
+from future.utils import python_2_unicode_compatible
 
 from hamsterlib import objects
-from hamsterlib import backends
-
-#from . import common
 
 
+@python_2_unicode_compatible
 class CategoryFactory(factory.Factory):
-    pk = None
-    name = factory.Faker('word')
 
     class Meta:
         model = objects.Category
 
+    pk = None
+    name = fauxfactory.gen_string('utf8')
 
+
+@python_2_unicode_compatible
 class ActivityFactory(factory.Factory):
+
+    class Meta:
+        model = objects.Activity
+
     pk = None
     name = factory.Faker('word')
     category = factory.SubFactory(CategoryFactory)
     deleted = False
 
-    class Meta:
-        model = objects.Activity
 
-
+@python_2_unicode_compatible
 class FactFactory(factory.Factory):
     pk = None
     activity = factory.SubFactory(ActivityFactory)
@@ -38,5 +44,3 @@ class FactFactory(factory.Factory):
 
     class Meta:
         model = objects.Fact
-
-

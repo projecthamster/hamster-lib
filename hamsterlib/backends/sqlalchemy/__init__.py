@@ -1,2 +1,2 @@
-from .alchemy import AlchemyCategory, AlchemyActivity, AlchemyFact
-from .store import SQLAlchemyStore
+from .objects import AlchemyActivity, AlchemyCategory, AlchemyFact  # NOQA
+from .storage import SQLAlchemyStore  # NOQA
