@@ -16,7 +16,10 @@ from . import common
 
 class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
     pk = factory.Sequence(lambda n: n)
-    name = factory.Faker('word')
+
+    @factory.sequence
+    def name(n):
+        return '{name} - {key}'.format(name=factory.Faker('word'), key=n)
 
     class Meta:
         model = AlchemyCategory
