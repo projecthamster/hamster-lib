@@ -64,9 +64,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'hamsterlib'
-copyright = u'2015-2016, Eric Goller'
-author = u'Eric Goller'
+project = 'hamsterlib'
+copyright = '2015-2016, Eric Goller'
+author = 'Eric Goller'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -219,8 +219,8 @@ latex_elements = {
 # [howto/manual]).
 latex_documents = [
     ('index', 'hamsterlib.tex',
-     u'hamsterlib Documentation',
-     u'Eric Goller', 'manual'),
+     'hamsterlib Documentation',
+     'Eric Goller', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at
@@ -250,8 +250,8 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'hamsterlib',
-     u'hamsterlib Documentation',
-     [u'Eric Goller'], 1)
+     'hamsterlib Documentation',
+     ['Eric Goller'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -265,8 +265,8 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'hamsterlib',
-     u'hamsterlib Documentation',
-     u'Eric Goller',
+     'hamsterlib Documentation',
+     'Eric Goller',
      'hamsterlib',
      'One line description of project.',
      'Miscellaneous'),
