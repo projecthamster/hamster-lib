@@ -1,3 +1,3 @@
 # This file specifies all packages required for end user deployment.
 
-sqlalchemy==1.0.9
+sqlalchemy==1.0.12
