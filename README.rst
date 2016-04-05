@@ -19,27 +19,27 @@ hamsterlib
         :target: https://readthedocs.org/projects/hamsterlib/?badge=master
         :alt: Documentation Status
 
-(A badges refer to ``master``)
+(All badges refer to ``master``)
 
 A library for common timetracking functionality.
 
-``hamsterlib`` aims to be a replacement for ``projecthamster``  backend
-library.  While we are not able to funcction as a  straight forward drop-in
+``hamsterlib`` aims to be a replacement for ``projecthamster``'s  backend
+library.  While we are not able to function as a  straightforward drop-in
 replacement we try very hard to stay as compatible as possible. As a consequence
-clients are able to switch to ``hamsterlib`` by merely changing some basic 
-calls. Most of the semantics and return value will be as before.
+clients are able to switch to ``hamsterlib``  merely by changing some basic 
+calls. Most of the semantics and return values will be as before.
 
-This itself points to a mayor arcitectural shift in the way ``hamsterlib`` aproaches
-timetracking. We are firm belivers in *do one thing, and do it good*. The tried and
-tested unix toolbox principle. As such we focus on providing usefull backend
+This itself points to a major architectural shift in the way ``hamsterlib`` approaches
+timetracking. We are firm believers in *do one thing, and do it well*. The tried and
+tested unix toolbox principle. As such we focus on providing useful backend
 functionality and helper methods so clients (dbus interfaces, CLIs or graphical UIs)
-can build uppon a solid consistent base and focus on their specific requirements.
+can build upon a solid and consistent base and focus on their specific requirements.
 
 
 Features
 --------
 
-* Full python >=2.7 and >=3.4 compability
+* Full python >=2.7 and >=3.4 compatibility
 * Full unicode support
 * >= 95% test coverage
 * Extensive documentation
@@ -53,7 +53,7 @@ Features
 First Steps
 -----------
 * Build dev environment: ``make develop``
-* Build the documentation localy: ``make docs``
+* Build the documentation locally: ``make docs``
 * Run just the tests: ``make test``
 * Run entire test suite including linters and coverage: ``make test-all``
 
@@ -66,31 +66,29 @@ Additional Resources
 
 Todo
 ----
-
-This early release is mainly meant as a rough proof of concept at this stage. It
-showcases our API as well as our general design decissions.
+This early release is mainly meant as a rough proof-of-concept at this stage. It
+showcases our API as well as our general design decisions.
 As such there are a few functionalities/details of the original ``projecthamster``
 backend that we wish to allow for, but are not provided so far.
 These are:
 
-* Tags (we accept them but they are not stored so far.)
+* Tags (We accept them but they are not stored in the backend.)
 * ical export
-* autocomplete related methods
-* trophies (The jury is still out on if and how we want to support those.)
-* migrations from old databases.
+* Autocomplete related methods
+* Trophies (The jury is still out on if and how we want to support those.)
+* Migrations from old databases.
 
-Incompabilities
+Incompatibilities
 ---------------
-Despite our efforts to stay backwards compatible we did deliberatly break the way
-Facts withour end dates are handled. We think allowing for them in any persistent
-backend creates a data constistency nightmare and so far there seems no conceavable
-use case for it let alone an obvious semantic.
+Despite our efforts to stay backwards compatible we did deliberately break the way
+``Facts`` without end dates are handled. We think allowing for them in any persistent
+backend creates a data consistency nightmare and so far there seems no conceivable
+use case for it, let alone an obvious semantic.
 What we do allow for is *one* ``ongoing fact``. That is a fact that has a start,
-but no enddate. For detail, please refer to the documentation.
+but no end date. For details, please refer to the documentation.
 
 Credits
 ---------
-
 Tools used in rendering this package:
 
 *  Cookiecutter_
