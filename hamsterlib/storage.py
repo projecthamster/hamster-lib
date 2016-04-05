@@ -211,7 +211,7 @@ class BaseCategoryManager(BaseManager):
         Return a list of all categories.
 
         Returns:
-            list: List of ``Categories``, ordered by ``lower(name).
+            list: List of ``Categories``, ordered by ``lower(name)``.
         """
         raise NotImplementedError
 
@@ -375,7 +375,12 @@ class BaseActivityManager(BaseManager):
                 is ordered by ``Activity.name``.
 
         Note:
-            Can search terms be prefixed with 'not'?
+            * This method combines legacy ``storage.db.__get_activities```and
+                ``storage.db.____get_category_activities``.
+            * Can search terms be prefixed with 'not'?
+            * Original implementation in ``hamster.storage.db.__get_activities`` returns
+                activity names converted to lowercase!
+            * Does exclude activities with ``deleted=True``.
         """
         raise NotImplementedError
 

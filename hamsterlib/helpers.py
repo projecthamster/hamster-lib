@@ -72,10 +72,10 @@ def end_day_to_datetime(end_day, config):
 
 def parse_time_range(time_info):
     """
-    Generic parser for time(-range) information.
+    Generic parser for timerange information.
 
     Args:
-        time_info (str): Raw string containing encoded timespan information.
+        time_info (str): Raw string containing encoded time(-span) information.
             Date/Time-combinations are expected in a ``YYYY-MM-DD hh:mm`` format.
             Relative  times can be given with ``-minutes``.
             Please note that either *relative* or *absolute* times will be considered.
@@ -141,11 +141,33 @@ def parse_time_range(time_info):
 
 
 def complete_timeframe(timeframe, config):
-    """Apply fallback strategy to incomplete timeframes."""
+    """
+    Apply fallback strategy to incomplete timeframes.
+
+    Our fallback strategy is as follows:
+        * Missing start-date: Fallback to ``today``.
+        * Missing start-time: Fallback to ``store.config['day_start']``.
+        * Missing end-date: Fallback to ``today`` of ``day_start='00:00', ``tomorrow`` otherwise.
+            See ``hamsterlib.helpers.end_day_to_datetime`` for details and explanaitions.
+        * Missing end-time: 1 second before ``store.config['day_start']``.
+
+    Args:
+        timeframe (TimeFrame): ``TimeFrame`` instance incorporating all available information
+            available about the timespan. Any missing info will be completed per fallback
+            strategy.
+        config (dict): A config-dict providing settings relevant to determin fallback values.
+
+    Returns:
+        tuple: ``(start, end)`` tuple. Where ``start`` and ``end`` are full ``datetime.datetime``
+            instances.
+
+    Raises:
+        TypeError: If any of the ``timeframe`` values is of inabpropiate datetime type.
+    """
 
     def complete_start_date(date):
         """
-        Assign default if ``date=None``, else ensure its a ``datetime.date`` instance.
+        Assign ``today`` if ``date=None``, else ensure its a ``datetime.date`` instance.
 
         Args:
             date (datetime.date): Startdate information.
@@ -172,6 +194,7 @@ def complete_timeframe(timeframe, config):
         return date
 
     def complete_start_time(time, day_start):
+        """Assign ``day_start`` if no start-time is given."""
         if not time:
             time = day_start
         else:
