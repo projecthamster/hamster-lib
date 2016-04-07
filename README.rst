@@ -8,16 +8,22 @@ hamsterlib
 .. image:: https://img.shields.io/codeship/30ec8f70-dbc9-0133-f7bf-561c728b2028/master.svg
         :target: https://codeship.org/elbenfreund/hamsterlib
 
-.. image:: https://img.shields.io/codecov/github/elbenfreund/hamsterlib/master.svg
+.. image:: https://img.shields.io/codecov/c/github/elbenfreund/hamsterlib/master.svg
         :target: https://codecov.io/github/elbenfreund/hamsterlib
 
 .. image:: https://badge.waffle.io/elbenfreund/hamsterlib.svg?label=ready&title=Ready
         :target: https://waffle.io/elbenfreund/hamsterlib
         :alt: 'Stories in Ready' 
 
-.. image:: https://readthedocs.org/projects/hamsterlib/badge/?version=latest
-        :target: https://readthedocs.org/projects/hamsterlib/?badge=latest
+.. image:: https://readthedocs.org/projects/hamsterlib/badge/?version=master
+        :target: https://readthedocs.org/projects/hamsterlib/?badge=master
         :alt: Documentation Status
+
+.. image:: https://requires.io/github/elbenfreund/hamsterlib/requirements.svg?branch=master
+        :target: https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master
+        :alt: Requirements Status
+
+(A badges refer to ``master``)
 
 A library for common timetracking functionality.
 
@@ -61,6 +67,7 @@ Additional Resources
 * `Project management with 'waffles' <https://waffle.io/elbenfreund/hamsterlib>`_
 * `CI thanks to 'codeship' <https://codeship.com/elbenfreund/hamsterlib>`_
 * `Coverage reports by 'codecov' <https://codecov.io/elbenfreund/hamsterlib>`_
+* `Dependency monitoring by 'requires.io' <https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master>`_
 
 Todo
 ----

@@ -6,13 +6,12 @@ import logging
 from builtins import str
 
 from future.utils import python_2_unicode_compatible
+from hamsterlib import storage
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import and_, or_
-
-from hamsterlib import storage
 
 from . import objects
 from .objects import AlchemyActivity, AlchemyCategory, AlchemyFact

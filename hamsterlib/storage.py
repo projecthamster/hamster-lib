@@ -7,10 +7,9 @@ import logging
 import os
 import pickle
 
-from future.utils import python_2_unicode_compatible
-
 import hamsterlib
 import hamsterlib.helpers as helpers
+from future.utils import python_2_unicode_compatible
 from hamsterlib import objects
 
 
@@ -498,6 +497,7 @@ class BaseFactManager(BaseManager):
             * This public function only provides some sanity checks and normalization. The actual
             backend query is handled by ``_get_all``.
             * ``search_term`` should be prefixable with ``not`` in order to invert matching.
+            * This does only return proper facts and does not include any existing 'ongoing fact'.
         """
 
         if start is not None:
@@ -560,6 +560,9 @@ class BaseFactManager(BaseManager):
 
         Returns:
             list: List of ``Fact`` instances.
+
+        Note:
+            * This does only return proper facts and does not include any existing 'ongoing fact'.
         """
         today = datetime.date.today()
         return self.get_all(
@@ -609,7 +612,7 @@ class BaseFactManager(BaseManager):
             self.store.logger.debug(_("New temporary fact started."))
         return fact
 
-    def _stop_tmp_fact(self):
+    def stop_tmp_fact(self):
         """
         Stop current 'ongoing fact'.
 
@@ -630,3 +633,38 @@ class BaseFactManager(BaseManager):
             self.store.logger.debug(message)
             raise ValueError(message)
         return result
+
+    def get_tmp_fact(self):
+        """
+        Provide a way to retrieve any existing 'ongoing fact'.
+
+        Returns:
+            hamsterlib.Fact: An instance representing our current 'ongoing fact'.capitalize
+
+        Raises:
+            KeyError: If no ongoing fact is present.
+        """
+        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        if not fact:
+            message = _("Tried to retrieve an 'ongoing fact' when there is none present.")
+            self.store.logger.debug(message)
+            raise KeyError(message)
+        return fact
+
+    def cancel_tmp_fact(self):
+        """
+        Provide a way to stop an 'ongoing fact' without saving it in the backend.
+
+        Returns:
+            None: If everything worked as expected.
+
+        Raises:
+            KeyError: If no ongoing fact is present.
+        """
+        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        if not fact:
+            message = _("Trying to stop a non existing ongoing fact.")
+            self.store.logger.debug(message)
+            raise KeyError(message)
+        os.remove(helpers._get_tmp_fact_path(self.store.config))
+        self.store.logger.debug(_("Temporary fact stoped."))

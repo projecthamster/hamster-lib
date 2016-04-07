@@ -5,12 +5,11 @@ from __future__ import unicode_literals
 import datetime
 
 import pytest
-from pytest_factoryboy import register
-from sqlalchemy import create_engine
-
 from hamsterlib import Activity, Category, Fact
 from hamsterlib.backends.sqlalchemy import objects
 from hamsterlib.backends.sqlalchemy.storage import SQLAlchemyStore
+from pytest_factoryboy import register
+from sqlalchemy import create_engine
 
 from . import common, factories
 

@@ -6,9 +6,8 @@ import csv
 import os.path
 
 import pytest
-from six import text_type
-
 from hamsterlib import reports
+from six import text_type
 
 
 @pytest.fixture
