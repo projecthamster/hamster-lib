@@ -294,3 +294,14 @@ class TestFactManager:
         """Make sure that we raise a KeyError if ther is no 'ongoing fact'."""
         with pytest.raises(KeyError):
             basestore.facts.get_tmp_fact()
+
+    def test_cancel_tmp_fact(self, basestore, tmp_fact, fact):
+        """Make sure we return the 'ongoing_fact'."""
+        result = basestore.facts.cancel_tmp_fact()
+        assert result is None
+        assert os.path.exists(helpers._get_tmp_fact_path(basestore.config)) is False
+
+    def test_cancel_tmp_fact_without_ongoing_fact(self, basestore):
+        """Make sure that we raise a KeyError if ther is no 'ongoing fact'."""
+        with pytest.raises(KeyError):
+            basestore.facts.cancel_tmp_fact()
