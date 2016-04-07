@@ -650,3 +650,21 @@ class BaseFactManager(BaseManager):
             self.store.logger.debug(message)
             raise KeyError(message)
         return fact
+
+    def cancel_tmp_fact(self):
+        """
+        Provide a way to stop an 'ongoing fact' without saving it in the backend.
+
+        Returns:
+            None: If everything worked as expected.
+
+        Raises:
+            KeyError: If no ongoing fact is present.
+        """
+        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        if not fact:
+            message = _("Trying to stop a non existing ongoing fact.")
+            self.store.logger.debug(message)
+            raise KeyError(message)
+        os.remove(helpers._get_tmp_fact_path(self.store.config))
+        self.store.logger.debug(_("Temporary fact stoped."))
