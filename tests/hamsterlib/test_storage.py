@@ -7,7 +7,6 @@ import pickle
 
 import pytest
 from freezegun import freeze_time
-
 from hamsterlib import Fact, helpers
 from hamsterlib.storage import BaseStore
 

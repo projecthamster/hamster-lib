@@ -7,10 +7,9 @@ import logging
 import os
 import pickle
 
-from future.utils import python_2_unicode_compatible
-
 import hamsterlib
 import hamsterlib.helpers as helpers
+from future.utils import python_2_unicode_compatible
 from hamsterlib import objects
 
 
