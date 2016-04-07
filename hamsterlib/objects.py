@@ -369,7 +369,6 @@ class Fact(object):
             # This would also unify the 'complete missing information' fallback
             # behaviour.
 
-
             now = datetime.datetime.now()
 
             delta_re = re.compile("^-[0-9]{1,3}$")
