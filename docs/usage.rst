@@ -21,12 +21,20 @@ Besides that ``HamsterControl.categories``, ``HamsterControl.activities`` and
 ``HamsterControl.facts`` are the main interfaces to communicate with the storage backend.
 
 The second cornerstone are the dedicated classes ``Category``, ``Activity`` and ``Fact``
-which, for convinience, can be imported right from ``hamsterlib``.
+which, for convinience, can be imported right from ``hamsterlib``. In particular
+``Fact.create_from_raw_fact`` might be of insterest
 They provide easy and consistent facilities to create, store and manage data relevant to
 your timetracking needs. Of particular interest is ``hamsterlib.Fact.create_from_raw``
 which allows you to pass a ``raw_fact`` string and reciceve a fully populated ``Fact``
 instance in return. The class will take care of all the tedious parsing and normalizing
 of data present in the ``raw_fact``.
+
+For clients aiming to utilize the new and sanitized backend API a look into 
+``hamsterlib.storage`` may be worthwile. These classes describe our baseline API that
+is to be implemented by any valid backend of ours. Note that some general methods are
+provided on this level already, so backend developers don't have to each time anew.
+Of cause they are always free to overload them in order to implement solutions optimized
+to their concrete backend infrastructure.
 
 Besides this general controler ``hamsterlib.helpers`` provides convinience functions
 that help with normalization and general intermediate computation clients may have need
