@@ -608,7 +608,7 @@ class BaseFactManager(BaseManager):
             self.store.logger.debug(_("New temporary fact started."))
         return fact
 
-    def _stop_tmp_fact(self):
+    def stop_tmp_fact(self):
         """
         Stop current 'ongoing fact'.
 

@@ -272,7 +272,7 @@ class TestFactManager:
     def test_stop_tmp_fact(self, basestore, base_config, tmp_fact, fact, mocker):
         """Make sure we can stop an 'ongoing fact' and that it will have an end set."""
         basestore.facts._add = mocker.MagicMock()
-        basestore.facts._stop_tmp_fact()
+        basestore.facts.stop_tmp_fact()
         assert basestore.facts._add.called
         fact_to_be_added = basestore.facts._add.call_args[0][0]
         assert fact_to_be_added.end
@@ -283,4 +283,4 @@ class TestFactManager:
     def test_stop_tmp_fact_non_existing(self, basestore):
         """Make sure that trying to call stop when there is no 'ongoing fact' raises error."""
         with pytest.raises(ValueError):
-            basestore.facts._stop_tmp_fact()
+            basestore.facts.stop_tmp_fact()
