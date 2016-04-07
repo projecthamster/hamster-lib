@@ -19,6 +19,10 @@ hamsterlib
         :target: https://readthedocs.org/projects/hamsterlib/?badge=master
         :alt: Documentation Status
 
+.. image:: https://requires.io/github/elbenfreund/hamsterlib/requirements.svg?branch=master
+        :target: https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master
+        :alt: Requirements Status
+
 (A badges refer to ``master``)
 
 A library for common timetracking functionality.
@@ -63,6 +67,7 @@ Additional Resources
 * `Project management with 'waffles' <https://waffle.io/elbenfreund/hamsterlib>`_
 * `CI thanks to 'codeship' <https://codeship.com/elbenfreund/hamsterlib>`_
 * `Coverage reports by 'codecov' <https://codecov.io/elbenfreund/hamsterlib>`_
+* `Dependency monitoring by 'requires.io' <https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master>`_
 
 Todo
 ----

@@ -24,7 +24,7 @@ test_requirements = [
 
 setup(
     name='hamsterlib',
-    version='0.0.1',
+    version='0.0.2',
     description="A library for common timetracking functionality.",
     long_description=readme + '\n\n' + history,
     author="Eric Goller",
@@ -43,7 +43,7 @@ setup(
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GPL3',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.7',
