@@ -497,6 +497,7 @@ class BaseFactManager(BaseManager):
             * This public function only provides some sanity checks and normalization. The actual
             backend query is handled by ``_get_all``.
             * ``search_term`` should be prefixable with ``not`` in order to invert matching.
+            * This does only return proper facts and does not include any existing 'ongoing fact'.
         """
 
         if start is not None:
@@ -559,6 +560,9 @@ class BaseFactManager(BaseManager):
 
         Returns:
             list: List of ``Fact`` instances.
+
+        Note:
+            * This does only return proper facts and does not include any existing 'ongoing fact'.
         """
         today = datetime.date.today()
         return self.get_all(
@@ -629,3 +633,20 @@ class BaseFactManager(BaseManager):
             self.store.logger.debug(message)
             raise ValueError(message)
         return result
+
+    def get_tmp_fact(self):
+        """
+        Provide a way to retrieve any existing 'ongoing fact'.
+
+        Returns:
+            hamsterlib.Fact: An instance representing our current 'ongoing fact'.capitalize
+
+        Raises:
+            KeyError: If no ongoing fact is present.
+        """
+        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        if not fact:
+            message = _("Tried to retrieve an 'ongoing fact' when there is none present.")
+            self.store.logger.debug(message)
+            raise KeyError(message)
+        return fact
