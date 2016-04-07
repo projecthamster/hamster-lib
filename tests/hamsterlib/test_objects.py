@@ -9,7 +9,6 @@ from builtins import str as text
 import faker as faker_
 import pytest
 from freezegun import freeze_time
-
 from hamsterlib import Activity, Category, Fact
 
 faker = faker_.Faker()

@@ -8,7 +8,6 @@ import factory
 import faker
 import fauxfactory
 from future.utils import python_2_unicode_compatible
-
 from hamsterlib import objects
 
 
