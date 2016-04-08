@@ -1,6 +1,5 @@
-====
 Notes
-====
+=====
 
 These notes are just a dumping ground for semanitic information extracted from legacy hamster
 while dealing with its codebase that is not documented/obvious. Also, some basic
@@ -39,7 +38,7 @@ troubleshooting heuristics and 'lessons learned' may be documented here for now.
   One way to get around this using instances of classes not tracked/mapped by SQLAlchemy.
 
 Not supported legacy 'functionality'
------------------------------------
+---------------------------------------
 Not now:
 
 * tags
@@ -74,13 +73,13 @@ Legacy Storage API notes
 
 Dismissed:
 * resurrect/temporary for ``add_fact`` is about checking for preexisting activities
-  by using ``__get_activity_by_name``. If True we will consider 'deleted' activities
-  and stick this to our new fact.
+by using ``__get_activity_by_name``. If True we will consider 'deleted' activities
+and stick this to our new fact.
 
   * We don't do temporary facts.
 
 * if an activity is created with ``temporary=True`` it will be marked as ``deleted=True``.
-  why not set the attribute directly? Whats the role of a temporary activity?
+why not set the attribute directly? Whats the role of a temporary activity?
   * This is only used when creating *temporary facts* in order to prevent proper activities
     beeing created for them. We don't do temporary facts, so we can ommit this.
 

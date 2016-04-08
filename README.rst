@@ -79,7 +79,7 @@ These are:
 * Migrations from old databases.
 
 Incompatibilities
----------------
+------------------
 Despite our efforts to stay backwards compatible we did deliberately break the way
 ``Facts`` without end dates are handled. We think allowing for them in any persistent
 backend creates a data consistency nightmare and so far there seems no conceivable
