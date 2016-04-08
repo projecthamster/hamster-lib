@@ -6,7 +6,6 @@ import datetime
 
 import factory
 import faker
-
 from hamsterlib.backends.sqlalchemy.objects import (AlchemyActivity,
                                                     AlchemyCategory,
                                                     AlchemyFact)

@@ -7,10 +7,9 @@ import pickle
 
 import faker as faker_
 import pytest
-from pytest_factoryboy import register
-
 from hamsterlib import helpers
 from hamsterlib.lib import HamsterControl
+from pytest_factoryboy import register
 
 from . import factories
 

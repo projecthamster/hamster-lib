@@ -7,7 +7,6 @@ import pickle
 
 import pytest
 from freezegun import freeze_time
-
 from hamsterlib import Fact, helpers
 from hamsterlib.storage import BaseStore
 
@@ -273,7 +272,7 @@ class TestFactManager:
     def test_stop_tmp_fact(self, basestore, base_config, tmp_fact, fact, mocker):
         """Make sure we can stop an 'ongoing fact' and that it will have an end set."""
         basestore.facts._add = mocker.MagicMock()
-        basestore.facts._stop_tmp_fact()
+        basestore.facts.stop_tmp_fact()
         assert basestore.facts._add.called
         fact_to_be_added = basestore.facts._add.call_args[0][0]
         assert fact_to_be_added.end
@@ -284,4 +283,25 @@ class TestFactManager:
     def test_stop_tmp_fact_non_existing(self, basestore):
         """Make sure that trying to call stop when there is no 'ongoing fact' raises error."""
         with pytest.raises(ValueError):
-            basestore.facts._stop_tmp_fact()
+            basestore.facts.stop_tmp_fact()
+
+    def test_get_tmp_fact(self, basestore, tmp_fact, fact):
+        """Make sure we return the 'ongoing_fact'."""
+        fact = basestore.facts.get_tmp_fact()
+        assert fact == fact
+
+    def test_get_tmp_fact_without_ongoing_fact(self, basestore):
+        """Make sure that we raise a KeyError if ther is no 'ongoing fact'."""
+        with pytest.raises(KeyError):
+            basestore.facts.get_tmp_fact()
+
+    def test_cancel_tmp_fact(self, basestore, tmp_fact, fact):
+        """Make sure we return the 'ongoing_fact'."""
+        result = basestore.facts.cancel_tmp_fact()
+        assert result is None
+        assert os.path.exists(helpers._get_tmp_fact_path(basestore.config)) is False
+
+    def test_cancel_tmp_fact_without_ongoing_fact(self, basestore):
+        """Make sure that we raise a KeyError if ther is no 'ongoing fact'."""
+        with pytest.raises(KeyError):
+            basestore.facts.cancel_tmp_fact()

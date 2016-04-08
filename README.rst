@@ -19,12 +19,16 @@ hamsterlib
         :target: https://readthedocs.org/projects/hamsterlib/?badge=master
         :alt: Documentation Status
 
-(All badges refer to ``master``)
+.. image:: https://requires.io/github/elbenfreund/hamsterlib/requirements.svg?branch=master
+        :target: https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master
+        :alt: Requirements Status
+
+(A badges refer to ``master``)
 
 A library for common timetracking functionality.
 
-``hamsterlib`` aims to be a replacement for ``projecthamster``'s  backend
-library.  While we are not able to function as a  straightforward drop-in
+``hamsterlib`` aims to be a replacement for ``projecthamster``  backend
+library.  While we are not able to function as a  straight forward drop-in
 replacement we try very hard to stay as compatible as possible. As a consequence
 clients are able to switch to ``hamsterlib``  merely by changing some basic 
 calls. Most of the semantics and return values will be as before.
@@ -63,6 +67,7 @@ Additional Resources
 * `Project management with 'waffles' <https://waffle.io/elbenfreund/hamsterlib>`_
 * `CI thanks to 'codeship' <https://codeship.com/elbenfreund/hamsterlib>`_
 * `Coverage reports by 'codecov' <https://codecov.io/elbenfreund/hamsterlib>`_
+* `Dependency monitoring by 'requires.io' <https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master>`_
 
 Todo
 ----
@@ -94,5 +99,4 @@ Tools used in rendering this package:
 *  Cookiecutter_
 *  `cookiecutter-pypackage`_
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
-
 .. _`cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage

@@ -596,8 +596,11 @@ class Fact(object):
             result += "@%s" % self.category.name
 
         if self.description or self.tags:
-            result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
-                               self.description or "")
+            # [FIXME]
+            # Workaround until we address tags!
+            result += ', {}'.format(self.description or "")
+            # result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
+            #                    self.description or "")
         return result
 
     @property

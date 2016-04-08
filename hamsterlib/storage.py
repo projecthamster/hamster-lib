@@ -7,10 +7,9 @@ import logging
 import os
 import pickle
 
-from future.utils import python_2_unicode_compatible
-
 import hamsterlib
 import hamsterlib.helpers as helpers
+from future.utils import python_2_unicode_compatible
 from hamsterlib import objects
 
 
@@ -26,7 +25,14 @@ Note:
 
 @python_2_unicode_compatible
 class BaseStore(object):
-    """A controlers Store provides unified interfaces to interact with our stored enteties."""
+    """
+    A controlers store provides unified interfaces to interact with our stored entities.
+
+    ``self.logger`` provides a dedicated logger instance for any storage related logging.
+    If you want to make use of it, just setup and attach your handlers and you are ready to go.
+    Be advised though, ``self.logger`` will be very verbose as on ``debug`` it will log any
+    method call and often even their returned instances.
+    """
 
     def __init__(self, config):
         self.config = config
@@ -73,7 +79,11 @@ class BaseCategoryManager(BaseManager):
         """
 
         if not isinstance(category, objects.Category):
-            raise TypeError(_("You need to pass a hamster category"))
+            message = _("You need to pass a hamster category")
+            self.store.logger.debug(message)
+            raise TypeError(message)
+
+        self.store.logger.debug(_("'{}' has been recieved.".format(category)))
 
         # We don't check for just ``category.pk`` becauses we don't want to make
         # assumptions about the PK beeing an int or beeing >0.
@@ -105,6 +115,7 @@ class BaseCategoryManager(BaseManager):
                 its primary key.
         """
 
+        self.store.logger.debug(_("'{}' has been recieved.'.".format(category)))
         if category:
             try:
                 category = self.get_by_name(category)
@@ -112,6 +123,7 @@ class BaseCategoryManager(BaseManager):
                 category = objects.Category(category)
                 category = self._add(category)
         else:
+            # We want to allow passing ``category=None``, so we normalize here.
             category = None
         return category
 
@@ -232,6 +244,7 @@ class BaseActivityManager(BaseManager):
             hamsterlib.Activity: The saved ``Activity``.
         """
 
+        self.store.logger.debug(_("'{}' has been recieved.".format(activity)))
         if activity.pk or activity.pk == 0:
             result = self._update(activity)
         else:
@@ -248,6 +261,7 @@ class BaseActivityManager(BaseManager):
         Returns:
             hamsterlib.Activity: The retrieved or created activity
         """
+        self.store.logger.debug(_("'{}' has been recieved.".format(activity)))
         try:
             activity = self.get_by_composite(activity.name, activity.category)
         except KeyError:
@@ -399,6 +413,7 @@ class BaseFactManager(BaseManager):
         Returns:
             hamsterlib.Fact: Saved Fact.
         """
+        self.store.logger.debug(_("Fact: '{}' has been recieved.".format(fact)))
 
         if fact.pk or fact.pk == 0:
             result = self._update(fact)
@@ -503,7 +518,12 @@ class BaseFactManager(BaseManager):
             * This public function only provides some sanity checks and normalization. The actual
                 backend query is handled by ``_get_all``.
             * ``search_term`` should be prefixable with ``not`` in order to invert matching.
+            * This does only return proper facts and does not include any existing 'ongoing fact'.
         """
+        self.store.logger.debug(_(
+            "Start: '{start}', end: {end} with filter: {filter} has been recieved.".format(
+                start=start, end=end, filter=filter_term)
+        ))
 
         if start is not None:
             if isinstance(start, datetime.datetime):
@@ -515,9 +535,12 @@ class BaseFactManager(BaseManager):
             elif isinstance(start, datetime.time):
                 start = datetime.datetime.combine(datetime.date.today(), start)
             else:
-                raise TypeError(_(
+                message = _(
                     "You need to pass either a datetime.date, datetime.time or datetime.datetime"
-                    " object."))
+                    " object."
+                )
+                self.store.logger.debug(message)
+                raise TypeError(message)
 
         if end is not None:
             if isinstance(end, datetime.datetime):
@@ -529,12 +552,16 @@ class BaseFactManager(BaseManager):
             elif isinstance(end, datetime.time):
                 end = datetime.datetime.combine(datetime.date.today(), end)
             else:
-                raise TypeError(_(
+                message = _(
                     "You need to pass either a datetime.date, datetime.time or datetime.datetime"
-                    " object."))
+                    " object."
+                )
+                raise TypeError(message)
 
         if start and end and (end <= start):
-            raise ValueError(_("End value can not be earlier than start!"))
+            message = _("End value can not be earlier than start!")
+            self.store.logger.debug(message)
+            raise ValueError(message)
 
         return self._get_all(start, end, filter_term)
 
@@ -565,7 +592,12 @@ class BaseFactManager(BaseManager):
 
         Returns:
             list: List of ``Fact`` instances.
+
+        Note:
+            * This does only return proper facts and does not include any existing 'ongoing fact'.
         """
+        self.store.logger.debug(_("Returning todays facts"))
+
         today = datetime.date.today()
         return self.get_all(
             datetime.datetime.combine(today, self.store.config['day_start']),
@@ -600,8 +632,11 @@ class BaseFactManager(BaseManager):
             ValueError: If the fact passed does have an end and hence does not
                 qualify for an 'ongoing fact'.
         """
+        self.store.logger.debug(_("Fact: '{}' has been recieved.".format(fact)))
         if fact.end:
-            raise ValueError(_("The passed fact has an end specified."))
+            message = _("The passed fact has an end specified.")
+            self.store.logger.debug(message)
+            raise ValueError(message)
 
         tmp_fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
         if tmp_fact:
@@ -614,7 +649,7 @@ class BaseFactManager(BaseManager):
             self.store.logger.debug(_("New temporary fact started."))
         return fact
 
-    def _stop_tmp_fact(self):
+    def stop_tmp_fact(self):
         """
         Stop current 'ongoing fact'.
 
@@ -624,6 +659,7 @@ class BaseFactManager(BaseManager):
         Raises:
             ValueError: If there is no currently 'ongoing fact' present.
         """
+        self.store.logger.debug(_("Stopping 'ongoing fact'."))
         fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
         if fact:
             fact.end = datetime.datetime.now()
@@ -635,3 +671,46 @@ class BaseFactManager(BaseManager):
             self.store.logger.debug(message)
             raise ValueError(message)
         return result
+
+    def get_tmp_fact(self):
+        """
+        Provide a way to retrieve any existing 'ongoing fact'.
+
+        Returns:
+            hamsterlib.Fact: An instance representing our current 'ongoing fact'.capitalize
+
+        Raises:
+            KeyError: If no ongoing fact is present.
+        """
+        self.store.logger.debug(_("Trying to get 'ongoing fact'."))
+
+        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        if not fact:
+            message = _("Tried to retrieve an 'ongoing fact' when there is none present.")
+            self.store.logger.debug(message)
+            raise KeyError(message)
+        return fact
+
+    def cancel_tmp_fact(self):
+        """
+        Provide a way to stop an 'ongoing fact' without saving it in the backend.
+
+        Returns:
+            None: If everything worked as expected.
+
+        Raises:
+            KeyError: If no ongoing fact is present.
+        """
+        # [TODO]
+        # Maybe it would be usefull to return the canceled fact instead. So it
+        # would be available to clients. Otherwise they may be tempted to look
+        # it up before canceling. which would result in two retrievals.
+        self.store.logger.debug(_("Trying to cancel 'ongoing fact'."))
+
+        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        if not fact:
+            message = _("Trying to stop a non existing ongoing fact.")
+            self.store.logger.debug(message)
+            raise KeyError(message)
+        os.remove(helpers._get_tmp_fact_path(self.store.config))
+        self.store.logger.debug(_("Temporary fact stoped."))
