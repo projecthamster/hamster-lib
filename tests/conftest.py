@@ -13,6 +13,7 @@ def base_config(tmpdir):
         'day_start': datetime.time(hour=5, minute=30, second=0),
         'db_path': 'sqlite:///:memory:',
         'tmpfile_name': 'hamsterlib.fact',
+        'fact_min_delta': 60,
     }
 
 

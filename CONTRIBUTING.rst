@@ -4,6 +4,8 @@ Contributing
 
 Contributions are welcome, and they are greatly appreciated! Every
 little bit helps, and credit will always be given.
+Further details on labels and their respective meaning can be found in the
+`wiki <https://github.com/elbenfreund/hamsterlib/wiki/Labels,-and-how-to-use-them>`_.
 
 You can contribute in many ways:
 

@@ -15,6 +15,7 @@ Contents:
    installation
    usage
    contributing
+   API reference <modules>
    notes
    authors
    history

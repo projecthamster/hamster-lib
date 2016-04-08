@@ -24,7 +24,7 @@ test_requirements = [
 
 setup(
     name='hamsterlib',
-    version='0.0.2',
+    version='0.0.3',
     description="A library for common timetracking functionality.",
     long_description=readme + '\n\n' + history,
     author="Eric Goller",
@@ -32,6 +32,8 @@ setup(
     url='https://github.com/elbenfreund/hamsterlib',
     packages=[
         'hamsterlib',
+        'hamsterlib.backends',
+        'hamsterlib.backends.sqlalchemy',
     ],
     package_dir={'hamsterlib':
                  'hamsterlib'},

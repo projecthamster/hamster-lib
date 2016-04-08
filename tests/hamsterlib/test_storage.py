@@ -167,6 +167,13 @@ class TestFactManager:
         basestore.facts.save(fact)
         assert basestore.facts._start_tmp_fact.called
 
+    def test_save_to_brief_fact(self, basestore, fact):
+        """Ensure that a fact with to small delta raises an exception."""
+        delta = datetime.timedelta(seconds=(basestore.config['fact_min_delta'] - 1))
+        fact.end = fact.start + delta
+        with pytest.raises(ValueError):
+            basestore.facts.save(fact)
+
     def test_add(self, basestore, fact):
         with pytest.raises(NotImplementedError):
             basestore.facts._add(fact)

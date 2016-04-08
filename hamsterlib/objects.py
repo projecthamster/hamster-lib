@@ -150,7 +150,8 @@ class Activity(object):
         Note:
             * Should future iterations extend ``Category`` this may turn problematic.
             * This method does not allow to specify a primary key as it is intended only
-            for new instances, not ones retrieved by the backend.
+              for new instances, not ones retrieved by the backend.
+
         """
         category = Category(category_name)
         return cls(name, category=category, deleted=deleted)
@@ -278,6 +279,11 @@ class Fact(object):
 
         Returns:
             hamsterlib.Fact: ``Fact`` object with data parsesd from raw fact.
+
+        Note:
+            * The resulting fact just contains any information stored in the ``raw_fact`` string.
+                If normalization/completion is desired, it needs to be done postprocessing this
+                newly generated ``Fact`` instance.
         """
 
         def at_split(string):
@@ -361,6 +367,8 @@ class Fact(object):
             # [FIXME]
             # Check if ther is any rationale against using
             # ``hamsterlib.helpers.parse_time_range`` instead.
+            # This would also unify the 'complete missing information' fallback
+            # behaviour.
 
             now = datetime.datetime.now()
 
@@ -588,8 +596,11 @@ class Fact(object):
             result += "@%s" % self.category.name
 
         if self.description or self.tags:
-            result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
-                               self.description or "")
+            # [FIXME]
+            # Workaround until we address tags!
+            result += ', {}'.format(self.description or "")
+            # result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
+            #                    self.description or "")
         return result
 
     @property

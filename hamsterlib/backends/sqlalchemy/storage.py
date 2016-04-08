@@ -2,11 +2,11 @@
 
 from __future__ import unicode_literals
 
-import logging
 from builtins import str
 
 from future.utils import python_2_unicode_compatible
 from hamsterlib import storage
+from six import text_type
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
@@ -15,8 +15,6 @@ from sqlalchemy.sql.expression import and_, or_
 
 from . import objects
 from .objects import AlchemyActivity, AlchemyCategory, AlchemyFact
-
-logger = logging.getLogger('hamsterlib')
 
 
 @python_2_unicode_compatible
@@ -63,11 +61,15 @@ class SQLAlchemyStore(storage.BaseStore):
         # we recieve a session. Should be require the session to bring its own
         # engine?
         engine = create_engine(self.path)
+        self.logger.debug(_("Engine '{}' created.".format(engine)))
         objects.metadata.bind = engine
         objects.metadata.create_all(engine)
+        self.logger.debug(_("Database tables created."))
         if not session:
             Session = sessionmaker(bind=engine)  # NOQA
+            self.logger.debug(_("Bound engine to session-object."))
             self.session = Session()
+            self.logger.debug(_("Instantiated session."))
         else:
             self.session = session
         self.categories = CategoryManager(self)
@@ -91,6 +93,9 @@ class CategoryManager(storage.BaseCategoryManager):
         Returns:
             hamsterlib.Category or None: Category.
         """
+
+        message = _("Recieved {!r} and raw={}.".format(category, raw))
+        self.store.logger.debug(message)
 
         if category:
             try:
@@ -122,12 +127,15 @@ class CategoryManager(storage.BaseCategoryManager):
                 be more apropiate.
         """
 
+        message = _("Recieved {!r} and raw={}.".format(category, raw))
+        self.store.logger.debug(message)
+
         if category.pk:
             message = _(
                 "The category ('{!r}') you are trying to add already has an PK."
                 " Are you sure you do not want to ``_update`` instead?".format(category)
             )
-            logger.debug(message)
+            self.store.logger.error(message)
             raise ValueError(message)
         alchemy_category = AlchemyCategory(pk=None, name=category.name)
         self.store.session.add(alchemy_category)
@@ -138,9 +146,9 @@ class CategoryManager(storage.BaseCategoryManager):
                 "An error occured! Are you sure the category.name is not already present in our"
                 " database? Here is the full original exception: '{}'.".format(e)
             )
-            logger.debug(message)
+            self.store.logger.error(message)
             raise ValueError(message)
-        logger.debug(_("Category '{!r}' added.".format(alchemy_category)))
+        self.store.logger.debug(_("'{!r}' added.".format(alchemy_category)))
 
         if not raw:
             alchemy_category = alchemy_category.as_hamster()
@@ -161,25 +169,33 @@ class CategoryManager(storage.BaseCategoryManager):
             ValueError: If category passed does not have a PK.
             KeyError: If no category with passed PK was found.
         """
+
+        message = _("Recieved {!r}.".format(category))
+        self.store.logger.debug(message)
+
         if not category.pk:
             message = _(
                 "The category passed ('{!r}') does not seem to havea PK. We don't know"
                 "which entry to modify.".format(category)
             )
-            logger.debug(message)
+            self.store.logger.error(message)
             raise ValueError(message)
         alchemy_category = self.store.session.query(AlchemyCategory).get(category.pk)
         if not alchemy_category:
-            raise KeyError(_("No category with given pk was found!"))
+            message = _("No category with PK: {} was found!".format(category.pk))
+            self.store.logger.error(message)
+            raise KeyError(message)
         alchemy_category.name = category.name
 
         try:
             self.store.session.commit()
         except IntegrityError as e:
-            raise ValueError(_(
+            message = _(
                 "An error occured! Are you sure the category.name is not already present in our"
                 " database? Here is the full original exception: '{}'.".format(e)
-            ))
+            )
+            self.store.logger.error(message)
+            raise ValueError(message)
 
         return alchemy_category.as_hamster()
 
@@ -197,13 +213,22 @@ class CategoryManager(storage.BaseCategoryManager):
             KeyError: If the ``Category`` can not be found by the backend.
             ValueError: If category passed does not have an pk.
         """
+
+        message = _("Recieved {!r}.".format(category))
+        self.store.logger.debug(message)
+
         if not category.pk:
-            raise ValueError(_("PK-less Category. Are you trying to remove a new Category?"))
+            message = _("PK-less Category. Are you trying to remove a new Category?")
+            self.store.logger.error(message)
+            raise ValueError(message)
         alchemy_category = self.store.session.query(AlchemyCategory).get(category.pk)
         if not alchemy_category:
             message = _("``Category`` can not be found by the backend.")
+            self.store.logger.error(message)
             raise KeyError(message)
         self.store.session.delete(alchemy_category)
+        message = _("{!r} successfully deleted.".format(category))
+        self.store.logger.debug(message)
         self.store.session.commit()
 
     def get(self, pk):
@@ -222,9 +247,17 @@ class CategoryManager(storage.BaseCategoryManager):
         Note:
             We need this for now, as the service just provides pks, not names.
         """
+
+        message = _("Recieved PK: '{}'.".format(pk))
+        self.store.logger.debug(message)
+
         result = self.store.session.query(AlchemyCategory).get(pk)
         if not result:
-            raise KeyError(_("No category with 'pk: {}' was found!".format(pk)))
+            message = _("No category with 'pk: {}' was found!".format(pk))
+            self.store.logger.error(message)
+            raise KeyError(message)
+        message = _("Returning {!r}.".format(result))
+        self.store.logger.debug(message)
         return result.as_hamster()
 
     def get_by_name(self, name, raw=False):
@@ -243,14 +276,21 @@ class CategoryManager(storage.BaseCategoryManager):
             KeyError: If no category matching the name was found.
 
         """
-        name = str(name)
+
+        message = _("Recieved name: '{}', raw={}.".format(name, raw))
+        self.store.logger.debug(message)
+
+        name = text_type(name)
         try:
             result = self.store.session.query(AlchemyCategory).filter_by(name=name).one()
         except NoResultFound:
-            raise KeyError(_("No category with 'name: {}' was found!".format(name)))
+            message = _("No category with 'name: {}' was found!".format(name))
+            self.store.logger.error(message)
+            raise KeyError(message)
 
         if not raw:
             result = result.as_hamster()
+            self.store.logger.debug(_("Returning: {!r}.").format(result))
         return result
 
     def get_all(self):
@@ -260,6 +300,11 @@ class CategoryManager(storage.BaseCategoryManager):
         Returns:
             list: List of all Categories present in the database, ordered by lower(name).
         """
+
+        # We avoid the costs of always computing the length of the returned list
+        # or even spamming the logs with the enrire list. Instead we just state
+        # that we return something.
+        self.store.logger.debug(_("Returning list of all categories."))
         return [alchemy_category for alchemy_category in (
             self.store.session.query(AlchemyCategory).order_by(AlchemyCategory.name).all())]
 
@@ -279,10 +324,14 @@ class ActivityManager(storage.BaseActivityManager):
             hamsterlib.Activity: Activity.
         """
 
+        message = _("Recieved {!r}, raw={}.".format(activity, raw))
+        self.store.logger.debug(message)
+
         try:
             result = self.get_by_composite(activity.name, activity.category, raw=raw)
         except KeyError:
             result = self._add(activity, raw=raw)
+        self.store.logger.debug(_("Returning {!r}.").format(result))
         return result
 
     def _add(self, activity, raw=False):
@@ -300,18 +349,23 @@ class ActivityManager(storage.BaseActivityManager):
             ValueError: If the category/activity.name combination to be added is
                 already present in the db.
         """
+
+        message = _("Recieved {!r}, raw={}.".format(activity, raw))
+        self.store.logger.debug(message)
+
         if activity.pk:
             message = _(
                 "The activity ('{!r}') you are trying to add already has an PK."
                 " Are you sure you do not want to ``_update`` instead?".format(activity)
             )
-            logger.debug(message)
+            self.store.logger.error(message)
             raise ValueError(message)
 
         try:
             self.get_by_composite(activity.name, activity.category)
             message = _("Our database already contains the passed name/category.name"
                         "combination.")
+            self.store.logger.error(message)
             raise ValueError(message)
         except KeyError:
             pass
@@ -329,9 +383,11 @@ class ActivityManager(storage.BaseActivityManager):
         alchemy_activity.category = category
         self.store.session.add(alchemy_activity)
         self.store.session.commit()
+        result = alchemy_activity
         if not raw:
-            return alchemy_activity.as_hamster()
-        return alchemy_activity
+            result = alchemy_activity.as_hamster()
+        self.store.logger.debug(_("Returning {!r}.").format(result))
+        return result
 
     def _update(self, activity):
         """
@@ -348,25 +404,31 @@ class ActivityManager(storage.BaseActivityManager):
             ValueError: If the the passed activity does not have a PK assigned.
             KeyError: If the the passed activity.pk can not be found.
         """
+
+        message = _("Recieved {!r}.".format(activity))
+        self.store.logger.debug(message)
+
         if not activity.pk:
             message = _(
                 "The activity passed ('{!r}') does not seem to havea PK. We don't know"
-                "which entry to modify.".format(activity)
-            )
-            logger.debug(message)
+                "which entry to modify.".format(activity))
+            self.store.logger.error(message)
             raise ValueError(message)
 
         try:
             self.get_by_composite(activity.name, activity.category)
             message = _("Our database already contains the passed name/category.name"
                         "combination.")
+            self.store.logger.error(message)
             raise ValueError(message)
         except KeyError:
             pass
 
         alchemy_activity = self.store.session.query(AlchemyActivity).get(activity.pk)
         if not alchemy_activity:
-            raise KeyError(_("No activity with this pk can be found."))
+            message = _("No activity with this pk can be found.")
+            self.store.logger.error(message)
+            raise KeyError(message)
         alchemy_activity.name = activity.name
         alchemy_activity.category = self.store.categories.get_or_create(activity.category,
             raw=True)
@@ -374,11 +436,13 @@ class ActivityManager(storage.BaseActivityManager):
         try:
             self.store.session.commit()
         except IntegrityError as e:
-            raise ValueError(_(
-                "There seems to already be an activity like this for the given category."
-                "Can not change this activities values. Original exception: {}".format(e)
-            ))
-        return alchemy_activity.as_hamster()
+            message = _("There seems to already be an activity like this for the given category."
+                "Can not change this activities values. Original exception: {}".format(e))
+            self.store.logger.error(message)
+            raise ValueError(message)
+        result = alchemy_activity.as_hamster()
+        self.store.logger.debug(_("Returning: {!r}.".format(result)))
+        return result
 
     def remove(self, activity):
         """
@@ -394,13 +458,18 @@ class ActivityManager(storage.BaseActivityManager):
             KeyError: If the given ``Activity`` can not be found in the database.
         """
 
+        message = _("Recieved {!r}.".format(activity))
+        self.store.logger.debug(message)
+
         if not activity.pk:
             message = _("The activity you passed does not have a PK. Please provide one.")
+            self.store.logger.error(message)
             raise ValueError(message)
 
         alchemy_activity = self.store.session.query(AlchemyActivity).get(activity.pk)
         if not alchemy_activity:
             message = _("The activity you try to remove does not seem to exist.")
+            self.store.logger.error(message)
             raise KeyError(message)
         if alchemy_activity.facts:
             alchemy_activity.deleted = True
@@ -408,6 +477,7 @@ class ActivityManager(storage.BaseActivityManager):
         else:
             self.store.session.delete(alchemy_activity)
         self.store.session.commit()
+        self.store.logger.debug(_("Deleted {!r}.".format(activity)))
         return True
 
     def get(self, pk, raw=False):
@@ -424,11 +494,18 @@ class ActivityManager(storage.BaseActivityManager):
         Raises:
             KeyError: If no such pk was found.
         """
+
+        message = _("Recieved PK: '{}', raw={}.".format(pk, raw))
+        self.store.logger.debug(message)
+
         result = self.store.session.query(AlchemyActivity).get(pk)
         if not result:
-            raise KeyError(_("No Activity with 'pk: {}' was found!".format(pk)))
+            message = _("No Activity with 'pk: {}' was found!".format(pk))
+            self.store.logger.error(message)
+            raise KeyError(message)
         if not raw:
             result = result.as_hamster()
+        self.store.logger.debug(_("Returning: {!r}.".format(result)))
         return result
 
     def get_by_composite(self, name, category, raw=False):
@@ -452,16 +529,22 @@ class ActivityManager(storage.BaseActivityManager):
             activity.category is unique. This is reflected in the uniqueness constraint
             of the underlying table.
         """
+
+        message = _("Recieved name: '{}' and {!r} with 'raw'={}.".format(name, category, raw))
+        self.store.logger.debug(message)
+
         name = str(name)
         if category:
-            category = str(category.name)
+            category = text_type(category.name)
             try:
                 alchemy_category = self.store.categories.get_by_name(category, raw=True)
             except KeyError:
-                raise KeyError(_(
+                message = _(
                     "The category passed ({}) does not exist in the backend. Consequently no"
                     " related activity can be returned.".format(category)
-                ))
+                )
+                self.store.logger.error(message)
+                raise KeyError(message)
         else:
             alchemy_category = None
 
@@ -469,12 +552,15 @@ class ActivityManager(storage.BaseActivityManager):
             result = self.store.session.query(AlchemyActivity).filter_by(name=name).filter_by(
                 category=alchemy_category).one()
         except NoResultFound:
-            raise KeyError(_(
+            message = _(
                 "No activity of given combination (name: {name}, category: {category})"
                 " could be found.".format(name=name, category=category)
-            ))
+            )
+            self.store.logger.error(message)
+            raise KeyError(message)
         if not raw:
             result = result.as_hamster()
+        self.store.logger.debug(_("Returning: {!r}.".format(result)))
         return result
 
     def get_all(self, category=None, search_term=''):
@@ -491,6 +577,10 @@ class ActivityManager(storage.BaseActivityManager):
             list: List of ``hamsterlib.Activity`` instances matching constrains. This list
                 is ordered by ``Activity.name``.
         """
+
+        message = _("Recieved '{!r}', 'search_term'={}.".format(category, search_term))
+        self.store.logger.debug(message)
+
         result = self.store.session.query(AlchemyActivity)
 
         if category:
@@ -502,6 +592,7 @@ class ActivityManager(storage.BaseActivityManager):
         if search_term:
             result = result.filter(AlchemyActivity.name.ilike('%{}%'.format(search_term)))
         result.order_by(AlchemyActivity.name)
+        self.store.logger.debug(_("Returning list of matches."))
         return result.all()
 
 
@@ -523,23 +614,27 @@ class FactManager(storage.BaseFactManager):
             ValueError: If the timewindow is already occupied.
         """
 
+        self.store.logger.debug(_("Recieved '{!r}', 'raw'={}.".format(fact, raw)))
+
         if fact.pk:
             message = _(
                 "The fact ('{!r}') you are trying to add already has an PK."
                 " Are you sure you do not want to ``_update`` instead?".format(fact)
             )
-            logger.debug(message)
+            self.store.logger.error(message)
             raise ValueError(message)
 
         if not self._timeframe_is_free(fact.start, fact.end):
             message = _("Our database already contains facts for this facts timewindow."
                         "There can ever only be one fact at any given point in time")
+            self.store.logger.error(message)
             raise ValueError(message)
 
         alchemy_fact = AlchemyFact(None, None, fact.start, fact.end, fact.description, None)
         alchemy_fact.activity = self.store.activities.get_or_create(fact.activity, raw=True)
         self.store.session.add(alchemy_fact)
         self.store.session.commit()
+        self.store.logger.debug(_("Added {!r}.".format(alchemy_fact)))
         return alchemy_fact
 
     def _update(self, fact, raw=False):
@@ -558,22 +653,27 @@ class FactManager(storage.BaseFactManager):
             ValueError: If the the passed activity does not have a PK assigned.
             ValueError: If the timewindow is already occupied.
         """
+
+        self.store.logger.debug(_("Recieved '{!r}', 'raw'={}.".format(fact, raw)))
+
         if not fact.pk:
             message = _(
-                "The fact passed ('{!r}') does not seem to havea PK. We don't know"
+                "{!r} does not seem to have a PK. We don't know"
                 "which entry to modify.".format(fact)
             )
-            logger.debug(message)
+            self.store.logger.error(message)
             raise ValueError(message)
 
         if not self._timeframe_is_free(fact.start, fact.end):
             message = _("Our database already contains facts for this facts timewindow."
-                        "There can ever only be one fact at any given point in time")
+                        " There can ever only be one fact at any given point in time")
+            self.store.logger.error(message)
             raise ValueError(message)
 
         alchemy_fact = self.store.session.query(AlchemyFact).get(fact.pk)
         if not alchemy_fact:
-            raise KeyError(_("No fact with 'pk: {}' was found.".format(fact.pk)))
+            self.store.logger.error(message)
+            raise KeyError(_("No fact with PK: {} was found.".format(fact.pk)))
 
         alchemy_fact.start = fact.start
         alchemy_fact.end = fact.end
@@ -581,6 +681,7 @@ class FactManager(storage.BaseFactManager):
         # [TODO] Handle tags
         alchemy_fact.activity = self.store.activities.get_or_create(fact.activity, raw=True)
         self.store.session.commit()
+        self.store.logger.debug(_("{!r} has been updated.".format(fact)))
         return fact
 
     def remove(self, fact):
@@ -597,19 +698,25 @@ class FactManager(storage.BaseFactManager):
             ValueError: If fact passed does not have an pk.
             KeyError:If no fact with passed PK was found.
         """
+
+        self.store.logger.debug(_("Recieved '{!r}'.".format(fact)))
+
         if not fact.pk:
             message = _(
                 "The fact passed ('{!r}') does not seem to havea PK. We don't know"
                 "which entry to remove.".format(fact)
             )
-            logger.debug(message)
+            self.store.logger.error(message)
             raise ValueError(message)
 
         alchemy_fact = self.store.session.query(AlchemyFact).get(fact.pk)
         if not alchemy_fact:
-            raise KeyError(_("No fact with given pk was found!"))
+            message = _("No fact with given pk was found!")
+            self.store.logger.error(message)
+            raise KeyError(message)
         self.store.session.delete(alchemy_fact)
         self.store.session.commit()
+        self.store.logger.debug(_("{!r} has been removed.".format(fact)))
         return True
 
     def get(self, pk, raw=False):
@@ -625,11 +732,17 @@ class FactManager(storage.BaseFactManager):
         Raises:
             KeyError: If no Fact of given key was found.
         """
+
+        self.store.logger.debug(_("Recieved PK: {}', 'raw'={}.".format(pk, raw)))
+
         result = self.store.session.query(AlchemyFact).get(pk)
         if not result:
-            raise KeyError(_("No fact with given PK found."))
+            message = _("No fact with given PK found.")
+            self.store.logger.error(message)
+            raise KeyError(message)
         if not raw:
             result = result.as_hamster()
+        self.store.logger.debug(_("Returning {!r}.".format(result)))
         return result
 
     def _get_all(self, start=None, end=None, search_term=''):
@@ -647,6 +760,11 @@ class FactManager(storage.BaseFactManager):
         Returns:
             list: List of ``hamsterlib.Facts`` instances.
         """
+
+        self.store.logger.debug(_(
+            "Recieved start: '{}', end: '{}' and search_term='{}'.".format(start, end, search_term)
+        ))
+
         # [FIXME] Figure out against what to match search_terms
         results = self.store.session.query(AlchemyFact)
         if start and end:
@@ -659,6 +777,7 @@ class FactManager(storage.BaseFactManager):
             )
         # [FIXME]
         # Depending on scale, this could be a problem.
+        self.store.logger.debug(_("Returning list of results."))
         return [fact.as_hamster() for fact in results.all()]
 
     def _timeframe_is_free(self, start, end):
@@ -672,6 +791,9 @@ class FactManager(storage.BaseFactManager):
         Returns:
             bool: True if free, False if occupied.
         """
+
+        self.store.logger.debug(_("Recieved start: '{}' and end: '{}'.".format(start, end)))
+
         query = self.store.session.query(AlchemyFact)
         query = query.filter(or_(
             and_(AlchemyFact.start >= start, AlchemyFact.start <= end),
@@ -680,4 +802,5 @@ class FactManager(storage.BaseFactManager):
         result = False
         if not query.all():
             result = True
+        self.store.logger.debug(_("Returning {!r}."))
         return result
