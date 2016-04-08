@@ -16,6 +16,7 @@
 import sys
 import os
 import datetime
+import alabaster
 import shlex
 
 
@@ -49,6 +50,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.napoleon',
     'sphinx.ext.coverage',
+    'alabaster',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -121,15 +123,35 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    # Relative path (from $PROJECT/_static/) to a logo image, which will appear
+    # in the upper left corner above the name of the project.
+    # 'logo': 'logo.png',
+    'logo_name': True,
+    'description': 'A timetracking libary.',
+    'github_user': 'elbenfreund',
+    'github_repo': 'hamstserlib',
+    'github_button': True,
+    'github_banner': False,
+    'travis_button': False,
+    'extra_nav_links': {
+        '<img alt="Build Status" src="https://img.shields.io/codeship/30ec8f70-dbc9-0133-f7bf-561c728b2028/master.svg">': 'https://codeship.org/elbenfreund/hamsterlib',
+        '<img alt="Coverage Status" src="https://img.shields.io/codecov/c/github/elbenfreund/hamsterlib/master.svg">': 'https://codecov.io/github/elbenfreund/hamssterlib?branch=master',
+        '<img alt="Requirements Status" src="https://requires.io/github/elbenfreund/hamsterlib/requirements.svg?branch=master">': 'https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master',
+        '<img alt="Project Management" src="https://badge.waffle.io/elbenfreund/hamsterlib.svg?label=ready&title=Ready">': 'https://waffle.io/elbenfreund/hamsterlib',
+    },
+    'analytics_id': '',
+    'show_related': False,
+    'show_powered_by': True,
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = [alabaster.get_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -163,7 +185,15 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]
+}
 
 # Additional templates that should be rendered to pages, maps page names
 # to template names.
