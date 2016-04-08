@@ -401,14 +401,29 @@ class BaseFactManager(BaseManager):
         """
         Save a Fact to our selected backend.
 
+        Unlike the private ``_add`` and ``_update`` methods, ``save`` enforces that
+        the config given ``fact_min_delta`` is enforced.
+
         Args:
             fact (hamsterlib.Fact): Fact to be saved. Needs to be complete otherwise
             this will fail.
 
         Returns:
             hamsterlib.Fact: Saved Fact.
+
+        Raises:
+            ValueError: If ``fact.delta`` is smaller than ``self.store.config['fact_min_delta']``-
         """
         self.store.logger.debug(_("Fact: '{}' has been recieved.".format(fact)))
+
+        fact_min_delta = datetime.timedelta(seconds=int(self.store.config['fact_min_delta']))
+        if fact.delta and (fact.delta < fact_min_delta):
+            message = _(
+                "The passed facts delta is shorter than the mandatory value of {} seconds"
+                " specified in your config.".format(fact_min_delta)
+            )
+            self.store.logger.error(message)
+            raise ValueError(message)
 
         if fact.pk or fact.pk == 0:
             result = self._update(fact)
