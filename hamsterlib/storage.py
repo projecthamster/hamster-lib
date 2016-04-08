@@ -25,7 +25,14 @@ Note:
 
 @python_2_unicode_compatible
 class BaseStore(object):
-    """A controlers Store provides unified interfaces to interact with our stored enteties."""
+    """
+    A controlers store provides unified interfaces to interact with our stored entities.
+
+    ``self.logger`` provides a dedicated logger instance for any storage related logging.
+    If you want to make use of it, just setup and attach your handlers and you are ready to go.
+    Be advised though, ``self.logger`` will be very verbose as on ``debug`` it will log any
+    method call and often even their returned instances.
+    """
 
     def __init__(self, config):
         self.config = config
