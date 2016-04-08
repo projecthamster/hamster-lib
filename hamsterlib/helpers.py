@@ -38,7 +38,7 @@ def end_day_to_datetime(end_day, config):
     """
     Convert a given end day to its proper datetime.
 
-    This is non trivial because of variable ``day_start``s. We want to make sure
+    This is non trivial because of variable ``day_start``. We want to make sure
     that even if an 'end day' is specified the actual point in time may reach into the following
     day.
 

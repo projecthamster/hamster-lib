@@ -150,7 +150,8 @@ class Activity(object):
         Note:
             * Should future iterations extend ``Category`` this may turn problematic.
             * This method does not allow to specify a primary key as it is intended only
-            for new instances, not ones retrieved by the backend.
+              for new instances, not ones retrieved by the backend.
+
         """
         category = Category(category_name)
         return cls(name, category=category, deleted=deleted)

@@ -375,7 +375,7 @@ class BaseActivityManager(BaseManager):
                 is ordered by ``Activity.name``.
 
         Note:
-            * This method combines legacy ``storage.db.__get_activities```and
+            * This method combines legacy ``storage.db.__get_activities`` and
                 ``storage.db.____get_category_activities``.
             * Can search terms be prefixed with 'not'?
             * Original implementation in ``hamster.storage.db.__get_activities`` returns
@@ -501,7 +501,7 @@ class BaseFactManager(BaseManager):
 
         Note:
             * This public function only provides some sanity checks and normalization. The actual
-            backend query is handled by ``_get_all``.
+                backend query is handled by ``_get_all``.
             * ``search_term`` should be prefixable with ``not`` in order to invert matching.
         """
 
