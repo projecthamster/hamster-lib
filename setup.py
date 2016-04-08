@@ -32,6 +32,7 @@ setup(
     url='https://github.com/elbenfreund/hamsterlib',
     packages=[
         'hamsterlib',
+        'hamsterlib.backends',
         'hamsterlib.backends.sqlalchemy',
     ],
     package_dir={'hamsterlib':
