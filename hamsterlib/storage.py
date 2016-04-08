@@ -673,7 +673,7 @@ class BaseFactManager(BaseManager):
         fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
         if fact:
             fact.end = datetime.datetime.now()
-            result = self._add(fact)
+            result = self.save(fact)
             os.remove(helpers._get_tmp_fact_path(self.store.config))
             self.store.logger.debug(_("Temporary fact stoped."))
         else:
