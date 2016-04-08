@@ -15,6 +15,7 @@ pairs::
         'store': 'sqlalchemy'; refer to ``hamsterlib.lib.REGISTERED_BACKENDS``
         'db_path': ``sqlalchemy db path``,
         'tmpfile_name': filename; under which any 'ongoing fact' will be saved
+        'fact_min_delta': integer; Amount of seconds under which fact creation will be prohibited.
 
 ``hamsterlib.HamsterControl`` initializes the store and provides a general logger.
 Besides that ``HamsterControl.categories``, ``HamsterControl.activities`` and 
