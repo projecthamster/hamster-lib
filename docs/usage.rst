@@ -75,5 +75,11 @@ This documentation need to be expanded, but hopefully it is enough for now to ge
 you started. For detail please see the module reference and tests.
 
 
+Assumptions and Premisses
+--------------------------
+As any software, we make assumptions and work on premises. Here we try to make them transparent.
+* There can be only one fact any given point in time. We do not support multiple concurrent facts.
+
+
 
         
