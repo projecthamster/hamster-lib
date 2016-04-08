@@ -64,7 +64,7 @@ class Category(object):
         Provide a tuple representation of this categories relevant 'fields'.
 
         Args:
-            include_pk (bool): Wether to include the instances pk or not. Note that if
+            include_pk (bool): Whether to include the instances pk or not. Note that if
             ``False`` ``tuple.pk = False``!
 
         Returns:
@@ -86,8 +86,8 @@ class Category(object):
             bool: ``True`` if all fields but ``pk`` are equal, ``False`` if not.
 
         Note:
-            This is particulary usefull if you want to compare a new ``Category`` instance
-            with a freshly created backend instance. As the latter will propably have a
+            This is particularly useful if you want to compare a new ``Category`` instance
+            with a freshly created backend instance. As the latter will probably have a
             primary key assigned now and so ``__eq__`` would fail.
         """
         if other:
@@ -120,7 +120,7 @@ class Activity(object):
 
     def __init__(self, name, pk=None, category=None, deleted=False):
         """
-        Initialite this instance.
+        Initialize this instance.
 
         Args:
             name (str): This activities name.
@@ -129,8 +129,8 @@ class Activity(object):
             deleted (bool): True if this ``Activity`` has been marked as deleted.
 
         Note:
-            *Legacy hamster* basicly treated ``(Activity.name, Category.name)`` as
-            *composite keys*. As a consequene ``Activity.names`` themselfs are not
+            *Legacy hamster* basically treated ``(Activity.name, Category.name)`` as
+            *composite keys*. As a consequence ``Activity.names`` themselves are not
             unique. They are only in combination with their associated categories name.
         """
         # [TODO]
@@ -155,7 +155,7 @@ class Activity(object):
     @classmethod
     def create_from_composite(cls, name, category_name, deleted=False):
         """
-        Convinience method that allows creating a new instance providing the 'natural key'.
+        Convenience method that allows creating a new instance providing the 'natural key'.
 
         Args:
             name (str): This activities name.
@@ -179,7 +179,7 @@ class Activity(object):
         Provide a tuple representation of this activities relevant 'fields'.
 
         Args:
-            include_pk (bool): Wether to include the instances pk or not. Note that if
+            include_pk (bool): Whether to include the instances pk or not. Note that if
             ``False`` ``tuple.pk = False``!
 
         Returns:
@@ -205,8 +205,8 @@ class Activity(object):
             bool: ``True`` if all fields but ``pk`` are equal, ``False`` if not.
 
         Note:
-            This is particulary usefull if you want to compare a new ``Activity`` instance
-            with a freshly created backend instance. As the latter will propably have a
+            This is particularly useful if you want to compare a new ``Activity`` instance
+            with a freshly created backend instance. As the latter will probably have a
             primary key assigned now and so ``__eq__`` would fail.
         """
         return self.as_tuple(include_pk=False) == other.as_tuple(include_pk=False)
@@ -249,9 +249,9 @@ class Fact(object):
             activity (hamsterlib.Activity): Activity associated with this fact.
             start (datetime.datetime): Start datetime of this fact.
             end (datetime.datetime, optional): End datetime of this fact. Defaults to ``None``.
-            pk (optional): Primary key used by the packend to identify this instance. Defaults
+            pk (optional): Primary key used by the backend to identify this instance. Defaults
                 to ``None``.
-            description (str, oprional): Additional information relevant to this singular fact.
+            description (str, optional): Additional information relevant to this singular fact.
                 Defaults to ``None``.
             tags (Iterable, optional): Iterable of ``strings`` identifying *tags*. Defaults to
                 ``None``.
@@ -277,15 +277,15 @@ class Fact(object):
 
         Please note that this just handles the parsing and construction of a new
         Fact including *new* ``Category`` and ``Activity`` instances.
-        It will require a seperate step to check this against the backend in order
-        to figure out if those propably already exist!
+        It will require a separate step to check this against the backend in order
+        to figure out if those probably already exist!
 
-        This aproach has the benefit of providing this one single point of entry.
-        Once any such raw fact has been turned in to a proper ``hamstserlib.Fact``
+        This approach has the benefit of providing this one single point of entry.
+        Once any such raw fact has been turned in to a proper ``hamsterlib.Fact``
         we can rely on it having encapsulated all.
 
-        See serialiazed_name for details on the raw_fact format.
-        As far as we can tell right now ther are a couple of clear seperators
+        See serialized_name for details on the raw_fact format.
+        As far as we can tell right now there are a couple of clear separators
         for our raw-string.
         '@' --> [time-info] activity @ remains
         ',' --> @category',' description remains
@@ -296,7 +296,7 @@ class Fact(object):
             raw_fact (str): Raw fact to be parsed.
 
         Returns:
-            hamsterlib.Fact: ``Fact`` object with data parsesd from raw fact.
+            hamsterlib.Fact: ``Fact`` object with data parsed from raw fact.
 
         Note:
             * The resulting fact just contains any information stored in the ``raw_fact`` string.
@@ -306,16 +306,16 @@ class Fact(object):
 
         def at_split(string):
             """
-            Return everything in front of the (leftests) '@'-symbol, if it was used.
+            Return everything in front of the (leftest) '@'-symbol, if it was used.
 
             Args:
                 string (str):  The string to be parsed.
 
             Returns:
-                touple: (front, back) representing the substings before and after the
+                tuple: (front, back) representing the substrings before and after the
                     most left ``@`` symbol. If no such symbol was present at all,
                     ``back=None``. Both substrings have been trimmed of any leading
-                    and tailing whilespaces.
+                    and tailing whitespace.
 
             Note:
                 If our string contains multiple ``@`` symbols, all but the most left
@@ -333,7 +333,7 @@ class Fact(object):
 
         def time_activity_split(string):
             """
-            Seperate time information from activity name.
+            Separate time information from activity name.
 
             Args:
                 string (str): Expects a string ``<timeinformation> <activity>``.
@@ -341,10 +341,10 @@ class Fact(object):
             Returns
                 tuple: ``(time, activity)``. If no seperating whitespace was found,
                     ``time=None``. Both substrings will have their leading/tailing
-                    whitespaces trimmed.
+                    whitespace trimmed.
 
             Note:
-                * We seperate at the most left whitespace. That means that our
+                * We separate at the most left whitespace. That means that our
                 timeinformation substring may very well include additional
                 whitespaces.
                 * If no whitespace is found, we consider the entire string to be
@@ -371,19 +371,19 @@ class Fact(object):
 
             Returns:
                 tuple: ``(start_time, end_time)`` tuple, where both elements are
-                    ``datetime.dateime`` instances. If no end time was extracted
+                    ``datetime.datetime`` instances. If no end time was extracted
                     ``end_time=None``.
 
             Note:
                 This parsing method is is informed by the legacy hamster
                 ``hamster.lib.parse_fact``. It seems that here we only extract
                 times that then are understood relative to today.
-                This seems significanty less powerfull that our
+                This seems significantly less powerful that our
                 ``hamsterlib.helpers.parse_time_range`` method which itself has been
                 taken from legacy hamsters ``hamster-cli``.
             """
             # [FIXME]
-            # Check if ther is any rationale against using
+            # Check if there is any rationale against using
             # ``hamsterlib.helpers.parse_time_range`` instead.
             # This would also unify the 'complete missing information' fallback
             # behaviour.
@@ -434,9 +434,9 @@ class Fact(object):
 
             Returns
                 tuple: (category_and_tags, description). Both substrings have their
-                    leading/tailing whitespaces removed.
+                    leading/tailing whitespace removed.
                     ``category_and_tags`` may include >=0 tags indicated by a leading ``#``.
-                    As we have used the most left ``,`` to seperate both substrings that
+                    As we have used the most left ``,`` to separate both substrings that
                     means that categories and tags can not contain any ``,`` but the
                     description text may contain as many as wished.
             """
@@ -477,13 +477,13 @@ class Fact(object):
     @start.setter
     def start(self, start):
         """
-        Make sure that we recieve a ``datetime.datetime`` instance.
+        Make sure that we receive a ``datetime.datetime`` instance.
 
         Args:
             start (datetime.datetime): Start datetime of this ``Fact``.
 
         Raises:
-            TypeError: If we recieve something other than a ``datetime.datetime`` (sub-)class
+            TypeError: If we receive something other than a ``datetime.datetime`` (sub-)class
             or ``None``.
         """
 
@@ -491,7 +491,7 @@ class Fact(object):
             if not isinstance(start, datetime.datetime):
                 raise TypeError(_(
                     "You need to pass a ``datetime.datetime`` instance!"
-                    " {type} instance recieved instead.".format(type=type(start))
+                    " {type} instance received instead.".format(type=type(start))
                 ))
         else:
             start = None
@@ -504,13 +504,13 @@ class Fact(object):
     @end.setter
     def end(self, end):
         """
-        Make sure that we recieve a ``datetime.datetime`` instance.
+        Make sure that we receive a ``datetime.datetime`` instance.
 
         Args:
             end (datetime.datetime): End datetime of this ``Fact``.
 
         Raises:
-            TypeError: If we recieve something other than a ``datetime.datetime`` (sub-)class
+            TypeError: If we receive something other than a ``datetime.datetime`` (sub-)class
             or ``None``.
         """
 
@@ -518,7 +518,7 @@ class Fact(object):
             if not isinstance(end, datetime.datetime):
                 raise TypeError(_(
                     "You need to pass a ``datetime.datetime`` instance!"
-                    " {type} instance recieved instead.".format(type=type(end))
+                    " {type} instance received instead.".format(type=type(end))
                 ))
         else:
             end = None
@@ -558,7 +558,7 @@ class Fact(object):
         Return a string representation of ``Fact().delta``.
 
         Args:
-            format (str): Specifies the output format. Valid choises are:
+            format (str): Specifies the output format. Valid choices are:
                 * ``'%M'``: As minutes, rounded down.
                 * ``'%H:%M'``: As 'hours:minutes'. rounded down.
 
@@ -566,7 +566,7 @@ class Fact(object):
             str: String representing this facts *duration* in the given format.capitalize
 
         Raises:
-            ValueError: If a inrecognized format specifier is recieved.
+            ValueError: If a unrecognized format specifier is received.
         """
         seconds = int(self.delta.total_seconds())
         if format == '%M':
@@ -587,7 +587,7 @@ class Fact(object):
             datetime.datetime: The date the fact has started.
 
         Note:
-            This is merely a convinience / legacy property to stay in line with
+            This is merely a convenience / legacy property to stay in line with
             *legacy hamster*.
         """
         return self.start.date()
@@ -624,7 +624,7 @@ class Fact(object):
 
     @property
     def category(self):
-        """For convinience only."""
+        """For convenience only."""
         return self.activity.category
 
     def as_tuple(self, include_pk=True):
@@ -632,7 +632,7 @@ class Fact(object):
         Provide a tuple representation of this facts relevant 'fields'.
 
         Args:
-            include_pk (bool): Wether to include the instances pk or not. Note that if
+            include_pk (bool): Whether to include the instances pk or not. Note that if
             ``False`` ``tuple.pk = False``!
 
         Returns:
@@ -656,8 +656,8 @@ class Fact(object):
             bool: ``True`` if all fields but ``pk`` are equal, ``False`` if not.
 
         Note:
-            This is particulary usefull if you want to compare a new ``Fact`` instance
-            with a freshly created backend instance. As the latter will propably have a
+            This is particularly useful if you want to compare a new ``Fact`` instance
+            with a freshly created backend instance. As the latter will probably have a
             primary key assigned now and so ``__eq__`` would fail.
         """
         return self.as_tuple(include_pk=False) == other.as_tuple(include_pk=False)
