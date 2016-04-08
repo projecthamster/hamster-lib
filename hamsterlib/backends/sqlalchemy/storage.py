@@ -50,13 +50,13 @@ class SQLAlchemyStore(storage.BaseStore):
     It should take only minor but delayable effort to broaden the applicability to
     postgres, mysql and the likes.
 
-    The main takeaway right now is, that their is no actuall guarantee that in a
+    The main takeaway right now is, that their is no actual guarantee that in a
     distributed environment no race condition occur and we may end up with duplicate
     Category/Activity entries. No backend code will be able to prevent this by virtue of
-    this beeing a DB issue.
+    this being a DB issue.
     Furthermore, we will try hard to avoid placing more than one fact in a given time
     window. However, there can be no guarantee that in a distributed environment this
-    will allways work out. As a consequence, we make sure that all our single object
+    will always work out. As a consequence, we make sure that all our single object
     data retrieval methods return only one item or throw an error alerting us the the
     inconsistency.
     """
@@ -67,7 +67,7 @@ class SQLAlchemyStore(storage.BaseStore):
         Args:
             path (str): Specifies the database to be used. See SQLAlchemy docs for
                 details.
-            session (SQLALcheny Session object, optional): Provide a dedicated session
+            session (SQLAlchemy Session object, optional): Provide a dedicated session
                 to be used. Defaults to ``None``.
 
         Note:
@@ -76,7 +76,7 @@ class SQLAlchemyStore(storage.BaseStore):
         super(SQLAlchemyStore, self).__init__(config)
         # [TODO]
         # It takes more deliberation to decide how to handle engine creation if
-        # we recieve a session. Should be require the session to bring its own
+        # we receive a session. Should be require the session to bring its own
         # engine?
         engine = create_engine(self.path)
         self.logger.debug(_("Engine '{}' created.".format(engine)))
@@ -106,13 +106,13 @@ class CategoryManager(storage.BaseCategoryManager):
 
         Args:
             category (hamsterlib.Category: Category we want.
-            raw (bool): Wether to return the AlchemyCategory instead.
+            raw (bool): Whether to return the AlchemyCategory instead.
 
         Returns:
             hamsterlib.Category or None: Category.
         """
 
-        message = _("Recieved {!r} and raw={}.".format(category, raw))
+        message = _("Received {!r} and raw={}.".format(category, raw))
         self.store.logger.debug(message)
 
         if category:
@@ -129,12 +129,12 @@ class CategoryManager(storage.BaseCategoryManager):
         Add a new category to the database.
 
         This method should not be used by any client code. Call ``save`` to make
-        the decission wether to modify an existing entry or to add a new one is
+        the decision whether to modify an existing entry or to add a new one is
         done correctly..
 
         Args:
             category (hamsterlib.Category): Hamster Category instance.
-            raw (bool): Wether to return the AlchemyCategory instead.
+            raw (bool): Whether to return the AlchemyCategory instead.
 
         Returns:
             hamsterlib.Category: Saved instance, as_hamster()
@@ -142,10 +142,10 @@ class CategoryManager(storage.BaseCategoryManager):
         Raises:
             ValueError: If the name to be added is already present in the db.
             ValueError: If category passed already got an PK. Indicating that update would
-                be more apropiate.
+                be more appropriate.
         """
 
-        message = _("Recieved {!r} and raw={}.".format(category, raw))
+        message = _("Received {!r} and raw={}.".format(category, raw))
         self.store.logger.debug(message)
 
         if category.pk:
@@ -161,7 +161,7 @@ class CategoryManager(storage.BaseCategoryManager):
             self.store.session.commit()
         except IntegrityError as e:
             message = _(
-                "An error occured! Are you sure the category.name is not already present in our"
+                "An error occurred! Are you sure the category.name is not already present in our"
                 " database? Here is the full original exception: '{}'.".format(e)
             )
             self.store.logger.error(message)
@@ -188,12 +188,12 @@ class CategoryManager(storage.BaseCategoryManager):
             KeyError: If no category with passed PK was found.
         """
 
-        message = _("Recieved {!r}.".format(category))
+        message = _("Received {!r}.".format(category))
         self.store.logger.debug(message)
 
         if not category.pk:
             message = _(
-                "The category passed ('{!r}') does not seem to havea PK. We don't know"
+                "The category passed ('{!r}') does not seem to have a PK. We don't know"
                 "which entry to modify.".format(category)
             )
             self.store.logger.error(message)
@@ -209,7 +209,7 @@ class CategoryManager(storage.BaseCategoryManager):
             self.store.session.commit()
         except IntegrityError as e:
             message = _(
-                "An error occured! Are you sure the category.name is not already present in our"
+                "An error occurred! Are you sure the category.name is not already present in our"
                 " database? Here is the full original exception: '{}'.".format(e)
             )
             self.store.logger.error(message)
@@ -232,7 +232,7 @@ class CategoryManager(storage.BaseCategoryManager):
             ValueError: If category passed does not have an pk.
         """
 
-        message = _("Recieved {!r}.".format(category))
+        message = _("Received {!r}.".format(category))
         self.store.logger.debug(message)
 
         if not category.pk:
@@ -266,7 +266,7 @@ class CategoryManager(storage.BaseCategoryManager):
             We need this for now, as the service just provides pks, not names.
         """
 
-        message = _("Recieved PK: '{}'.".format(pk))
+        message = _("Received PK: '{}'.".format(pk))
         self.store.logger.debug(message)
 
         result = self.store.session.query(AlchemyCategory).get(pk)
@@ -284,7 +284,7 @@ class CategoryManager(storage.BaseCategoryManager):
 
         Args:
             name (str): Unique name of the category.
-            raw (bool): Wether to return the AlchemyCategory instead.
+            raw (bool): Whether to return the AlchemyCategory instead.
 
 
         Returns:
@@ -295,7 +295,7 @@ class CategoryManager(storage.BaseCategoryManager):
 
         """
 
-        message = _("Recieved name: '{}', raw={}.".format(name, raw))
+        message = _("Received name: '{}', raw={}.".format(name, raw))
         self.store.logger.debug(message)
 
         name = text_type(name)
@@ -320,7 +320,7 @@ class CategoryManager(storage.BaseCategoryManager):
         """
 
         # We avoid the costs of always computing the length of the returned list
-        # or even spamming the logs with the enrire list. Instead we just state
+        # or even spamming the logs with the entire list. Instead we just state
         # that we return something.
         self.store.logger.debug(_("Returning list of all categories."))
         return [alchemy_category for alchemy_category in (
@@ -336,13 +336,13 @@ class ActivityManager(storage.BaseActivityManager):
 
         Args:
             activity (hamsterlib.Activity: Activity we want.
-            raw (bool): Wether to return the AlchemyActivity instead.
+            raw (bool): Whether to return the AlchemyActivity instead.
 
         Returns:
             hamsterlib.Activity: Activity.
         """
 
-        message = _("Recieved {!r}, raw={}.".format(activity, raw))
+        message = _("Received {!r}, raw={}.".format(activity, raw))
         self.store.logger.debug(message)
 
         try:
@@ -354,7 +354,7 @@ class ActivityManager(storage.BaseActivityManager):
 
     def _add(self, activity, raw=False):
         """
-        Add a new ``Activity`` instance to the databasse.
+        Add a new ``Activity`` instance to the database.
 
         Args:
             activity (hamsterlib.Activity): Hamster activity
@@ -368,7 +368,7 @@ class ActivityManager(storage.BaseActivityManager):
                 already present in the db.
         """
 
-        message = _("Recieved {!r}, raw={}.".format(activity, raw))
+        message = _("Received {!r}, raw={}.".format(activity, raw))
         self.store.logger.debug(message)
 
         if activity.pk:
@@ -423,12 +423,12 @@ class ActivityManager(storage.BaseActivityManager):
             KeyError: If the the passed activity.pk can not be found.
         """
 
-        message = _("Recieved {!r}.".format(activity))
+        message = _("Received {!r}.".format(activity))
         self.store.logger.debug(message)
 
         if not activity.pk:
             message = _(
-                "The activity passed ('{!r}') does not seem to havea PK. We don't know"
+                "The activity passed ('{!r}') does not seem to have a PK. We don't know"
                 "which entry to modify.".format(activity))
             self.store.logger.error(message)
             raise ValueError(message)
@@ -476,7 +476,7 @@ class ActivityManager(storage.BaseActivityManager):
             KeyError: If the given ``Activity`` can not be found in the database.
         """
 
-        message = _("Recieved {!r}.".format(activity))
+        message = _("Received {!r}.".format(activity))
         self.store.logger.debug(message)
 
         if not activity.pk:
@@ -513,7 +513,7 @@ class ActivityManager(storage.BaseActivityManager):
             KeyError: If no such pk was found.
         """
 
-        message = _("Recieved PK: '{}', raw={}.".format(pk, raw))
+        message = _("Received PK: '{}', raw={}.".format(pk, raw))
         self.store.logger.debug(message)
 
         result = self.store.session.query(AlchemyActivity).get(pk)
@@ -548,7 +548,7 @@ class ActivityManager(storage.BaseActivityManager):
             of the underlying table.
         """
 
-        message = _("Recieved name: '{}' and {!r} with 'raw'={}.".format(name, category, raw))
+        message = _("Received name: '{}' and {!r} with 'raw'={}.".format(name, category, raw))
         self.store.logger.debug(message)
 
         name = str(name)
@@ -596,7 +596,7 @@ class ActivityManager(storage.BaseActivityManager):
                 is ordered by ``Activity.name``.
         """
 
-        message = _("Recieved '{!r}', 'search_term'={}.".format(category, search_term))
+        message = _("Received '{!r}', 'search_term'={}.".format(category, search_term))
         self.store.logger.debug(message)
 
         result = self.store.session.query(AlchemyActivity)
@@ -632,7 +632,7 @@ class FactManager(storage.BaseFactManager):
             ValueError: If the timewindow is already occupied.
         """
 
-        self.store.logger.debug(_("Recieved '{!r}', 'raw'={}.".format(fact, raw)))
+        self.store.logger.debug(_("Received '{!r}', 'raw'={}.".format(fact, raw)))
 
         if fact.pk:
             message = _(
@@ -672,7 +672,7 @@ class FactManager(storage.BaseFactManager):
             ValueError: If the timewindow is already occupied.
         """
 
-        self.store.logger.debug(_("Recieved '{!r}', 'raw'={}.".format(fact, raw)))
+        self.store.logger.debug(_("Received '{!r}', 'raw'={}.".format(fact, raw)))
 
         if not fact.pk:
             message = _(
@@ -717,11 +717,11 @@ class FactManager(storage.BaseFactManager):
             KeyError:If no fact with passed PK was found.
         """
 
-        self.store.logger.debug(_("Recieved '{!r}'.".format(fact)))
+        self.store.logger.debug(_("Received '{!r}'.".format(fact)))
 
         if not fact.pk:
             message = _(
-                "The fact passed ('{!r}') does not seem to havea PK. We don't know"
+                "The fact passed ('{!r}') does not seem to have a PK. We don't know"
                 "which entry to remove.".format(fact)
             )
             self.store.logger.error(message)
@@ -751,7 +751,7 @@ class FactManager(storage.BaseFactManager):
             KeyError: If no Fact of given key was found.
         """
 
-        self.store.logger.debug(_("Recieved PK: {}', 'raw'={}.".format(pk, raw)))
+        self.store.logger.debug(_("Received PK: {}', 'raw'={}.".format(pk, raw)))
 
         result = self.store.session.query(AlchemyFact).get(pk)
         if not result:
@@ -780,7 +780,7 @@ class FactManager(storage.BaseFactManager):
         """
 
         self.store.logger.debug(_(
-            "Recieved start: '{}', end: '{}' and search_term='{}'.".format(start, end, search_term)
+            "Received start: '{}', end: '{}' and search_term='{}'.".format(start, end, search_term)
         ))
 
         # [FIXME] Figure out against what to match search_terms
@@ -800,7 +800,7 @@ class FactManager(storage.BaseFactManager):
 
     def _timeframe_is_free(self, start, end):
         """
-        Determine if a given timeframe already holds any facs start or endtime.
+        Determine if a given timeframe already holds any facts start or endtime.
 
         Args:
             start (datetime): *Start*-datetime that needs to be validated.
@@ -810,7 +810,7 @@ class FactManager(storage.BaseFactManager):
             bool: True if free, False if occupied.
         """
 
-        self.store.logger.debug(_("Recieved start: '{}' and end: '{}'.".format(start, end)))
+        self.store.logger.debug(_("Received start: '{}' and end: '{}'.".format(start, end)))
 
         query = self.store.session.query(AlchemyFact)
         query = query.filter(or_(
