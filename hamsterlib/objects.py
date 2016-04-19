@@ -27,7 +27,6 @@ from collections import namedtuple
 from future.utils import python_2_unicode_compatible
 from six import text_type
 
-
 CategoryTuple = namedtuple('CategoryTuple', ('pk', 'name'))
 ActivityTuple = namedtuple('ActivityTuple', ('pk', 'name', 'category', 'deleted'))
 FactTuple = namedtuple('FactTuple', ('pk', 'activity', 'start', 'end', 'description', 'tags'))

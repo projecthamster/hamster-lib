@@ -111,11 +111,19 @@ def fact():
 
 @pytest.fixture
 def list_of_facts(fact_factory):
-    """Provide a factory that returns a list with given amount of Fact instances."""
+    """
+    Provide a factory that returns a list with given amount of Fact instances.
+
+    The key point here is that these fact *do not overlap*!
+    """
     def get_list_of_facts(number_of_facts):
         facts = []
+        old_start = datetime.datetime.now()
+        offset = datetime.timedelta(hours=4)
         for i in range(number_of_facts):
-            facts.append(fact_factory())
+            start = old_start + offset
+            facts.append(fact_factory(start=start))
+            old_start = start
         return facts
     return get_list_of_facts
 
