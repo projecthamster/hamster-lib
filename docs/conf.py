@@ -140,7 +140,8 @@ html_theme_options = {
     'github_banner': False,
     'travis_button': False,
     'extra_nav_links': {
-        '<img alt="Build Status" src="https://img.shields.io/codeship/30ec8f70-dbc9-0133-f7bf-561c728b2028/master.svg">': 'https://codeship.org/elbenfreund/hamsterlib',
+
+        '<img alt="Build Status" src="https://img.shields.io/travis/elbenfreund/hamsterlib/master.svg">': 'https://travis-ci.org/elbenfreund/hamsterlib',
         '<img alt="Coverage Status" src="https://img.shields.io/codecov/c/github/elbenfreund/hamsterlib/master.svg">': 'https://codecov.io/github/elbenfreund/hamssterlib?branch=master',
         '<img alt="Requirements Status" src="https://requires.io/github/elbenfreund/hamsterlib/requirements.svg?branch=master">': 'https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master',
         '<img alt="Project Management" src="https://badge.waffle.io/elbenfreund/hamsterlib.svg?label=ready&title=Ready">': 'https://waffle.io/elbenfreund/hamsterlib',
