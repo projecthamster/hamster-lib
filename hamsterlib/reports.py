@@ -13,7 +13,7 @@ from six import text_type
 Module to provide generic reporting capabilities for easy adaption by clients.
 
 The basic idea is to provide ``Writer`` classes that take care of the bulk of the setup
-upon instanciation so all the client needs to do is to call ``write_report`` with a list
+upon instantiation so all the client needs to do is to call ``write_report`` with a list
 of ``FactTuples`` as arguments.
 """
 
@@ -28,18 +28,18 @@ class ReportWriter(object):
         Initiate new instance and open an output file like object.
 
         Note:
-            If you need added bells and wristels (like heading etc.) this would propably
+            If you need added bells and wristels (like heading etc.) this would probably
             the method to extend.
 
         Args:
-            path: File like object to be opend. This is where all output will be directed to.
+            path: File like object to be opened. This is where all output will be directed to.
             datetime_format (str): String specifying how datetime information is to be
                 rendered in the output.
         """
         self.datetime_format = datetime_format
         # No matter through what loops we jump, at the end of the day py27
         # ``writerow`` will insist on casting our data to binary str()
-        # instances. This clearly conflics with any generic open() that provides
+        # instances. This clearly conflicts with any generic open() that provides
         # transparent text input/output and would take care of the encoding
         # instead.
         if sys.version_info < (3,):
