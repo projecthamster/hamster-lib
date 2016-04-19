@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 import datetime
-import os.path
 import pickle
 
 import pytest
@@ -221,25 +220,13 @@ class TestLoadTmpFact(object):
 
     def test_file_instance_invalid(self, base_config):
         """Make sure we throw an error if the instance picked in the file is no ``Fact``."""
-        with open(helpers._get_tmp_fact_path(base_config), 'wb') as fobj:
+        with open(base_config['tmpfile_path'], 'wb') as fobj:
             pickle.dump('foobar', fobj)
         with pytest.raises(TypeError):
-            helpers._load_tmp_fact(helpers._get_tmp_fact_path(base_config))
+            helpers._load_tmp_fact(base_config['tmpfile_path'])
 
     def test_valid(self, base_config, tmp_fact, fact):
         """Make sure that we return the stored 'ongoing fact' as expected."""
         fact.end = None
-        result = helpers._load_tmp_fact(helpers._get_tmp_fact_path(base_config))
+        result = helpers._load_tmp_fact(base_config['tmpfile_path'])
         assert result == fact
-
-
-class TestGetTmpFactPath(object):
-    """Test regarding composition of the tmpfile path."""
-    def test_valid(self, base_config):
-        """Make sure the returned path matches our expectation."""
-        # [TODO]
-        # Would be nice to avoid the code replication. However, we can not
-        # simply use fixed strings as path composition is platform dependent.
-        expectation = os.path.join(base_config['work_dir'], base_config['tmpfile_name'])
-        result = helpers._get_tmp_fact_path(base_config)
-        assert result == expectation

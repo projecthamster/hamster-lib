@@ -1,5 +1,33 @@
 # -*- encoding: utf-8 -*-
 
+# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+
+# This file is part of 'hamsterlib'.
+#
+# 'hamsterlib' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# 'hamsterlib' is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+
+
+"""
+Module containing base classes intended to be inherited from when implementing storage backends.
+
+Note:
+    * This is propably going to be replaced by a ``ABC``-bases solution.
+    * Basic sanity checks could be done here then. This would mean we just need to test
+        them once and our actual backends focus on the CRUD implementation.
+"""
+
+
 from __future__ import unicode_literals
 
 import datetime
@@ -11,16 +39,6 @@ import hamsterlib
 import hamsterlib.helpers as helpers
 from future.utils import python_2_unicode_compatible
 from hamsterlib import objects
-
-
-"""
-Module containing base classes intended to be inherited from when implementing storage backends.
-
-Note:
-    * This is propably going to be replaced by a ``ABC``-bases solution.
-    * Basic sanity checks could be done here then. This would mean we just need to test
-        them once and our actual backends focus on the CRUD implementation.
-"""
 
 
 @python_2_unicode_compatible
@@ -49,6 +67,19 @@ class BaseStore(object):
         we shut down gracefully.
         """
         raise NotImplementedError
+
+    def _get_tmp_fact_path(self):
+        """
+        Helper method to return the tmpfile path.
+
+        Under naive circumstances this just returns 'tmpfile_path' from config.
+        However, if we want to implement some custom workdir logic, we just plug it here
+        without further need to amend any library code that utilizes it.
+
+        Return:
+            str: Absolute path under which the tmpfile is to be stored.
+        """
+        return self.config['tmpfile_path']
 
 
 @python_2_unicode_compatible
@@ -653,13 +684,13 @@ class BaseFactManager(BaseManager):
             self.store.logger.debug(message)
             raise ValueError(message)
 
-        tmp_fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        tmp_fact = helpers._load_tmp_fact(self.store._get_tmp_fact_path())
         if tmp_fact:
             message = _("Trying to start with ongoing fact already present.")
             self.store.logger.debug(message)
             raise ValueError(message)
         else:
-            with open(helpers._get_tmp_fact_path(self.store.config), 'wb') as fobj:
+            with open(self.store._get_tmp_fact_path(), 'wb') as fobj:
                 pickle.dump(fact, fobj)
             self.store.logger.debug(_("New temporary fact started."))
         return fact
@@ -675,11 +706,11 @@ class BaseFactManager(BaseManager):
             ValueError: If there is no currently 'ongoing fact' present.
         """
         self.store.logger.debug(_("Stopping 'ongoing fact'."))
-        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        fact = helpers._load_tmp_fact(self.store._get_tmp_fact_path())
         if fact:
             fact.end = datetime.datetime.now()
             result = self.save(fact)
-            os.remove(helpers._get_tmp_fact_path(self.store.config))
+            os.remove(self.store._get_tmp_fact_path())
             self.store.logger.debug(_("Temporary fact stoped."))
         else:
             message = _("Trying to stop a non existing ongoing fact.")
@@ -699,7 +730,7 @@ class BaseFactManager(BaseManager):
         """
         self.store.logger.debug(_("Trying to get 'ongoing fact'."))
 
-        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        fact = helpers._load_tmp_fact(self.store._get_tmp_fact_path())
         if not fact:
             message = _("Tried to retrieve an 'ongoing fact' when there is none present.")
             self.store.logger.debug(message)
@@ -722,10 +753,10 @@ class BaseFactManager(BaseManager):
         # it up before canceling. which would result in two retrievals.
         self.store.logger.debug(_("Trying to cancel 'ongoing fact'."))
 
-        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        fact = helpers._load_tmp_fact(self.store._get_tmp_fact_path())
         if not fact:
             message = _("Trying to stop a non existing ongoing fact.")
             self.store.logger.debug(message)
             raise KeyError(message)
-        os.remove(helpers._get_tmp_fact_path(self.store.config))
+        os.remove(self.store._get_tmp_fact_path())
         self.store.logger.debug(_("Temporary fact stoped."))

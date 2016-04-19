@@ -7,7 +7,6 @@ import pickle
 
 import faker as faker_
 import pytest
-from hamsterlib import helpers
 from hamsterlib.lib import HamsterControl
 from pytest_factoryboy import register
 
@@ -41,7 +40,7 @@ def convert_time_to_datetime(time_string):
 def tmp_fact(base_config, fact):
     """Provide an existing 'ongoing fact'."""
     fact.end = None
-    with open(helpers._get_tmp_fact_path(base_config), 'wb') as fobj:
+    with open(base_config['tmpfile_path'], 'wb') as fobj:
         pickle.dump(fact, fobj)
     return fact
 
