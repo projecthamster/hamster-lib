@@ -35,6 +35,11 @@ class ActivityFactory(factory.Factory):
 
 @python_2_unicode_compatible
 class FactFactory(factory.Factory):
+    """
+    Create a new fact instance.
+
+    Instances have a duration of 3 hours.
+    """
     pk = None
     activity = factory.SubFactory(ActivityFactory)
     start = faker.Faker().date_time()

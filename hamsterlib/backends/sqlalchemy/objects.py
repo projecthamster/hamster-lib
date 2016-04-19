@@ -48,7 +48,6 @@ from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer,
                         MetaData, Table, Unicode, UniqueConstraint)
 from sqlalchemy.orm import mapper, relationship
 
-
 DEFAULT_STRING_LENGTH = 254
 
 
