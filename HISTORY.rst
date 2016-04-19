@@ -3,6 +3,11 @@
 History
 =======
 
+0.10.0
+------
+* Switch to `semantic versioning <http://semver.org>`_
+* Added GPL3 boilerplate
+
 0.0.3 (2016-04-08)
 -------------------
 * fact managers ``save`` method now enfoces new ``fact_min_delta`` setting.
