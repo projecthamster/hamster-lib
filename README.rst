@@ -5,8 +5,8 @@ hamsterlib
 .. image:: https://img.shields.io/pypi/v/hamsterlib.svg
         :target: https://pypi.python.org/pypi/hamsterlib
 
-.. image:: https://img.shields.io/codeship/30ec8f70-dbc9-0133-f7bf-561c728b2028/master.svg
-        :target: https://codeship.org/elbenfreund/hamsterlib
+.. image:: https://img.shields.io/travis/elbenfreund/hamsterlib/master.svg
+        :target: https://travis-ci.org/elbenfreund/hamsterlib
 
 .. image:: https://img.shields.io/codecov/c/github/elbenfreund/hamsterlib/master.svg
         :target: https://codecov.io/github/elbenfreund/hamsterlib
@@ -42,7 +42,6 @@ can build upon a solid and consistent base and focus on their specific requireme
 
 Features
 --------
-
 * Full python >=2.7 and >=3.4 compatibility
 * Full unicode support
 * >= 95% test coverage
