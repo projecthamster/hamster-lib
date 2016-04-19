@@ -1,4 +1,5 @@
 import datetime
+import os.path
 
 import fauxfactory
 import pytest
@@ -8,11 +9,10 @@ import pytest
 def base_config(tmpdir):
     """Provide a generic baseline configuration."""
     return {
-        'work_dir': tmpdir.mkdir('hamsterlib').strpath,
         'store': 'sqlalchemy',
         'day_start': datetime.time(hour=5, minute=30, second=0),
         'db_path': 'sqlite:///:memory:',
-        'tmpfile_name': 'hamsterlib.fact',
+        'tmpfile_path': os.path.join(tmpdir.mkdir('tmpfile').strpath, 'hamsterlib.fact'),
         'fact_min_delta': 60,
     }
 
