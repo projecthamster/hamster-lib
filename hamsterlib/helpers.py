@@ -1,10 +1,22 @@
-import datetime
-import os.path
-import pickle
-import re
-from collections import namedtuple
+# -*- encoding: utf-8 -*-
 
-from hamsterlib import Fact
+# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+
+# This file is part of 'hamsterlib'.
+#
+# 'hamsterlib' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# 'hamsterlib' is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+
 
 """
 This module provides several convinience and intermediate functions to perform common tasks.
@@ -13,6 +25,15 @@ Most of these deal with computing intermediate values or results. Whilst not roc
 science it is preferable to use those instead of implementing you own in order to ensure
 consistent and tested behaviour.
 """
+
+
+import datetime
+import os.path
+import pickle
+import re
+from collections import namedtuple
+
+from hamsterlib import Fact
 
 TimeFrame = namedtuple('Timeframe', ('start_date', 'start_time',
     'end_date', 'end_time', 'offset'))

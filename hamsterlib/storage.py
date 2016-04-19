@@ -1,5 +1,33 @@
 # -*- encoding: utf-8 -*-
 
+# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+
+# This file is part of 'hamsterlib'.
+#
+# 'hamsterlib' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# 'hamsterlib' is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+
+
+"""
+Module containing base classes intended to be inherited from when implementing storage backends.
+
+Note:
+    * This is propably going to be replaced by a ``ABC``-bases solution.
+    * Basic sanity checks could be done here then. This would mean we just need to test
+        them once and our actual backends focus on the CRUD implementation.
+"""
+
+
 from __future__ import unicode_literals
 
 import datetime
@@ -11,16 +39,6 @@ import hamsterlib
 import hamsterlib.helpers as helpers
 from future.utils import python_2_unicode_compatible
 from hamsterlib import objects
-
-
-"""
-Module containing base classes intended to be inherited from when implementing storage backends.
-
-Note:
-    * This is propably going to be replaced by a ``ABC``-bases solution.
-    * Basic sanity checks could be done here then. This would mean we just need to test
-        them once and our actual backends focus on the CRUD implementation.
-"""
 
 
 @python_2_unicode_compatible
