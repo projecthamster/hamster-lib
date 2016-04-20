@@ -54,7 +54,6 @@ class BaseStore(object):
 
     def __init__(self, config):
         self.config = config
-        self.path = config['db_path']
         self.logger = logging.getLogger('hamsterlib.storage')
         self.logger.addHandler(logging.NullHandler())
         self.categories = BaseCategoryManager(self)

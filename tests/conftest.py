@@ -13,7 +13,8 @@ def base_config(tmpdir):
     return {
         'store': 'sqlalchemy',
         'day_start': datetime.time(hour=5, minute=30, second=0),
-        'db_path': 'sqlite:///:memory:',
+        'db_engine': 'sqlite',
+        'db_path': ':memory:',
         'tmpfile_path': os.path.join(tmpdir.mkdir('tmpfact').strpath, 'hamsterlib.fact'),
         'fact_min_delta': 60,
     }
