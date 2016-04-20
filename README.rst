@@ -39,7 +39,6 @@ tested unix toolbox principle. As such we focus on providing useful backend
 functionality and helper methods so clients (dbus interfaces, CLIs or graphical UIs)
 can build upon a solid and consistent base and focus on their specific requirements.
 
-
 Features
 --------
 * Full python >=2.7 and >=3.4 compatibility
@@ -50,8 +49,6 @@ Features
 * Free software: GPL3
 * All you need for production, test or dev environments comes out of the box
   with regular python tools.
-
-.. _codeship: https://codeship.com
 
 First Steps
 -----------
@@ -64,9 +61,15 @@ Additional Resources
 --------------------
 * `Documentation by 'read the docs' <https://hamsterlib.readthedocs.org>`_
 * `Project management with 'waffles' <https://waffle.io/elbenfreund/hamsterlib>`_
-* `CI thanks to 'codeship' <https://codeship.com/elbenfreund/hamsterlib>`_
+* `CI thanks to Travis-CI <https://travis-ci.org/elbenfreund/hamsterlib>`_
 * `Coverage reports by 'codecov' <https://codecov.io/elbenfreund/hamsterlib>`_
 * `Dependency monitoring by 'requires.io' <https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master>`_
+
+News: Version 0.10.0
+---------------------
+This new release marks our switch to semantic versioning and brings a few stability improvements
+as well as ``ìcal`` and ``xml`` export. We improved documentation, internal code and
+project handling a bit but for a full list of changes please refer to the changelog.
 
 Todo
 ----
@@ -77,7 +80,6 @@ backend that we wish to allow for, but are not provided so far.
 These are:
 
 * Tags (We accept them but they are not stored in the backend.)
-* ical export
 * Autocomplete related methods
 * Trophies (The jury is still out on if and how we want to support those.)
 * Migrations from old databases.

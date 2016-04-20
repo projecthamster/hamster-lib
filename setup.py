@@ -20,13 +20,9 @@ requirements = [
     'icalendar',
 ]
 
-test_requirements = [
-    # TODO: put package test requirements here
-]
-
 setup(
     name='hamsterlib',
-    version='0.0.3',
+    version='0.1.0',
     description="A library for common timetracking functionality.",
     long_description=readme + '\n\n' + history,
     author="Eric Goller",
@@ -39,7 +35,6 @@ setup(
     ],
     package_dir={'hamsterlib':
                  'hamsterlib'},
-    # include_package_data=True,
     install_requires=requirements,
     license="GPL3",
     zip_safe=False,
