@@ -26,7 +26,7 @@ test_requirements = [
 
 setup(
     name='hamsterlib',
-    version='0.0.3',
+    version='0.1.0',
     description="A library for common timetracking functionality.",
     long_description=readme + '\n\n' + history,
     author="Eric Goller",
