@@ -329,8 +329,3 @@ def _load_tmp_fact(filepath):
                     content=fact, type=type(fact))
             ))
     return fact
-
-
-def _get_tmp_fact_path(config):
-    """Convinience function to assemble the tmpfile_path from config settings."""
-    return os.path.join(config['work_dir'], config['tmpfile_name'])
