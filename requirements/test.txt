@@ -1,7 +1,8 @@
 # This file is used for local testing with and without tox as well as for
 # testing on the CI servers.
-
--r ./prod.txt
+# This file is not part of our packaging specification. It is used to generate
+# a reproduceable test environment. For check out ``docs/packaging``.
+# For package-requirements refer to ``setup.py``.
 
 coverage==4.0.3
 isort==4.2.5
