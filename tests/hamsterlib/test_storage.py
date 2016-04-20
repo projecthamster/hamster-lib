@@ -7,7 +7,7 @@ import pickle
 
 import pytest
 from freezegun import freeze_time
-from hamsterlib import Fact, helpers
+from hamsterlib import Fact
 from hamsterlib.storage import BaseStore
 
 
@@ -260,7 +260,7 @@ class TestFactManager:
         """Make sure that a valid new fact creates persistent file with proper content."""
         fact.end = None
         basestore.facts._start_tmp_fact(fact)
-        with open(helpers._get_tmp_fact_path(basestore.config), 'rb') as fobj:
+        with open(basestore.facts._get_tmp_fact_path(), 'rb') as fobj:
             new_fact = pickle.load(fobj)
             assert isinstance(new_fact, Fact)
             assert new_fact == fact
@@ -285,7 +285,7 @@ class TestFactManager:
         assert fact_to_be_added.end
         fact_to_be_added.end = None
         assert fact == fact_to_be_added
-        assert os.path.exists(helpers._get_tmp_fact_path(base_config)) is False
+        assert os.path.exists(basestore.facts._get_tmp_fact_path()) is False
 
     def test_stop_tmp_fact_non_existing(self, basestore):
         """Make sure that trying to call stop when there is no 'ongoing fact' raises error."""
@@ -306,9 +306,17 @@ class TestFactManager:
         """Make sure we return the 'ongoing_fact'."""
         result = basestore.facts.cancel_tmp_fact()
         assert result is None
-        assert os.path.exists(helpers._get_tmp_fact_path(basestore.config)) is False
+        assert os.path.exists(basestore.facts._get_tmp_fact_path()) is False
 
     def test_cancel_tmp_fact_without_ongoing_fact(self, basestore):
         """Make sure that we raise a KeyError if ther is no 'ongoing fact'."""
         with pytest.raises(KeyError):
             basestore.facts.cancel_tmp_fact()
+
+    def test_get_tmp_fact_path(self, basestore):
+        """Make sure the returned path matches our expectation."""
+        # [TODO]
+        # Would be nice to avoid the code replication. However, we can not
+        # simply use fixed strings as path composition is platform dependent.
+        expectation = basestore.config['tmpfile_path']
+        assert basestore.facts._get_tmp_fact_path() == expectation
