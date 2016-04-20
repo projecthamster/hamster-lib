@@ -11,7 +11,7 @@ from hamsterlib.backends.sqlalchemy import (AlchemyActivity, AlchemyCategory,
 
 # The reason we see a great deal of count == 0 statements is to make sure that
 # db rollback works as expected. Once we are confident in our sqlalchemy/pytest
-# setup those are not realy needed.
+# setup those are not really needed.
 
 class TestStore(object):
     """Tests to make sure our store/test setup behaves as expected."""
@@ -47,6 +47,19 @@ class TestStore(object):
         assert alchemy_store.session.query(AlchemyCategory).count() == 1
         assert alchemy_category.pk
         assert alchemy_category.name
+
+    def test_get_db_url(self, alchemy_config_parametrized, alchemy_store):
+        """Make sure that db_url composition works as expected."""
+        config, expectation = alchemy_config_parametrized
+        alchemy_store.config = config
+        assert alchemy_store._get_db_url() == expectation
+
+    def test_get_db_url_missing_keys(self, alchemy_config_missing_store_config_parametrized,
+            alchemy_store):
+        """Make sure that db_url composition throws error if key/values are missing in config."""
+        alchemy_store.config = alchemy_config_missing_store_config_parametrized
+        with pytest.raises(ValueError):
+            alchemy_store._get_db_url()
 
 
 class TestCategoryManager():

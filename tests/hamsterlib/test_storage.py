@@ -20,9 +20,6 @@ def basestore(base_config):
 
 # Tests
 class TestBaseStore():
-    def test_init(self, base_config):
-        assert BaseStore(base_config).path == base_config['db_path']
-
     def test_cleanup(self, basestore):
         with pytest.raises(NotImplementedError):
             basestore.cleanup()
