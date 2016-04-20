@@ -18,7 +18,7 @@
 # along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .lib import HamsterControl  # NOQA
+from .lib import REGISTERED_BACKENDS, HamsterControl  # NOQA
 from .objects import Activity, Category, Fact  # NOQA
 
 __version__ = '0.0.3'
