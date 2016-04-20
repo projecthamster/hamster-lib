@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import csv
 import datetime
 import os.path
+import xml
 
 import pytest
 from hamsterlib import reports
@@ -31,6 +32,11 @@ def tsv_writer(path):
 @pytest.fixture
 def ical_writer(path):
     return reports.ICALWriter(path)
+
+
+@pytest.fixture
+def xml_writer(path):
+    return reports.XMLWriter(path)
 
 
 class TestReportWriter(object):
@@ -172,3 +178,48 @@ class TestICALWriter(object):
         with open(path, 'rb') as fobj:
             result = Calendar.from_ical(fobj.read())
             assert result.walk()
+
+
+class TestXMLWriter(object):
+    """Make sure the XML writer works as expected."""
+
+    def test_init_(self, xml_writer):
+        """Make sure a XML main document and a facts list child element is set up."""
+        assert xml_writer.document
+        assert xml_writer.fact_list
+
+    def test_fact_to_tuple(self, xml_writer, fact):
+        """Make sure type conversion and normalization matches our expectations."""
+        result = xml_writer._fact_to_tuple(fact)
+        assert result.start == fact.start.strftime(xml_writer.datetime_format)
+        assert result.end == fact.end.strftime(xml_writer.datetime_format)
+        assert result.activity == text_type(fact.activity.name)
+        assert result.duration == text_type(fact.get_string_delta(format='%M'))
+        assert result.category == text_type(fact.category.name)
+        assert result.description == text_type(fact.description)
+
+    def test__fact_to_tuple_no_category(self, xml_writer, fact):
+        """Make sure that ``None`` category values translate to ``empty strings``."""
+        fact.activity.category = None
+        result = xml_writer._fact_to_tuple(fact)
+        assert result.category == ''
+
+    def test_write_fact(self, xml_writer, fact, mocker):
+        """Make sure that the attributes attached to the fact matche our expectations."""
+        fact_tuple = xml_writer._fact_to_tuple(fact)
+        xml_writer.fact_list.appendChild = mocker.MagicMock()
+        xml_writer._write_fact(fact_tuple)
+        result = xml_writer.fact_list.appendChild.call_args[0][0]
+        assert result.getAttribute('start_time') == fact_tuple.start
+        assert result.getAttribute('end_time') == fact_tuple.end
+        assert result.getAttribute('duration_minutes') == fact_tuple.duration
+        assert result.getAttribute('name') == fact_tuple.activity
+        assert result.getAttribute('category') == fact_tuple.category
+        assert result.getAttribute('description') == fact_tuple.description
+
+    def test__close(self, xml_writer, fact, path):
+        """Make sure the calendar is actually written do disk before file is closed."""
+        xml_writer.write_report((fact,))
+        with open(path, 'rb') as fobj:
+            result = xml.dom.minidom.parse(fobj)
+            assert result.toxml()

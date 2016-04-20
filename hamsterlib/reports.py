@@ -33,6 +33,7 @@ import csv
 import datetime
 import sys
 from collections import namedtuple
+from xml.dom.minidom import Document
 
 from future.utils import python_2_unicode_compatible
 from icalendar import Calendar, Event
@@ -275,3 +276,73 @@ class ICALWriter(ReportWriter):
         """Custom close method to make sure the calendar is actually writen do disk."""
         self.file.write(self.calendar.to_ical())
         return super(ICALWriter, self)._close()
+
+
+class XMLWriter(ReportWriter):
+    """Writer for a basic xml export."""
+
+    # This is a straight forward copy of the 'legacy hamster' XMLWriter class
+    # contributet by 'tbaugis' in 11e3f66
+
+    def __init__(self, path, datetime_format="%Y-%m-%d %H:%M:%S"):
+        """Setúp the writer including a main xml document."""
+        self.datetime_format = datetime_format
+        self.file = open(path, 'wb')
+        self.document = Document()
+        self.fact_list = self.document.createElement("facts")
+
+    def _fact_to_tuple(self, fact):
+        """
+        Convert a ``Fact`` to its normalized tuple.
+
+        This is where all type conversion for ``Fact`` attributes to strings as well
+        as any normalization happens.
+
+        Note:
+            Because different writers may require different types, we need to so this
+            individualy.
+
+        Args:
+            fact (hamsterlib.Fact): Fact to be converted.
+
+        Returns:
+            FactTuple: Tuple representing the original ``Fact``.
+        """
+        # Fields that may have ``None`` value will be represented by ''
+        if fact.category:
+            category = fact.category.name
+        else:
+            category = ''
+
+        description = fact.description or ''
+
+        return FactTuple(
+            start=fact.start.strftime(self.datetime_format),
+            end=fact.end.strftime(self.datetime_format),
+            activity=text_type(fact.activity.name),
+            duration=fact.get_string_delta(format='%M'),
+            category=text_type(category),
+            description=text_type(description),
+        )
+
+    def _write_fact(self, fact_tuple):
+        """Create new fact element and populate attributes before appending to ``fact_list``"""
+        fact = self.document.createElement("fact")
+        fact.setAttribute('start_time', fact_tuple.start)
+        fact.setAttribute('end_time', fact_tuple.end)
+        fact.setAttribute('name', fact_tuple.activity)
+        fact.setAttribute('duration_minutes', fact_tuple.duration)
+        fact.setAttribute('category', fact_tuple.category)
+        fact.setAttribute('description', fact_tuple.description)
+        self.fact_list.appendChild(fact)
+
+    def _close(self):
+        """
+        Append the xml fact list to the main document, write to file and close fileobject.
+
+        ``toxml`` should take care of encoding everything with UTF-8.
+        """
+
+        self.document.appendChild(self.fact_list)
+        self.file.write(self.document.toxml(encoding='utf-8'))
+        return super(XMLWriter, self)._close()
