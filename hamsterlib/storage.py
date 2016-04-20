@@ -44,7 +44,7 @@ from hamsterlib import objects
 @python_2_unicode_compatible
 class BaseStore(object):
     """
-    A controller store provides unified interfaces to interact with our stored entities.
+    A controlers store provides unified interfaces to interact with our stored entities.
 
     ``self.logger`` provides a dedicated logger instance for any storage related logging.
     If you want to make use of it, just setup and attach your handlers and you are ready to go.
@@ -67,6 +67,19 @@ class BaseStore(object):
         we shut down gracefully.
         """
         raise NotImplementedError
+
+    def _get_tmp_fact_path(self):
+        """
+        Helper method to return the tmpfile path.
+
+        Under naive circumstances this just returns 'tmpfile_path' from config.
+        However, if we want to implement some custom workdir logic, we just plug it here
+        without further need to amend any library code that utilizes it.
+
+        Return:
+            str: Absolute path under which the tmpfile is to be stored.
+        """
+        return self.config['tmpfile_path']
 
 
 @python_2_unicode_compatible
@@ -717,7 +730,7 @@ class BaseFactManager(BaseManager):
         """
         self.store.logger.debug(_("Trying to get 'ongoing fact'."))
 
-        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        fact = helpers._load_tmp_fact(self.store._get_tmp_fact_path())
         if not fact:
             message = _("Tried to retrieve an 'ongoing fact' when there is none present.")
             self.store.logger.debug(message)
@@ -740,10 +753,10 @@ class BaseFactManager(BaseManager):
         # it up before canceling. which would result in two retrievals.
         self.store.logger.debug(_("Trying to cancel 'ongoing fact'."))
 
-        fact = helpers._load_tmp_fact(helpers._get_tmp_fact_path(self.store.config))
+        fact = helpers._load_tmp_fact(self.store._get_tmp_fact_path())
         if not fact:
             message = _("Trying to stop a non existing ongoing fact.")
             self.store.logger.debug(message)
             raise KeyError(message)
-        os.remove(helpers._get_tmp_fact_path(self.store.config))
+        os.remove(self.store._get_tmp_fact_path())
         self.store.logger.debug(_("Temporary fact stoped."))
