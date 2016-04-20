@@ -15,6 +15,7 @@ Contents:
    installation
    usage
    contributing
+   packaging
    API reference <modules>
    notes
    authors

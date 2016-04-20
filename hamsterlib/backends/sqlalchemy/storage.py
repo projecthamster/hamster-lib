@@ -1,7 +1,26 @@
 # -*- encoding: utf-8 -*-
 
+# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+
+# This file is part of 'hamsterlib'.
+#
+# 'hamsterlib' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# 'hamsterlib' is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+
+
 from __future__ import unicode_literals
 
+import os.path
 from builtins import str
 
 from future.utils import python_2_unicode_compatible
@@ -22,7 +41,7 @@ class SQLAlchemyStore(storage.BaseStore):
     """
     SQLAlchemy based backend.
 
-    Unfortunatly despite using SQLAlchemy some database specific settings can not
+    Unfortunately despite using SQLAlchemy some database specific settings can not
     be avoided (autoincrement, indexes etc).
     Some of those issues will not be relevant in later versions as we may get rid
     of Category and Activity ids entirely, just using their natural/composite keys
@@ -32,16 +51,17 @@ class SQLAlchemyStore(storage.BaseStore):
     It should take only minor but delayable effort to broaden the applicability to
     postgres, mysql and the likes.
 
-    The main takeaway right now is, that their is no actuall guarantee that in a
+    The main takeaway right now is, that their is no actual guarantee that in a
     distributed environment no race condition occur and we may end up with duplicate
     Category/Activity entries. No backend code will be able to prevent this by virtue of
-    this beeing a DB issue.
+    this being a DB issue.
     Furthermore, we will try hard to avoid placing more than one fact in a given time
     window. However, there can be no guarantee that in a distributed environment this
-    will allways work out. As a consequence, we make sure that all our single object
-    data retrieval methods return only one item or throw an error alerting us the the
+    will always work out. As a consequence, we make sure that all our single object
+    data retrieval methods return only one item or throw an error alerting us about the
     inconsistency.
     """
+
     def __init__(self, config, session=None):
         """
         Set up the store.
@@ -58,9 +78,9 @@ class SQLAlchemyStore(storage.BaseStore):
         super(SQLAlchemyStore, self).__init__(config)
         # [TODO]
         # It takes more deliberation to decide how to handle engine creation if
-        # we recieve a session. Should be require the session to bring its own
+        # we receive a session. Should be require the session to bring its own
         # engine?
-        engine = create_engine(self.path)
+        engine = create_engine(self._get_db_url())
         self.logger.debug(_("Engine '{}' created.".format(engine)))
         objects.metadata.bind = engine
         objects.metadata.create_all(engine)
@@ -78,6 +98,86 @@ class SQLAlchemyStore(storage.BaseStore):
 
     def cleanup(self):
         pass
+
+    def _get_db_url(self):
+        """
+        Create a ``database_url`` from ``config`` suitable to be consumed by ``create_engine``
+
+        Our config may include:
+            * ''db_engine``; Engine to be used.
+            * ``db_host``; Host to connect to.
+            * ``db_port``; Port to connect to.
+            * ``db_path``; Used if ``engine='sqlite'``.
+            * ``db_user``; Database user to be used for connection.
+            * ``db_password``; Database user passwort to authenticate user.
+
+        If ``db_engine='sqlite'`` you need to provide ``db_path`` as well. For any other engine
+        ``db_host`` and ``db_name`` are mandatory.
+
+        Note:
+            * `SQLAlchemy docs <http://docs.sqlalchemy.org/en/latest/core/engines.html>`_
+
+        Returns:
+            str: ``database_url`` suitable to be consumed by ``create_engine``.
+
+        Raises:
+            ValueError: If a required config key/value pair is not present for the choosen
+                ``db_engine``.
+        """
+        # [FIXME]
+        # Contemplate if there are security implications that warrant sanitizing
+        # config values.
+
+        engine = self.config.get('db_engine', '')
+        host = self.config.get('db_host', '')
+        name = self.config.get('db_name', '')
+        path = self.config.get('db_path', '')
+        port = self.config.get('db_port', '')
+        user = self.config.get('db_user', '')
+        password = self.config.get('db_password', '')
+
+        if not engine:
+            message = _("No engine found in config!")
+            self.logger.error(message)
+            raise ValueError(message)
+
+        # URL composition is slightly different for sqlite
+        if engine == 'sqlite':
+            if not path:
+                # We could have allowed for blank paths, which would make
+                # SQLAlchemy default to ``:memory:``. But explicit is better
+                # than implicit. You can still create an in memory db by passing
+                # ``db_path=':memory:'`` deliberately.
+                message = _("No 'db_path' found in config! Sqlite requires one.")
+                self.logger.error(message)
+                raise ValueError(message)
+            if path != ':memory:':
+                # Make sure we always use an absolute path.
+                path = os.path.abspath(path)
+            database_url = '{engine}:///{path}'.format(engine=engine, path=path)
+        else:
+            if not host:
+                message = _("No 'db_host' found in config! Engines other than sqlite require one.")
+                self.logger.error(message)
+                raise ValueError(message)
+            if not name:
+                message = _("No 'db_name' found in config! Engines other than sqlite require one.")
+                self.logger.error(message)
+                raise ValueError(message)
+            if not user:
+                message = _("No 'db_user' found in config! Engines other than sqlite require one.")
+                self.logger.error(message)
+                raise ValueError(message)
+            if not password:
+                message = _("No 'db_password' found in config! Engines other than"
+                            " sqlite require one.")
+                self.logger.error(message)
+                raise ValueError(message)
+            if port:
+                port = ':{}'.format(port)
+            database_url = '{engine}://{user}:{password}@{host}{port}/{name}'.format(
+                engine=engine, user=user, password=password, host=host, port=port, name=name)
+        return database_url
 
 
 @python_2_unicode_compatible

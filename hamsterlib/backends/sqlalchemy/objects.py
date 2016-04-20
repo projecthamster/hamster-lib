@@ -1,27 +1,34 @@
 # -*- encoding: utf-8 -*-
 
-from __future__ import unicode_literals
+# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
 
-from future.utils import python_2_unicode_compatible
-from hamsterlib import Activity, Category, Fact
-from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer,
-                        MetaData, Table, Unicode, UniqueConstraint)
-from sqlalchemy.orm import mapper, relationship
-
-DEFAULT_STRING_LENGTH = 254
+# This file is part of 'hamsterlib'.
+#
+# 'hamsterlib' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# 'hamsterlib' is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
 """
 This module provides the database layout.
 
-We inherit from our hamster objects in order to use the custom methods, making insstance
-comparissions so much easier.
+We inherit from our hamster objects in order to use the custom methods, making instance
+comparisons so much easier.
 
 The reason we are not mapping our native hamster objects directly is that this seems
 to break the flexible plugable backend architecture as SQLAlchemy establishes the mapping
 right away. This may be avoidable and should be investigates later on.
 
-If those classes are instanciated manually any nested related instance needs to be added
+If those classes are instantiated manually any nested related instance needs to be added
 manually.
 
 Note:
@@ -33,11 +40,22 @@ Note:
 """
 
 
+from __future__ import unicode_literals
+
+from future.utils import python_2_unicode_compatible
+from hamsterlib import Activity, Category, Fact
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer,
+                        MetaData, Table, Unicode, UniqueConstraint)
+from sqlalchemy.orm import mapper, relationship
+
+DEFAULT_STRING_LENGTH = 254
+
+
 @python_2_unicode_compatible
 class AlchemyCategory(Category):
     def __init__(self, pk, name):
         """
-        Initiate a new sqlalchemy activity instance.
+        Initiate a new SQLAlchemy activity instance.
 
         Args:
             category (hamsterlib.Category): A hamster category that is to
@@ -51,7 +69,7 @@ class AlchemyCategory(Category):
         self.name = name
 
     def as_hamster(self):
-        """Provide an convinient way to return it as a ``hamsterlib.Category`` instance."""
+        """Provide an convenient way to return it as a ``hamsterlib.Category`` instance."""
         return Category(
             pk=self.pk,
             name=self.name
@@ -78,7 +96,7 @@ class AlchemyActivity(Activity):
         self.deleted = deleted
 
     def as_hamster(self):
-        """Provide an convinient way to return it as a ``hamsterlib.Activity`` instance."""
+        """Provide an convenient way to return it as a ``hamsterlib.Activity`` instance."""
         if self.category:
             category = self.category.as_hamster()
         else:
@@ -115,7 +133,7 @@ class AlchemyFact(Fact):
         self.tags = tags
 
     def as_hamster(self):
-        """Provide an convinient way to return it as a ``hamsterlib.Fact`` instance."""
+        """Provide an convenient way to return it as a ``hamsterlib.Fact`` instance."""
         return Fact(
             pk=self.pk,
             activity=self.activity.as_hamster(),

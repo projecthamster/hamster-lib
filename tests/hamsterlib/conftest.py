@@ -7,7 +7,6 @@ import pickle
 
 import faker as faker_
 import pytest
-from hamsterlib import helpers
 from hamsterlib.lib import HamsterControl
 from pytest_factoryboy import register
 
@@ -41,7 +40,7 @@ def convert_time_to_datetime(time_string):
 def tmp_fact(base_config, fact):
     """Provide an existing 'ongoing fact'."""
     fact.end = None
-    with open(helpers._get_tmp_fact_path(base_config), 'wb') as fobj:
+    with open(base_config['tmpfile_path'], 'wb') as fobj:
         pickle.dump(fact, fobj)
     return fact
 
@@ -111,11 +110,19 @@ def fact():
 
 @pytest.fixture
 def list_of_facts(fact_factory):
-    """Provide a factory that returns a list with given amount of Fact instances."""
+    """
+    Provide a factory that returns a list with given amount of Fact instances.
+
+    The key point here is that these fact *do not overlap*!
+    """
     def get_list_of_facts(number_of_facts):
         facts = []
+        old_start = datetime.datetime.now()
+        offset = datetime.timedelta(hours=4)
         for i in range(number_of_facts):
-            facts.append(fact_factory())
+            start = old_start + offset
+            facts.append(fact_factory(start=start))
+            old_start = start
         return facts
     return get_list_of_facts
 
