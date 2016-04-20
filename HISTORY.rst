@@ -8,6 +8,7 @@ History
 * Add ``ical`` export facilities. Brand new writer using the ``icalendar`` library.
 * Switch to `semantic versioning <http://semver.org>`_
 * Added GPL3 boilerplate
+* Provide documentation on packaging and ``requirements.txt``.
 
 0.0.3 (2016-04-08)
 -------------------
