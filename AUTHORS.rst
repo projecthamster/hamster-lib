@@ -10,5 +10,9 @@ Development Lead
 Contributors
 ------------
 
-* [tbaugis](https://github.com/tbaugis): `parse_time_info` from [hamster-cli](
-  https://github.com/projecthamster/hamster/blob/master/src/hamster-cli)
+Code taken from 'legacy hamster'
+--------------------------------
+
+* `tbaugis <https://github.com/tbaugis>`_:
+  * ``parse_time_info`` from `hamster-cli <https://github.com/projecthamster/hamster/blob/master/src/hamster-cli>`_
+  * ``XMLWriter`` from `hamster <https://github.com/projecthamster/hamster/blame/master/src/hamster/reports.py>`_
