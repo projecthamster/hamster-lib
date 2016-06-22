@@ -1,6 +1,3 @@
 # This file specifies all packages required to build the documentation.
-# This file is not part of our packaging specification. It is used to generate
-# a reproduceable documentation building environment. For check out ``docs/packaging``.
-# For package-requirements refer to ``setup.py``.
 
 Sphinx==1.4

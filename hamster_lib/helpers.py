@@ -1,21 +1,21 @@
 # -*- encoding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+# Copyright (C) 2015-2016 Eric Goller <eric.goller@ninjaduck.solutions>
 
-# This file is part of 'hamsterlib'.
+# This file is part of 'hamste-lib'.
 #
-# 'hamsterlib' is free software: you can redistribute it and/or modify
+# 'hamster_lib' is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# 'hamsterlib' is distributed in the hope that it will be useful,
+# 'hamster-lib' is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+# along with 'hamster-lib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
 """
@@ -32,7 +32,7 @@ import pickle
 import re
 from collections import namedtuple
 
-from hamsterlib import Fact
+from hamster_lib import Fact
 
 TimeFrame = namedtuple('Timeframe', ('start_date', 'start_time',
     'end_date', 'end_time', 'offset'))
@@ -168,7 +168,7 @@ def complete_timeframe(timeframe, config):
         * Missing start-date: Fallback to ``today``.
         * Missing start-time: Fallback to ``store.config['day_start']``.
         * Missing end-date: Fallback to ``today`` of ``day_start='00:00', ``tomorrow`` otherwise.
-            See ``hamsterlib.helpers.end_day_to_datetime`` for details and explanaitions.
+            See ``hamster_lib.helpers.end_day_to_datetime`` for details and explanaitions.
         * Missing end-time: 1 second before ``store.config['day_start']``.
 
     Args:
@@ -307,12 +307,12 @@ def _load_tmp_fact(filepath):
         filepath: Full path to the tmpfile location.
 
     Returns:
-        hamsterlib.Fact: ``Fact`` representing the 'ongoing fact'. Returns ``False``
+        hamster_lib.Fact: ``Fact`` representing the 'ongoing fact'. Returns ``False``
             if no file was found.
 
     Raises:
         TypeError: If for some reason our stored instance is no instance of
-            ``hamsterlib.Fact``.
+            ``hamster_lib.Fact``.
     """
 
     try:

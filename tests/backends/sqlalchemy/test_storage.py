@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import datetime
 
 import pytest
-from hamsterlib.backends.sqlalchemy import (AlchemyActivity, AlchemyCategory,
+from hamster_lib.backends.sqlalchemy import (AlchemyActivity, AlchemyCategory,
                                             AlchemyFact)
 
 

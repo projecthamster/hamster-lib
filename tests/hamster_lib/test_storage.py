@@ -7,8 +7,8 @@ import pickle
 
 import pytest
 from freezegun import freeze_time
-from hamsterlib import Fact
-from hamsterlib.storage import BaseStore
+from hamster_lib import Fact
+from hamster_lib.storage import BaseStore
 
 
 # Fixtures

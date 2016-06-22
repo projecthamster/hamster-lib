@@ -6,9 +6,9 @@ import datetime
 
 import fauxfactory
 import pytest
-from hamsterlib import Activity, Category, Fact
-from hamsterlib.backends.sqlalchemy import objects
-from hamsterlib.backends.sqlalchemy.storage import SQLAlchemyStore
+from hamster_lib import Activity, Category, Fact
+from hamster_lib.backends.sqlalchemy import objects
+from hamster_lib.backends.sqlalchemy.storage import SQLAlchemyStore
 from pytest_factoryboy import register
 from sqlalchemy import create_engine
 
@@ -149,7 +149,7 @@ def alchemy_store(request, alchemy_runner, alchemy_config):
     return SQLAlchemyStore(alchemy_config, common.Session)
 
 
-# We are sometimes tempted not using hamsterlib.objects at all. but as our tests
+# We are sometimes tempted not using hamster-lib.objects at all. but as our tests
 # expect them as input we need them!
 
 # Instance sets
@@ -194,7 +194,7 @@ def category(request, category_factory):
 @pytest.fixture
 def activity_factory(request, name, category_factory):
     """
-    Provide a ``hamsterlib.Activity`` factory.
+    Provide a ``hamster_lib.Activity`` factory.
 
     Note:
         * The returned activity will have a *new* category associated as well.
@@ -214,7 +214,7 @@ def activity(request, activity_factory):
 @pytest.fixture
 def fact_factory(request, activity_factory, start_end_datetimes, description):
     """
-    Provide a ``hamsterlib.Fact`` factory.
+    Provide a ``hamster_lib.Fact`` factory.
 
     Note:
         * The returned fact will have a *new* activity (and by consequence category)

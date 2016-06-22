@@ -8,7 +8,7 @@ import os.path
 import xml
 
 import pytest
-from hamsterlib import reports
+from hamster_lib import reports
 from icalendar import Calendar
 from six import text_type
 

@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import logging
 
 import pytest
-from hamsterlib.storage import BaseStore
+from hamster_lib.storage import BaseStore
 
 
 class TestControler:
@@ -28,7 +28,7 @@ class TestControler:
         """Make sure we recieve a logger that maches our expectations."""
         logger = controler._get_logger()
         assert isinstance(logger, logging.Logger)
-        assert logger.name == 'hamsterlib.lib'
+        assert logger.name == 'hamster-lib.log'
         # [FIXME]
         # assert len(logger.handlers) == 1
         assert isinstance(logger.handlers[0], logging.NullHandler)

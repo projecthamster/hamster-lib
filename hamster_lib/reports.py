@@ -1,21 +1,21 @@
 # - coding: utf-8 -
 
-# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+# Copyright (C) 2015-2016 Eric Goller <eric.goller@ninjaduck.solutions>
 
-# This file is part of 'hamsterlib'.
+# This file is part of 'hamster-lib'.
 #
-# 'hamsterlib' is free software: you can redistribute it and/or modify
+# 'hamster-lib' is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# 'hamsterlib' is distributed in the hope that it will be useful,
+# 'hamster-lib' is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+# along with 'hamster-lib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
 """
@@ -78,7 +78,7 @@ class ReportWriter(object):
         Write facts to file output and make sure the file like object is closed at the end.
 
         Args:
-            facts (Iterable): Iterable of ``hamsterlib.Fact`` instances to be exported.
+            facts (Iterable): Iterable of ``hamster_lib.Fact`` instances to be exported.
 
         Returns:
             None: If everything worked as expected.
@@ -99,7 +99,7 @@ class ReportWriter(object):
             individualy.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be converted.
+            fact (hamster_lib.Fact): Fact to be converted.
 
         Returns:
             FactTuple: Tuple representing the original ``Fact``.
@@ -163,7 +163,7 @@ class TSVWriter(ReportWriter):
         as any normalization happens.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be converted.
+            fact (hamster_lib.Fact): Fact to be converted.
 
         Returns:
             FactTuple: Tuple representing the original ``Fact``.
@@ -229,7 +229,7 @@ class ICALWriter(ReportWriter):
             individualy.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be converted.
+            fact (hamster_lib.Fact): Fact to be converted.
 
         Returns:
             FactTuple: Tuple representing the original ``Fact``.
@@ -303,7 +303,7 @@ class XMLWriter(ReportWriter):
             individualy.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be converted.
+            fact (hamster_lib.Fact): Fact to be converted.
 
         Returns:
             FactTuple: Tuple representing the original ``Fact``.

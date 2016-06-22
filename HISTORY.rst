@@ -3,6 +3,12 @@
 History
 =======
 
+0.11.0
+------
+* Renamed this package to ``hamster-lib`` as it now an offical part of
+  `projecthamstser <https://github.com/projecthamster>`_. It was previously
+  named and distributed as `hamsterlib <https://pypi.python.org/pypi/hamsterlib/0.1.0>`_
+
 0.10.0
 ------
 * Add ``ical`` export facilities. Brand new writer using the ``icalendar`` library.

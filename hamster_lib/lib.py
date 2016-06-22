@@ -1,21 +1,21 @@
 # -*- encoding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+# Copyright (C) 2015-2016 Eric Goller <eric.goller@ninjaduck.solutions>
 
-# This file is part of 'hamsterlib'.
+# This file is part of 'hamster-lib'.
 #
-# 'hamsterlib' is free software: you can redistribute it and/or modify
+# 'hamster-lib' is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# 'hamsterlib' is distributed in the hope that it will be useful,
+# 'hamster-lib' is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+# along with 'hamster-lib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from __future__ import unicode_literals
@@ -32,14 +32,14 @@ BackendRegistryEntry = namedtuple('BackendRegistryEntry', ('verbose_name', 'stor
 
 REGISTERED_BACKENDS = {
     'sqlalchemy': BackendRegistryEntry('SQLAlchemy',
-        'hamsterlib.backends.sqlalchemy.SQLAlchemyStore'),
+        'hamster_lib.backends.sqlalchemy.SQLAlchemyStore'),
 }
 
 # See: https://wiki.python.org/moin/PortingToPy3k/BilingualQuickRef#gettext
 kwargs = {}
 if sys.version_info < (3,):
     kwargs['unicode'] = True
-gettext.install('hamsterlib', **kwargs)
+gettext.install('hamster-lib', **kwargs)
 
 
 @python_2_unicode_compatible
@@ -95,6 +95,6 @@ class HamsterControl(object):
         wants to use logging needs to setup its required handlers itself.
         """
 
-        lib_logger = logging.getLogger('hamsterlib.lib')
+        lib_logger = logging.getLogger('hamster-lib.log')
         lib_logger.addHandler(logging.NullHandler())
         return lib_logger

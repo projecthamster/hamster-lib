@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# hamsterlib documentation build configuration file, created by
+# hamster-lib documentation build configuration file, created by
 # sphinx-quickstart on Tue Jul  9 22:26:36 2013.
 #
 # This file is execfile()d with the current directory set to its
@@ -35,7 +35,7 @@ project_root = os.path.dirname(cwd)
 # version is used.
 sys.path.insert(0, project_root)
 
-import hamsterlib
+import hamster_lib
 
 # -- General configuration ---------------------------------------------
 
@@ -66,7 +66,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'hamsterlib'
+project = 'hamster-lib'
 copyright = '2015-2016, Eric Goller'
 author = 'Eric Goller'
 
@@ -133,18 +133,17 @@ html_theme_options = {
     # in the upper left corner above the name of the project.
     # 'logo': 'logo.png',
     'logo_name': True,
-    'description': 'A timetracking libary.',
-    'github_user': 'elbenfreund',
-    'github_repo': 'hamstserlib',
+    'description': 'A time tracking libary.',
+    'github_user': 'projecthamster',
+    'github_repo': 'hamster-lib',
     'github_button': True,
     'github_banner': False,
     'travis_button': False,
     'extra_nav_links': {
 
-        '<img alt="Build Status" src="https://img.shields.io/travis/elbenfreund/hamsterlib/master.svg">': 'https://travis-ci.org/elbenfreund/hamsterlib',
-        '<img alt="Coverage Status" src="https://img.shields.io/codecov/c/github/elbenfreund/hamsterlib/master.svg">': 'https://codecov.io/github/elbenfreund/hamssterlib?branch=master',
-        '<img alt="Requirements Status" src="https://requires.io/github/elbenfreund/hamsterlib/requirements.svg?branch=master">': 'https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master',
-        '<img alt="Project Management" src="https://badge.waffle.io/elbenfreund/hamsterlib.svg?label=ready&title=Ready">': 'https://waffle.io/elbenfreund/hamsterlib',
+        '<img alt="Build Status" src="https://img.shields.io/travis/projecthamster/hamster-lib/master.svg">': 'https://travis-ci.org/projecthamster/hamster-lib',
+        '<img alt="Coverage Status" src="https://img.shields.io/codecov/c/github/projecthamster/hamster-lib/master.svg">': 'https://codecov.io/github/projecthamster/hamsster-lib?branch=master',
+        '<img alt="Requirements Status" src="https://requires.io/github/projecthamster/hamster-lib/requirements.svg?branch=master">': 'https://requires.io/github/projecthamster/hamster-lib/requirements/?branch=master',
     },
     'analytics_id': '',
     'show_related': False,
@@ -229,7 +228,7 @@ html_sidebars = {
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'hamsterlibdoc'
+htmlhelp_basename = 'hamster-libdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------
@@ -249,8 +248,8 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
-    ('index', 'hamsterlib.tex',
-     'hamsterlib Documentation',
+    ('index', 'hamster-lib.tex',
+     'hamster-lib Documentation',
      'Eric Goller', 'manual'),
 ]
 
@@ -280,8 +279,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'hamsterlib',
-     'hamsterlib Documentation',
+    ('index', 'hamster-lib',
+     'hamster-lib Documentation',
      ['Eric Goller'], 1)
 ]
 
@@ -295,10 +294,10 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'hamsterlib',
-     'hamsterlib Documentation',
+    ('index', 'hamster-lib',
+     'hamster-lib Documentation',
      'Eric Goller',
-     'hamsterlib',
+     'hamster-lib',
      'One line description of project.',
      'Miscellaneous'),
 ]

@@ -1,21 +1,21 @@
 # -*- encoding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+# Copyright (C) 2015-2016 Eric Goller <eric.goller@ninjaduck.solutions>
 
-# This file is part of 'hamsterlib'.
+# This file is part of 'hamster-lib'.
 #
-# 'hamsterlib' is free software: you can redistribute it and/or modify
+# 'hamster-lib' is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# 'hamsterlib' is distributed in the hope that it will be useful,
+# 'hamster-lib' is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+# along with 'hamster-lib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from __future__ import unicode_literals
@@ -24,7 +24,7 @@ import os.path
 from builtins import str
 
 from future.utils import python_2_unicode_compatible
-from hamsterlib import storage
+from hamster_lib import storage
 from six import text_type
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -187,11 +187,11 @@ class CategoryManager(storage.BaseCategoryManager):
         Custom version of the default method in order to provide access to alchemy instances.
 
         Args:
-            category (hamsterlib.Category: Category we want.
+            category (hamster-lib.Category: Category we want.
             raw (bool): Wether to return the AlchemyCategory instead.
 
         Returns:
-            hamsterlib.Category or None: Category.
+            hamster-lib.Category or None: Category.
         """
 
         message = _("Recieved {!r} and raw={}.".format(category, raw))
@@ -215,11 +215,11 @@ class CategoryManager(storage.BaseCategoryManager):
         done correctly..
 
         Args:
-            category (hamsterlib.Category): Hamster Category instance.
+            category (hamster-lib.Category): Hamster Category instance.
             raw (bool): Wether to return the AlchemyCategory instead.
 
         Returns:
-            hamsterlib.Category: Saved instance, as_hamster()
+            hamster-lib.Category: Saved instance, as_hamster()
 
         Raises:
             ValueError: If the name to be added is already present in the db.
@@ -259,10 +259,10 @@ class CategoryManager(storage.BaseCategoryManager):
         Update a given Category.
 
         Args:
-            category (hamsterlib.Category): Category to be updated.
+            category (hamster-lib.Category): Category to be updated.
 
         Returns:
-            hamsterlib.Category: Updated category.
+            hamster-lib.Category: Updated category.
 
         Raises:
             ValueError: If the new name is already taken.
@@ -304,7 +304,7 @@ class CategoryManager(storage.BaseCategoryManager):
         Delete a given category.
 
         Args:
-            category (hamsterlib.Category): Category to be removed.
+            category (hamster-lib.Category): Category to be removed.
 
         Returns:
             None: If everything went alright.
@@ -339,7 +339,7 @@ class CategoryManager(storage.BaseCategoryManager):
             pk (int): PK of the category to be retrieved.
 
         Returns:
-            hamsterlib.Category: Category matching given PK.
+            hamster-lib.Category: Category matching given PK.
 
         Raises:
             KeyError: If no such PK was found.
@@ -370,7 +370,7 @@ class CategoryManager(storage.BaseCategoryManager):
 
 
         Returns:
-            hamsterlib.Category: Category of given name.
+            hamster-lib.Category: Category of given name.
 
         Raises:
             KeyError: If no category matching the name was found.
@@ -417,11 +417,11 @@ class ActivityManager(storage.BaseActivityManager):
         Custom version of the default method in order to provide access to alchemy instances.
 
         Args:
-            activity (hamsterlib.Activity: Activity we want.
+            activity (hamster-lib.Activity: Activity we want.
             raw (bool): Wether to return the AlchemyActivity instead.
 
         Returns:
-            hamsterlib.Activity: Activity.
+            hamster-lib.Activity: Activity.
         """
 
         message = _("Recieved {!r}, raw={}.".format(activity, raw))
@@ -439,10 +439,10 @@ class ActivityManager(storage.BaseActivityManager):
         Add a new ``Activity`` instance to the databasse.
 
         Args:
-            activity (hamsterlib.Activity): Hamster activity
+            activity (hamster-lib.Activity): Hamster activity
 
         Returns:
-            hamsterlib.Activity: Hamster activity representation of stored instance.
+            hamster-lib.Activity: Hamster activity representation of stored instance.
 
         Raises:
             ValueError: If the passed activity has a PK.
@@ -494,10 +494,10 @@ class ActivityManager(storage.BaseActivityManager):
         Update a given Activity.
 
         Args:
-            activity (hamsterlib.Activity): Activity to be updated.
+            activity (hamster-lib.Activity): Activity to be updated.
 
         Returns:
-            hamsterlib.Activity: Updated activity.
+            hamster-lib.Activity: Updated activity.
 
         Raises:
             ValueError: If the new name/category.name combination is already taken.
@@ -549,7 +549,7 @@ class ActivityManager(storage.BaseActivityManager):
         Remove an activity from our internal backend.
 
         Args:
-            activity (hamsterlib.Activity): The activity to be removed.
+            activity (hamster-lib.Activity): The activity to be removed.
 
         Returns:
             bool: True
@@ -589,7 +589,7 @@ class ActivityManager(storage.BaseActivityManager):
             raw (bool): Return the AlchemyActivity instead.
 
         Returns:
-            hamsterlib.Activity: Activity with given PK.
+            hamster-lib.Activity: Activity with given PK.
 
         Raises:
             KeyError: If no such pk was found.
@@ -614,11 +614,11 @@ class ActivityManager(storage.BaseActivityManager):
 
         Args:
             name (str): The activities name.
-            category (hamsterlib.Category or None): The activities category. May be None.
+            category (hamster-lib.Category or None): The activities category. May be None.
             raw (bool): Return the AlchemyActivity instead.
 
         Returns:
-            hamsterlib.Activity: The activity if it exists in this combination.
+            hamster-lib.Activity: The activity if it exists in this combination.
 
         Raises:
             KeyError: if composite key can not be found in the db.
@@ -668,13 +668,13 @@ class ActivityManager(storage.BaseActivityManager):
         Retrieve all matching activities stored in the backend.
 
         Args:
-            category (hamsterlib.Category, optional): Limit activities to this category.
+            category (hamster-lib.Category, optional): Limit activities to this category.
                 Defaults to ``None``.
             search_term (str, optional): Limit activities to those matching this string a substring
                 in their name. Defaults to ``empty string``.
 
         Returns:
-            list: List of ``hamsterlib.Activity`` instances matching constrains. This list
+            list: List of ``hamster-lib.Activity`` instances matching constrains. This list
                 is ordered by ``Activity.name``.
         """
 
@@ -703,11 +703,11 @@ class FactManager(storage.BaseFactManager):
         Add a new fact to the database.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be added.
+            fact (hamster-lib.Fact): Fact to be added.
             raw (bool): If ``True`` return ``AlchemyFact`` instead.
 
         Returns:
-            hamsterlib.Fact: Fact as stored in the database
+            hamster-lib.Fact: Fact as stored in the database
 
         Raises:
             ValueError: If the passed fact has a PK assigned. New facts should not have one.
@@ -742,11 +742,11 @@ class FactManager(storage.BaseFactManager):
         Update and existing fact with new values.
 
         Args:
-            fact (hamsterlib.fact): Fact instance holding updated values.
+            fact (hamster-lib.fact): Fact instance holding updated values.
             raw (bool): If ``True`` return ``AlchemyFact`` instead.
 
         Returns:
-            hamsterlib.fact: Updated Fact
+            hamster-lib.fact: Updated Fact
 
         Raises:
             KeyError: if a Fact with the relevant PK could not be found.
@@ -789,7 +789,7 @@ class FactManager(storage.BaseFactManager):
         Remove a fact from our internal backend.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be removed
+            fact (hamster-lib.Fact): Fact to be removed
 
         Returns:
             bool: Success status
@@ -827,7 +827,7 @@ class FactManager(storage.BaseFactManager):
             pk: PK of the fact to be retrieved
 
         Returns:
-            hamsterlib.Fact: Fact matching given PK
+            hamster-lib.Fact: Fact matching given PK
 
         Raises:
             KeyError: If no Fact of given key was found.
@@ -858,7 +858,7 @@ class FactManager(storage.BaseFactManager):
             start (datetime.datetime, optional): Start of timeframe
 
         Returns:
-            list: List of ``hamsterlib.Facts`` instances.
+            list: List of ``hamster-lib.Facts`` instances.
         """
 
         self.store.logger.debug(_(

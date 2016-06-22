@@ -2,38 +2,34 @@
 hamsterlib
 ===============================
 
-.. image:: https://img.shields.io/pypi/v/hamsterlib.svg
-        :target: https://pypi.python.org/pypi/hamsterlib
+.. image:: https://img.shields.io/pypi/v/hamster-lib.svg
+        :target: https://pypi.python.org/pypi/hamster-lib
 
-.. image:: https://img.shields.io/travis/elbenfreund/hamsterlib/master.svg
-        :target: https://travis-ci.org/elbenfreund/hamsterlib
+.. image:: https://img.shields.io/travis/projecthamster/hamster-lib/master.svg
+        :target: https://travis-ci.org/projecthamster/hamster_lib
 
-.. image:: https://img.shields.io/codecov/c/github/elbenfreund/hamsterlib/master.svg
-        :target: https://codecov.io/github/elbenfreund/hamsterlib
+.. image:: https://img.shields.io/codecov/c/github/projecthamster/hamster-lib/master.svg
+        :target: https://codecov.io/github/projecthamster/hamster-lib
 
-.. image:: https://badge.waffle.io/elbenfreund/hamsterlib.svg?label=ready&title=Ready
-        :target: https://waffle.io/elbenfreund/hamsterlib
-        :alt: 'Stories in Ready' 
-
-.. image:: https://readthedocs.org/projects/hamsterlib/badge/?version=master
-        :target: https://readthedocs.org/projects/hamsterlib/?badge=master
+.. image:: https://readthedocs.org/projects/hamster-lib/badge/?version=master
+        :target: http://hamster-lib.docs.projecthamster.org/en/latest/
         :alt: Documentation Status
 
-.. image:: https://requires.io/github/elbenfreund/hamsterlib/requirements.svg?branch=master
-        :target: https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master
+.. image:: https://requires.io/github/projecthamster/hamster-lib/requirements.svg?branch=master
+        :target: https://requires.io/github/projecthamster/hamster-lib/requirements/?branch=master
         :alt: Requirements Status
 
 (A badges refer to ``master``)
 
 A library for common timetracking functionality.
 
-``hamsterlib`` aims to be a replacement for ``projecthamster``  backend
+``hamster-lib`` aims to be a replacement for ``projecthamster``  backend
 library.  While we are not able to function as a  straight forward drop-in
 replacement we try very hard to stay as compatible as possible. As a consequence
-clients are able to switch to ``hamsterlib``  merely by changing some basic 
+clients are able to switch to ``hamster-lib``  merely by changing some basic
 calls. Most of the semantics and return values will be as before.
 
-This itself points to a major architectural shift in the way ``hamsterlib`` approaches
+This itself points to a major architectural shift in the way ``hamster-lib`` approaches
 timetracking. We are firm believers in *do one thing, and do it well*. The tried and
 tested unix toolbox principle. As such we focus on providing useful backend
 functionality and helper methods so clients (dbus interfaces, CLIs or graphical UIs)
@@ -59,11 +55,10 @@ First Steps
 
 Additional Resources
 --------------------
-* `Documentation by 'read the docs' <https://hamsterlib.readthedocs.org>`_
-* `Project management with 'waffles' <https://waffle.io/elbenfreund/hamsterlib>`_
-* `CI thanks to Travis-CI <https://travis-ci.org/elbenfreund/hamsterlib>`_
-* `Coverage reports by 'codecov' <https://codecov.io/elbenfreund/hamsterlib>`_
-* `Dependency monitoring by 'requires.io' <https://requires.io/github/elbenfreund/hamsterlib/requirements/?branch=master>`_
+* `Documentation by 'read the docs' <https://hamster-lib.docs.projecthamster.org>`_
+* `CI thanks to Travis-CI <https://travis-ci.org/projecthamster/hamster-lib>`_
+* `Coverage reports by 'codecov' <https://codecov.io/projecthamster/hamster-lib>`_
+* `Dependency monitoring by 'requires.io' <https://requires.io/github/projecthamster/hamster-lib/requirements/?branch=master>`_
 
 News: Version 0.10.0
 ---------------------

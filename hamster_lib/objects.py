@@ -1,21 +1,21 @@
 # -*- encoding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+# Copyright (C) 2015-2016 Eric Goller <eric.goller@ninjaduck.solutions>
 
-# This file is part of 'hamsterlib'.
+# This file is part of 'hamster-lib'.
 #
-# 'hamsterlib' is free software: you can redistribute it and/or modify
+# 'hamster-lib' is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# 'hamsterlib' is distributed in the hope that it will be useful,
+# 'hamster-lib' is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+# along with 'hamster-lib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from __future__ import unicode_literals
@@ -246,7 +246,7 @@ class Fact(object):
         Initiate our new instance.
 
         Args:
-            activity (hamsterlib.Activity): Activity associated with this fact.
+            activity (hamster_lib.Activity): Activity associated with this fact.
             start (datetime.datetime): Start datetime of this fact.
             end (datetime.datetime, optional): End datetime of this fact. Defaults to ``None``.
             pk (optional): Primary key used by the backend to identify this instance. Defaults
@@ -273,7 +273,7 @@ class Fact(object):
     @classmethod
     def create_from_raw_fact(cls, raw_fact):
         """
-        Construct a new ``hamsterlib.Fact`` from a ``raw fact`` string.
+        Construct a new ``hamster_lib.Fact`` from a ``raw fact`` string.
 
         Please note that this just handles the parsing and construction of a new
         Fact including *new* ``Category`` and ``Activity`` instances.
@@ -281,7 +281,7 @@ class Fact(object):
         to figure out if those probably already exist!
 
         This approach has the benefit of providing this one single point of entry.
-        Once any such raw fact has been turned in to a proper ``hamsterlib.Fact``
+        Once any such raw fact has been turned in to a proper ``hamster_lib.Fact``
         we can rely on it having encapsulated all.
 
         See serialized_name for details on the raw_fact format.
@@ -296,7 +296,7 @@ class Fact(object):
             raw_fact (str): Raw fact to be parsed.
 
         Returns:
-            hamsterlib.Fact: ``Fact`` object with data parsed from raw fact.
+            hamster_lib.Fact: ``Fact`` object with data parsed from raw fact.
 
         Note:
             * The resulting fact just contains any information stored in the ``raw_fact`` string.
@@ -379,12 +379,12 @@ class Fact(object):
                 ``hamster.lib.parse_fact``. It seems that here we only extract
                 times that then are understood relative to today.
                 This seems significantly less powerful that our
-                ``hamsterlib.helpers.parse_time_range`` method which itself has been
+                ``hamster_lib.helpers.parse_time_range`` method which itself has been
                 taken from legacy hamsters ``hamster-cli``.
             """
             # [FIXME]
             # Check if there is any rationale against using
-            # ``hamsterlib.helpers.parse_time_range`` instead.
+            # ``hamster_lib.helpers.parse_time_range`` instead.
             # This would also unify the 'complete missing information' fallback
             # behaviour.
 

@@ -7,7 +7,7 @@ import pickle
 
 import pytest
 from freezegun import freeze_time
-from hamsterlib import helpers
+from hamster_lib import helpers
 
 
 class TestGetDayEnd(object):
