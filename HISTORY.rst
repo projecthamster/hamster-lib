@@ -9,6 +9,7 @@ History
   `projecthamstser <https://github.com/projecthamster>`_. It was previously
   named and distributed as `hamsterlib <https://pypi.python.org/pypi/hamsterlib/0.1.0>`_
 * Add documentation checker ``pep257`` to testsuite.
+* Fixed docstrings.
 
 0.10.0
 ------

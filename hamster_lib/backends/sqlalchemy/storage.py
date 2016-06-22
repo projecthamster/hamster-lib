@@ -187,11 +187,11 @@ class CategoryManager(storage.BaseCategoryManager):
         Custom version of the default method in order to provide access to alchemy instances.
 
         Args:
-            category (hamster-lib.Category: Category we want.
+            category (hamster_lib.Category: Category we want.
             raw (bool): Wether to return the AlchemyCategory instead.
 
         Returns:
-            hamster-lib.Category or None: Category.
+            hamster_lib.Category or None: Category.
         """
 
         message = _("Recieved {!r} and raw={}.".format(category, raw))
@@ -215,11 +215,11 @@ class CategoryManager(storage.BaseCategoryManager):
         done correctly..
 
         Args:
-            category (hamster-lib.Category): Hamster Category instance.
+            category (hamster_lib.Category): Hamster Category instance.
             raw (bool): Wether to return the AlchemyCategory instead.
 
         Returns:
-            hamster-lib.Category: Saved instance, as_hamster()
+            hamster_lib.Category: Saved instance, as_hamster()
 
         Raises:
             ValueError: If the name to be added is already present in the db.
@@ -259,10 +259,10 @@ class CategoryManager(storage.BaseCategoryManager):
         Update a given Category.
 
         Args:
-            category (hamster-lib.Category): Category to be updated.
+            category (hamster_lib.Category): Category to be updated.
 
         Returns:
-            hamster-lib.Category: Updated category.
+            hamster_lib.Category: Updated category.
 
         Raises:
             ValueError: If the new name is already taken.
@@ -304,7 +304,7 @@ class CategoryManager(storage.BaseCategoryManager):
         Delete a given category.
 
         Args:
-            category (hamster-lib.Category): Category to be removed.
+            category (hamster_lib.Category): Category to be removed.
 
         Returns:
             None: If everything went alright.
@@ -339,7 +339,7 @@ class CategoryManager(storage.BaseCategoryManager):
             pk (int): PK of the category to be retrieved.
 
         Returns:
-            hamster-lib.Category: Category matching given PK.
+            hamster_lib.Category: Category matching given PK.
 
         Raises:
             KeyError: If no such PK was found.
@@ -370,7 +370,7 @@ class CategoryManager(storage.BaseCategoryManager):
 
 
         Returns:
-            hamster-lib.Category: Category of given name.
+            hamster_lib.Category: Category of given name.
 
         Raises:
             KeyError: If no category matching the name was found.
@@ -417,11 +417,11 @@ class ActivityManager(storage.BaseActivityManager):
         Custom version of the default method in order to provide access to alchemy instances.
 
         Args:
-            activity (hamster-lib.Activity: Activity we want.
+            activity (hamster_lib.Activity: Activity we want.
             raw (bool): Wether to return the AlchemyActivity instead.
 
         Returns:
-            hamster-lib.Activity: Activity.
+            hamster_lib.Activity: Activity.
         """
 
         message = _("Recieved {!r}, raw={}.".format(activity, raw))
@@ -439,10 +439,10 @@ class ActivityManager(storage.BaseActivityManager):
         Add a new ``Activity`` instance to the databasse.
 
         Args:
-            activity (hamster-lib.Activity): Hamster activity
+            activity (hamster_lib.Activity): Hamster activity
 
         Returns:
-            hamster-lib.Activity: Hamster activity representation of stored instance.
+            hamster_lib.Activity: Hamster activity representation of stored instance.
 
         Raises:
             ValueError: If the passed activity has a PK.
@@ -494,10 +494,10 @@ class ActivityManager(storage.BaseActivityManager):
         Update a given Activity.
 
         Args:
-            activity (hamster-lib.Activity): Activity to be updated.
+            activity (hamster_lib.Activity): Activity to be updated.
 
         Returns:
-            hamster-lib.Activity: Updated activity.
+            hamster_lib.Activity: Updated activity.
 
         Raises:
             ValueError: If the new name/category.name combination is already taken.
@@ -549,7 +549,7 @@ class ActivityManager(storage.BaseActivityManager):
         Remove an activity from our internal backend.
 
         Args:
-            activity (hamster-lib.Activity): The activity to be removed.
+            activity (hamster_lib.Activity): The activity to be removed.
 
         Returns:
             bool: True
@@ -589,7 +589,7 @@ class ActivityManager(storage.BaseActivityManager):
             raw (bool): Return the AlchemyActivity instead.
 
         Returns:
-            hamster-lib.Activity: Activity with given PK.
+            hamster_lib.Activity: Activity with given PK.
 
         Raises:
             KeyError: If no such pk was found.
@@ -614,11 +614,11 @@ class ActivityManager(storage.BaseActivityManager):
 
         Args:
             name (str): The activities name.
-            category (hamster-lib.Category or None): The activities category. May be None.
+            category (hamster_lib.Category or None): The activities category. May be None.
             raw (bool): Return the AlchemyActivity instead.
 
         Returns:
-            hamster-lib.Activity: The activity if it exists in this combination.
+            hamster_lib.Activity: The activity if it exists in this combination.
 
         Raises:
             KeyError: if composite key can not be found in the db.
@@ -668,13 +668,13 @@ class ActivityManager(storage.BaseActivityManager):
         Retrieve all matching activities stored in the backend.
 
         Args:
-            category (hamster-lib.Category, optional): Limit activities to this category.
+            category (hamster_lib.Category, optional): Limit activities to this category.
                 Defaults to ``None``.
             search_term (str, optional): Limit activities to those matching this string a substring
                 in their name. Defaults to ``empty string``.
 
         Returns:
-            list: List of ``hamster-lib.Activity`` instances matching constrains. This list
+            list: List of ``hamster_lib.Activity`` instances matching constrains. This list
                 is ordered by ``Activity.name``.
         """
 
@@ -703,11 +703,11 @@ class FactManager(storage.BaseFactManager):
         Add a new fact to the database.
 
         Args:
-            fact (hamster-lib.Fact): Fact to be added.
+            fact (hamster_lib.Fact): Fact to be added.
             raw (bool): If ``True`` return ``AlchemyFact`` instead.
 
         Returns:
-            hamster-lib.Fact: Fact as stored in the database
+            hamster_lib.Fact: Fact as stored in the database
 
         Raises:
             ValueError: If the passed fact has a PK assigned. New facts should not have one.
@@ -742,11 +742,11 @@ class FactManager(storage.BaseFactManager):
         Update and existing fact with new values.
 
         Args:
-            fact (hamster-lib.fact): Fact instance holding updated values.
+            fact (hamster_lib.fact): Fact instance holding updated values.
             raw (bool): If ``True`` return ``AlchemyFact`` instead.
 
         Returns:
-            hamster-lib.fact: Updated Fact
+            hamster_lib.fact: Updated Fact
 
         Raises:
             KeyError: if a Fact with the relevant PK could not be found.
@@ -789,7 +789,7 @@ class FactManager(storage.BaseFactManager):
         Remove a fact from our internal backend.
 
         Args:
-            fact (hamster-lib.Fact): Fact to be removed
+            fact (hamster_lib.Fact): Fact to be removed
 
         Returns:
             bool: Success status
@@ -827,7 +827,7 @@ class FactManager(storage.BaseFactManager):
             pk: PK of the fact to be retrieved
 
         Returns:
-            hamster-lib.Fact: Fact matching given PK
+            hamster_lib.Fact: Fact matching given PK
 
         Raises:
             KeyError: If no Fact of given key was found.
@@ -847,18 +847,18 @@ class FactManager(storage.BaseFactManager):
 
     def _get_all(self, start=None, end=None, search_term=''):
         """
-        Return all facts within a given timeframe (beginning of start_date
-        end of end_date) that match given search terms.
+        Return all facts within a given timeframe that match given search terms.
 
         ``get_all`` already took care of any normalization required.
 
         If no timeframe is given, return all facts?
 
         Args:
-            start (datetime.datetime, optional): Start of timeframe
+            start (datetime.datetime, optional): Start of timeframe.
+            end (datetime.datetime, optional): End of timeframe.
 
         Returns:
-            list: List of ``hamster-lib.Facts`` instances.
+            list: List of ``hamster_lib.Facts`` instances.
         """
 
         self.store.logger.debug(_(
