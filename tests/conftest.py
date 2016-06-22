@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+"""Global fixtures."""
+
 import datetime
 import os.path
 
@@ -54,6 +56,7 @@ def start_datetime():
 
 @pytest.fixture
 def description():
+    """Return a generic text suitable to mimic a ``Fact.description``."""
     return fauxfactory.gen_iplum()
 
 
@@ -111,6 +114,7 @@ def pk_valid_parametrized(request):
 
 @pytest.fixture(params=(True, False, 0, 1, '', 'foobar'))
 def deleted_valid_parametrized(request):
+    """Return various valid values for the ``deleted`` argument."""
     return request.param
 
 

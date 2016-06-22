@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with 'hamster_lib'.  If not, see <http://www.gnu.org/licenses/>.
 
+"""hamster-lib provides generic time tracking functionality."""
 
 from .lib import REGISTERED_BACKENDS, HamsterControl  # NOQA
 from .objects import Activity, Category, Fact  # NOQA

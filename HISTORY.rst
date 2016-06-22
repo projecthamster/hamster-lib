@@ -8,6 +8,7 @@ History
 * Renamed this package to ``hamster-lib`` as it now an offical part of
   `projecthamstser <https://github.com/projecthamster>`_. It was previously
   named and distributed as `hamsterlib <https://pypi.python.org/pypi/hamsterlib/0.1.0>`_
+* Add documentation checker ``pep257`` to testsuite.
 
 0.10.0
 ------
@@ -18,7 +19,6 @@ History
 * Provide documentation on packaging and ``requirements.txt``.
 * Add support for `editorconfig <http://editorconfig.org>`_
 * Introduce fine grained, storage backend dependent config options.
-*
 
 0.0.3 (2016-04-08)
 -------------------

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with 'hamster-lib'.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Submodule providing a SQLAlchemy storage backend for ``hamster-lib``."""
 
 from .objects import AlchemyActivity, AlchemyCategory, AlchemyFact  # NOQA
 from .storage import SQLAlchemyStore  # NOQA

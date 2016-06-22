@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+"""Fixtures in order to test the SQLAlchemy backend."""
+
 from __future__ import unicode_literals
 
 import datetime
@@ -181,6 +183,7 @@ def set_of_alchemy_facts(start_datetime, alchemy_fact_factory):
 # interact.
 @pytest.fixture
 def category_factory(request, name):
+    """Provide a ``hamster_lib.Category`` factory."""
     def generate():
         return Category(name, None)
     return generate
@@ -188,6 +191,7 @@ def category_factory(request, name):
 
 @pytest.fixture
 def category(request, category_factory):
+    """Provide a randomized ``hamster_lib.Category`` instance."""
     return category_factory()
 
 
@@ -208,6 +212,7 @@ def activity_factory(request, name, category_factory):
 
 @pytest.fixture
 def activity(request, activity_factory):
+    """Provide a randomized ``hamster_lib.Activity`` instance."""
     return activity_factory()
 
 
@@ -230,4 +235,5 @@ def fact_factory(request, activity_factory, start_end_datetimes, description):
 
 @pytest.fixture
 def fact(request, fact_factory):
+    """Return a randomized ``hamster_lib.Fact`` instance."""
     return fact_factory()

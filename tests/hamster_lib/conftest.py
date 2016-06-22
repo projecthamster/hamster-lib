@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+"""Fixtures that are of general use."""
+
 from __future__ import unicode_literals
 
 import datetime
@@ -27,7 +29,6 @@ def convert_time_to_datetime(time_string):
         If given a %H:%M string, return a datetime.datetime object with todays
         date.
         """
-
         return datetime.datetime.combine(
             datetime.datetime.now().date(),
             datetime.datetime.strptime(time_string, "%H:%M").time()
@@ -99,12 +100,13 @@ def new_activity_values(category):
 # Facts
 @pytest.fixture
 def fact_factory():
+    """Return a factory class that generates non-persisting Fact instances."""
     return factories.FactFactory.build
 
 
 @pytest.fixture
 def fact():
-    """Provides a randomized Fact-instance."""
+    """Provide a randomized non-persistant Fact-instance."""
     return factories.FactFactory.build()
 
 
@@ -135,6 +137,7 @@ def string_delta_format_parametrized(request):
 
 @pytest.fixture
 def today_fact(fact_factory):
+    """Return a ``Fact`` instance that start and ends 'today'."""
     start = datetime.datetime.now()
     end = start + datetime.timedelta(minutes=30)
     return fact_factory(start=start, end=end)
@@ -142,6 +145,7 @@ def today_fact(fact_factory):
 
 @pytest.fixture
 def not_today_fact(fact_factory):
+    """Return a ``Fact`` instance that neither start nor ends 'today'."""
     start = datetime.datetime.now() - datetime.timedelta(days=2)
     end = start + datetime.timedelta(minutes=30)
     return fact_factory(start=start, end=end)
@@ -207,6 +211,7 @@ def raw_fact_parametrized(request):
     'rumpelratz foo@bar',
 ])
 def invalid_raw_fact_parametrized(request):
+    """Return various invalid ``raw fact`` strings."""
     return request.param
 
 
