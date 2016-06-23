@@ -197,13 +197,10 @@ class CategoryManager(storage.BaseCategoryManager):
         message = _("Recieved {!r} and raw={}.".format(category, raw))
         self.store.logger.debug(message)
 
-        if category:
-            try:
-                category = self.get_by_name(category.name, raw=raw)
-            except KeyError:
-                category = self._add(category, raw=raw)
-        else:
-            category = None
+        try:
+            category = self.get_by_name(category.name, raw=raw)
+        except KeyError:
+            category = self._add(category, raw=raw)
         return category
 
     def _add(self, category, raw=False):
