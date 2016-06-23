@@ -111,9 +111,17 @@ class TestCategoryManager():
         assert category.equal_fields(db_instance)
 
     def test_update_without_pk(self, alchemy_store, alchemy_category_factory):
+        """Make sure that passing a category without a PK raises an error."""
         category = alchemy_category_factory().as_hamster()
         category.pk = None
         with pytest.raises(ValueError):
+            alchemy_store.categories._update(category)
+
+    def test_update_invalid_pk(self, alchemy_store, alchemy_category_factory):
+        """Make sure that passing a category with a non existing PK raises an error."""
+        category = alchemy_category_factory().as_hamster()
+        category.pk = category.pk + 10
+        with pytest.raises(KeyError):
             alchemy_store.categories._update(category)
 
     def test_update_existing_name(self, alchemy_store, alchemy_category_factory):
