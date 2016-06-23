@@ -11,8 +11,8 @@ History
 * Add documentation checker ``pep257`` to testsuite.
 * Fixed docstrings.
 
-0.10.0
-------
+0.10.0 (2016-04-20)
+-------------------
 * Add ``ical`` export facilities. Brand new writer using the ``icalendar`` library.
 * Add ``xml`` export facilities.
 * Switch to `semantic versioning <http://semver.org>`_
