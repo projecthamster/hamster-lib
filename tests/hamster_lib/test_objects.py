@@ -257,23 +257,6 @@ class TestFact(object):
         """Make sure the property returns just the date of ``Fact().start``."""
         assert fact.date == fact.start.date()
 
-    def test_serialized_name_with_category_and_description(self, fact):
-        """Make sure that the property returns a string matching our expectation."""
-        expectation = '{f.activity.name}@{f.category.name}, {f.description}'.format(f=fact)
-        assert fact.serialized_name == expectation
-
-    def test_serialized_name_with_category_no_description(self, fact):
-        """Make sure that the property returns a string matching our expectation."""
-        fact.description = None
-        expectation = '{f.activity.name}@{f.category.name}'.format(f=fact)
-        assert fact.serialized_name == expectation
-
-    def test_serialized_name_with_description_no_category(self, fact):
-        """Make sure that the property returns a string matching our expectation."""
-        fact.activity.category = None
-        expectation = '{f.activity.name}, {f.description}'.format(f=fact)
-        assert fact.serialized_name == expectation
-
     def test_category_property(self, fact):
         """Make sure the property returns this facts category."""
         assert fact.category == fact.activity.category
@@ -315,29 +298,31 @@ class TestFact(object):
         assert fact == other
 
     def test__str__(self, fact):
-        expectation = '{start} - {end} {serialized_name}'.format(
-            start=fact.start.strftime("%d-%m-%Y %H:%M"),
-            end=fact.end.strftime("%H:%M"),
-            serialized_name=fact.serialized_name)
+        expectation = '{start} to {end} {activity}@{category}, {description}'.format(
+            start=fact.start.strftime('%d-%m-%Y %H:%M'),
+            end=fact.end.strftime('%d-%m-%Y %H:%M'),
+            activity=fact.activity.name,
+            category=fact.category.name,
+            description=fact.description
+        )
         assert text(fact) == expectation
 
     def test__str__no_end(self, fact):
         fact.end = None
-        expectation = '{start} {serialized_name}'.format(
-            start=fact.start.strftime("%d-%m-%Y %H:%M"),
-            serialized_name=fact.serialized_name)
+        expectation = '{start} {activity}@{category}, {description}'.format(
+            start=fact.start.strftime('%d-%m-%Y %H:%M'),
+            activity=fact.activity.name,
+            category=fact.category.name,
+            description=fact.description
+        )
         assert text(fact) == expectation
 
-    def test__repr__(self, fact):
-        expectation = str('{start} - {end} {serialized_name}').format(
-            start=fact.start.strftime("%d-%m-%Y %H:%M"),
-            end=fact.end.strftime("%H:%M"),
-            serialized_name=repr(fact.serialized_name))
-        assert repr(fact) == expectation
-
-    def test__repr__no_end(self, fact):
+    def test__str__no_start_no_end(self, fact):
+        fact.start = None
         fact.end = None
-        expectation = str('{start} {serialized_name}').format(
-            start=fact.start.strftime("%d-%m-%Y %H:%M"),
-            serialized_name=repr(fact.serialized_name))
-        assert repr(fact) == expectation
+        expectation = '{activity}@{category}, {description}'.format(
+            activity=fact.activity.name,
+            category=fact.category.name,
+            description=fact.description
+        )
+        assert text(fact) == expectation

@@ -593,36 +593,6 @@ class Fact(object):
         return self.start.date()
 
     @property
-    def serialized_name(self):
-        """
-        Provide a string representation of this fact.
-
-        Returns:
-            str: String serializing all relevant fields of this fact.
-
-        Note:
-            * Pattern: [<start>-<end>] <activity_name>[@<category_name>, <description_text>]
-            * Time format information from hamster-cli:
-                * 'YYYY-MM-DD hh:mm:ss': If date is missing, it will default to today.
-                    If time is missing, it will default to 00:00 for start time and 23:59 for
-                    end time.
-                * '-minutes': Relative time in minutes from the current date and time.
-            * Our version of this method does not contain time information!
-        """
-        result = text_type(self.activity.name)
-
-        if self.category:
-            result += "@%s" % self.category.name
-
-        if self.description or self.tags:
-            # [FIXME]
-            # Workaround until we address tags!
-            result += ', {}'.format(self.description or "")
-            # result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
-            #                    self.description or "")
-        return result
-
-    @property
     def category(self):
         """For convenience only."""
         return self.activity.category
@@ -669,13 +639,27 @@ class Fact(object):
         return self.as_tuple() == other
 
     def __str__(self):
-        time = self.start.strftime("%d-%m-%Y %H:%M")
-        if self.end:
-            time = "%s - %s" % (time, self.end.strftime("%H:%M"))
-        return "%s %s" % (time, self.serialized_name)
+        result = text_type(self.activity.name)
 
-    def __repr__(self):
-        time = self.start.strftime("%d-%m-%Y %H:%M")
+        if self.category:
+            result += "@%s" % text_type(self.category.name)
+
+        if self.description or self.tags:
+            # [FIXME]
+            # Workaround until we address tags!
+            result += ', {}'.format(text_type(self.description) or '')
+            # result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
+            #                    self.description or "")
+
+        if self.start:
+            start = text_type(self.start.strftime("%d-%m-%Y %H:%M"))
+
         if self.end:
-            time = str('%s - %s') % (time, self.end.strftime("%H:%M"))
-        return str('%s %s') % (time, repr(self.serialized_name))
+            end = text_type(self.end.strftime("%d-%m-%Y %H:%M"))
+
+        if self.start and self.end:
+            result = '{} to {} {}'.format(start, end, result)
+        elif self.start and not self.end:
+            result = '{} {}'.format(start, result)
+
+        return result
