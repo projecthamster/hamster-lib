@@ -127,4 +127,4 @@ def description_valid_parametrized(request):
 @pytest.fixture(params='alpha cyrillic latin1 utf8'.split())
 def tag_list_valid_parametrized(request):
     """Provide a variety of strings that should be valid *descriptions*."""
-    return [fauxfactory.gen_string(request.param) for i in range(4)]
+    return set([fauxfactory.gen_string(request.param) for i in range(4)])

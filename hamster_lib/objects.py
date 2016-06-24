@@ -267,8 +267,8 @@ class Fact(object):
         self.end = end
         self.description = description
         if tags is None:
-            tags = []
-        self.tags = list(tags)
+            tags = set()
+        self.tags = set(tags)
 
     @classmethod
     def create_from_raw_fact(cls, raw_fact):
