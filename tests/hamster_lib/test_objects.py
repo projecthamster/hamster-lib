@@ -60,6 +60,23 @@ class TestCategory(object):
         assert category is not other_category
         assert category == other_category
 
+    def test_is_hashable(self, category):
+        """Test that ``Category`` instances are hashable."""
+        assert hash(category)
+
+    def test_hash_method(self, category):
+        """Test that ``__hash__`` returns the hash expected."""
+        assert hash(category) == hash(category.as_tuple())
+
+    def test_hash_different_between_instances(self, category_factory):
+        """
+        Test that different instances have different hashes.
+
+        This is actually unneeded as we are merely testing the builtin ``hash``
+        function and ``Category.as_tuple`` but for reassurance we test it anyway.
+        """
+        assert hash(category_factory()) != hash(category_factory())
+
     def test__str__(self, category):
         """Test string representation."""
         assert '{name}'.format(name=category.name) == text(category)
@@ -132,6 +149,23 @@ class TestActivity(object):
         other = copy.deepcopy(activity)
         assert activity is not other
         assert activity == other
+
+    def test_is_hashable(self, activity):
+        """Test that ``Category`` instances are hashable."""
+        assert hash(activity)
+
+    def test_hash_method(self, activity):
+        """Test that ``__hash__`` returns the hash expected."""
+        assert hash(activity) == hash(activity.as_tuple())
+
+    def test_hash_different_between_instances(self, activity_factory):
+        """
+        Test that different instances have different hashes.
+
+        This is actually unneeded as we are merely testing the builtin ``hash``
+        function and ``Category.as_tuple`` but for reassurance we test it anyway.
+        """
+        assert hash(activity_factory()) != hash(activity_factory())
 
     def test__str__without_category(self, activity):
         activity.category = None
@@ -296,6 +330,23 @@ class TestFact(object):
         other = copy.deepcopy(fact)
         assert fact is not other
         assert fact == other
+
+    def test_is_hashable(self, fact):
+        """Test that ``Fact`` instances are hashable."""
+        assert hash(fact)
+
+    def test_hash_method(self, fact):
+        """Test that ``__hash__`` returns the hash expected."""
+        assert hash(fact) == hash(fact.as_tuple())
+
+    def test_hash_different_between_instances(self, fact_factory):
+        """
+        Test that different instances have different hashes.
+
+        This is actually unneeded as we are merely testing the builtin ``hash``
+        function and ``Fact.as_tuple`` but for reassurance we test it anyway.
+        """
+        assert hash(fact_factory()) != hash(fact_factory())
 
     def test__str__(self, fact):
         expectation = '{start} to {end} {activity}@{category}, {description}'.format(

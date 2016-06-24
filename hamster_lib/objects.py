@@ -107,6 +107,10 @@ class Category(object):
             other = None
         return self.as_tuple() == other
 
+    def __hash__(self):
+        """Naive hashing method."""
+        return hash(self.as_tuple())
+
     def __str__(self):
         return '{name}'.format(name=self.name)
 
@@ -215,6 +219,10 @@ class Activity(object):
         if not isinstance(other, ActivityTuple):
             other = other.as_tuple()
         return self.as_tuple() == other
+
+    def __hash__(self):
+        """Naive hashing method."""
+        return hash(self.as_tuple())
 
     def __str__(self):
         if self.category is None:
@@ -613,7 +621,7 @@ class Fact(object):
             pk = False
         # [FIXME] Once tags are implemented, they need to be added here!
         return FactTuple(pk, self.activity.as_tuple(include_pk=include_pk), self.start,
-            self.end, self.description, [])
+            self.end, self.description, frozenset())
 
     def equal_fields(self, other):
         """
@@ -637,6 +645,10 @@ class Fact(object):
             other = other.as_tuple()
 
         return self.as_tuple() == other
+
+    def __hash__(self):
+        """Naive hashing method."""
+        return hash(self.as_tuple())
 
     def __str__(self):
         result = text_type(self.activity.name)
