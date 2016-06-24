@@ -27,6 +27,8 @@ from collections import namedtuple
 from future.utils import python_2_unicode_compatible
 from six import text_type
 
+
+# Named tuples used  to 'serialize' our object instances.
 CategoryTuple = namedtuple('CategoryTuple', ('pk', 'name'))
 ActivityTuple = namedtuple('ActivityTuple', ('pk', 'name', 'category', 'deleted'))
 FactTuple = namedtuple('FactTuple', ('pk', 'activity', 'start', 'end', 'description', 'tags'))
@@ -242,12 +244,11 @@ class Activity(object):
 
 @python_2_unicode_compatible
 class Fact(object):
-    """Storage agnostic class for facts.
-
-    Note:
-        There is some weired black magic still to be integrated from
-        ``store.db.Storage``. Among it ``__get_facts()``.
-    """
+    """Storage agnostic class for facts."""
+    # [TODO]
+    # There is some weired black magic still to be integrated from
+    # ``store.db.Storage``. Among it ``__get_facts()``.
+    #
 
     def __init__(self, activity, start, end=None, pk=None, description=None, tags=None):
         """
@@ -607,7 +608,7 @@ class Fact(object):
 
     def as_tuple(self, include_pk=True):
         """
-        Provide a tuple representation of this facts relevant 'fields'.
+        Provide a tuple representation of this facts relevant attributes.
 
         Args:
             include_pk (bool): Whether to include the instances pk or not. Note that if
