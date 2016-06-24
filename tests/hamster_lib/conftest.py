@@ -10,6 +10,7 @@ import pickle
 import faker as faker_
 import pytest
 from hamster_lib.lib import HamsterControl
+from hamster_lib.storage import BaseStore
 from pytest_factoryboy import register
 
 from . import factories
@@ -21,22 +22,20 @@ register(factories.FactFactory)
 faker = faker_.Faker()
 
 
-# Refactored fixtures
 def convert_time_to_datetime(time_string):
-        """
-        Helper method.
+    """
+    Helper method.
 
-        If given a %H:%M string, return a datetime.datetime object with todays
-        date.
-        """
-        return datetime.datetime.combine(
-            datetime.datetime.now().date(),
-            datetime.datetime.strptime(time_string, "%H:%M").time()
-        )
+    If given a %H:%M string, return a datetime.datetime object with todays
+    date.
+    """
+    return datetime.datetime.combine(
+        datetime.datetime.now().date(),
+        datetime.datetime.strptime(time_string, "%H:%M").time()
+    )
 
 
 # Controler
-
 @pytest.fixture
 def tmp_fact(base_config, fact):
     """Provide an existing 'ongoing fact'."""
@@ -53,6 +52,13 @@ def controler(base_config):
     controler = HamsterControl(base_config)
     yield controler
     controler.store.cleanup()
+
+
+@pytest.fixture
+def basestore(base_config):
+    """Provide a generic ``storage.BaseStore`` instance using ``baseconfig``."""
+    store = BaseStore(base_config)
+    return store
 
 
 # Categories
@@ -227,34 +233,3 @@ def raw_fact_with_persistent_activity(persistent_activity):
             'description': None,
         },
     )
-
-# Refactor end
-
-
-#    @pytest.fixture
-#    def modified_category(category):
-#        """
-#        Return an existing category with garanteed changes vales from its
-#        stored DB-instance.
-#        """
-#        category.name = category.name + 'foobar'
-#        return category
-
-#    @pytest.fixture
-#    def existing_activities_factory(alchemy_activity_factory):
-#        def generate(amount=5, category=True):
-#            """
-#            Category True will cause a default factory run, using SubFactory
-#            to create new categories associated with each activity.
-#            If Category is False, activities will be created without a category.
-#            """
-#
-#            result = []
-#            for i in range(amount):
-#                if category is False:
-#                    activity = alchemy_activity_factory.create(category=None)
-#                else:
-#                    activity = alchemy_activity_factory()
-#                result.append(activity.as_hamster())
-#            return result
-#        return generate
