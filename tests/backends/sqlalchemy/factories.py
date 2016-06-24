@@ -7,7 +7,6 @@ from __future__ import unicode_literals
 import datetime
 
 import factory
-import faker
 from hamster_lib.backends.sqlalchemy.objects import (AlchemyActivity,
                                                     AlchemyCategory,
                                                     AlchemyFact)
@@ -50,8 +49,8 @@ class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     pk = factory.Sequence(lambda n: n)
     activity = factory.SubFactory(AlchemyActivityFactory)
-    start = faker.Faker().date_time()
-    end = start + datetime.timedelta(hours=3)
+    start = factory.Faker('date_time')
+    end = factory.LazyAttribute(lambda o: o.start + datetime.timedelta(hours=3))
     description = factory.Faker('paragraph')
     tags = []
 
