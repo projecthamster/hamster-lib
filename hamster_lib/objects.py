@@ -114,9 +114,10 @@ class Category(object):
         return hash(self.as_tuple())
 
     def __str__(self):
-        return '{name}'.format(name=self.name)
+        return text_type('{name}'.format(name=self.name))
 
     def __repr__(self):
+        """Return an instance representation containing additional information."""
         return str('[{pk}] {name}'.format(pk=repr(self.pk), name=repr(self.name)))
 
 
@@ -230,16 +231,18 @@ class Activity(object):
         if self.category is None:
             string = '{name}'.format(name=self.name)
         else:
-            string = '{name} ({category})'.format(name=self.name, category=self.category.name)
-        return string
+            string = '{name} ({category})'.format(
+                name=self.name, category=self.category.name)
+        return text_type(string)
 
     def __repr__(self):
+        """Return an instance representation containing additional information."""
         if self.category is None:
-            string = str('[{pk}] {name}').format(pk=repr(self.pk), name=repr(self.name))
+            string = '[{pk}] {name}'.format(pk=repr(self.pk), name=repr(self.name))
         else:
-            string = str('[{pk}] {name} ({category})').format(
+            string = '[{pk}] {name} ({category})'.format(
                 pk=repr(self.pk), name=repr(self.name), category=repr(self.category.name))
-        return string
+        return str(string)
 
 
 @python_2_unicode_compatible
@@ -665,14 +668,40 @@ class Fact(object):
             #                    self.description or "")
 
         if self.start:
-            start = text_type(self.start.strftime("%d-%m-%Y %H:%M"))
+            start = self.start.strftime("%d-%m-%Y %H:%M")
 
         if self.end:
-            end = text_type(self.end.strftime("%d-%m-%Y %H:%M"))
+            end = self.end.strftime("%d-%m-%Y %H:%M")
 
         if self.start and self.end:
             result = '{} to {} {}'.format(start, end, result)
         elif self.start and not self.end:
             result = '{} {}'.format(start, result)
 
-        return result
+        return text_type(result)
+
+    def __repr__(self):
+        result = repr(self.activity.name)
+
+        if self.category:
+            result += "@%s" % repr(self.category.name)
+
+        if self.description or self.tags:
+            # [FIXME]
+            # Workaround until we address tags!
+            result += ', {}'.format(repr(self.description) or '')
+            # result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
+            #                    self.description or "")
+
+        if self.start:
+            start = repr(self.start.strftime("%d-%m-%Y %H:%M"))
+
+        if self.end:
+            end = repr(self.end.strftime("%d-%m-%Y %H:%M"))
+
+        if self.start and self.end:
+            result = '{} to {} {}'.format(start, end, result)
+        elif self.start and not self.end:
+            result = '{} {}'.format(start, result)
+
+        return str(result)

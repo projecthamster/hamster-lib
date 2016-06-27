@@ -82,9 +82,12 @@ class TestCategory(object):
         assert '{name}'.format(name=category.name) == text(category)
 
     def test__repr__(self, category):
-        """Test debug representation."""
-        assert str('[{pk}] {name}').format(
-            pk=repr(category.pk), name=repr(category.name)) == repr(category)
+        """Test representation method."""
+        result = repr(category)
+        assert isinstance(result, str)
+        expectation = '[{pk}] {name}'.format(pk=repr(category.pk),
+            name=repr(category.name))
+        assert result == expectation
 
 
 class TestActivity(object):
@@ -177,14 +180,19 @@ class TestActivity(object):
 
     def test__repr__with_category(self, activity):
         """Make sure our debugging representation matches our expectations."""
-        assert repr(activity) == str('[{pk}] {name} ({category})').format(
+        result = repr(activity)
+        assert isinstance(result, str)
+        expectation = '[{pk}] {name} ({category})'.format(
             pk=repr(activity.pk), name=repr(activity.name), category=repr(activity.category.name))
+        assert result == expectation
 
     def test__repr__without_category(self, activity):
         """Make sure our debugging representation matches our expectations."""
         activity.category = None
-        assert repr(activity) == str('[{pk}] {name}').format(pk=repr(activity.pk),
-            name=repr(activity.name))
+        result = repr(activity)
+        assert isinstance(result, str)
+        expectation = '[{pk}] {name}'.format(pk=repr(activity.pk), name=repr(activity.name))
+        assert result == expectation
 
 
 class TestFact(object):
@@ -377,3 +385,44 @@ class TestFact(object):
             description=fact.description
         )
         assert text(fact) == expectation
+
+    def test__repr__(self, fact):
+        """Make sure our debugging representation matches our expectations."""
+        expectation = '{start} to {end} {activity}@{category}, {description}'.format(
+            start=repr(fact.start.strftime('%d-%m-%Y %H:%M')),
+            end=repr(fact.end.strftime('%d-%m-%Y %H:%M')),
+            activity=repr(fact.activity.name),
+            category=repr(fact.category.name),
+            description=repr(fact.description)
+        )
+        result = repr(fact)
+        assert isinstance(result, str)
+        assert result == expectation
+
+    def test__repr__no_end(self, fact):
+        """Test that facts without end datetime are represented properly."""
+        result = repr(fact)
+        assert isinstance(result, str)
+        fact.end = None
+        expectation = '{start} {activity}@{category}, {description}'.format(
+            start=repr(fact.start.strftime('%d-%m-%Y %H:%M')),
+            activity=repr(fact.activity.name),
+            category=repr(fact.category.name),
+            description=repr(fact.description)
+        )
+        result = repr(fact)
+        assert isinstance(result, str)
+        assert result == expectation
+
+    def test__repr__no_start_no_end(self, fact):
+        """Test that facts without timeinfo are represented properly."""
+        fact.start = None
+        fact.end = None
+        expectation = '{activity}@{category}, {description}'.format(
+            activity=repr(fact.activity.name),
+            category=repr(fact.category.name),
+            description=repr(fact.description)
+        )
+        result = repr(fact)
+        assert isinstance(result, str)
+        assert result == expectation
