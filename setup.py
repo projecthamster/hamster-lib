@@ -4,7 +4,7 @@
 
 
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
     from distutils.core import setup
 
@@ -30,13 +30,7 @@ setup(
     author="Eric Goller",
     author_email='eric.goller@ninjaduck.solutions',
     url='https://github.com/projecthamster/hamster-lib',
-    packages=[
-        'hamster_lib',
-        'hamster_lib.backends',
-        'hamster_lib.backends.sqlalchemy',
-    ],
-    package_dir={'hamster_lib':
-                 'hamster_lib'},
+    packages=find_packages(),
     install_requires=requirements,
     license="GPL3",
     zip_safe=False,
