@@ -6,12 +6,13 @@ import datetime
 
 import pytest
 from hamster_lib.backends.sqlalchemy import (AlchemyActivity, AlchemyCategory,
-                                            AlchemyFact)
+                                            AlchemyFact, SQLAlchemyStore)
 
 
 # The reason we see a great deal of count == 0 statements is to make sure that
 # db rollback works as expected. Once we are confident in our sqlalchemy/pytest
 # setup those are not really needed.
+
 
 class TestStore(object):
     """Tests to make sure our store/test setup behaves as expected."""
@@ -60,6 +61,11 @@ class TestStore(object):
         alchemy_store.config = alchemy_config_missing_store_config_parametrized
         with pytest.raises(ValueError):
             alchemy_store._get_db_url()
+
+    def test_init_with_unicode_path(self, alchemy_config, db_path_parametrized):
+        """Test that Instantiating a store with a unicode path works."""
+        alchemy_config['db_path'] = db_path_parametrized
+        assert SQLAlchemyStore(alchemy_config)
 
 
 class TestCategoryManager():

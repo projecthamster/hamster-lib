@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import datetime
+import os
 
 import fauxfactory
 import pytest
@@ -49,6 +50,20 @@ def alchemy_runner(request):
         common.Session.remove()
 
     request.addfinalizer(fin)
+
+
+@pytest.fixture(params=[
+    fauxfactory.gen_utf8(),
+    fauxfactory.gen_alphanumeric(),
+    ':memory:',
+])
+def db_path_parametrized(request, tmpdir):
+    """Parametrized database paths."""
+    if request.param == ':memory:':
+        path = request.param
+    else:
+        path = os.path.join(tmpdir.strpath, request.param)
+    return path
 
 
 @pytest.fixture

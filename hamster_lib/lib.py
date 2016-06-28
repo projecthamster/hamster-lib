@@ -36,8 +36,11 @@ REGISTERED_BACKENDS = {
 }
 
 # See: https://wiki.python.org/moin/PortingToPy3k/BilingualQuickRef#gettext
+# [FIXME]
+# Is this correct? http://www.wefearchange.org/2012/06/the-right-way-to-internationalize-your.html
+# seems to user ``sys.version_info.major > 3``
 kwargs = {}
-if sys.version_info < (3,):
+if sys.version_info.major < 3:
     kwargs['unicode'] = True
 gettext.install('hamster-lib', **kwargs)
 

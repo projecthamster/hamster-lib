@@ -81,7 +81,7 @@ class SQLAlchemyStore(storage.BaseStore):
         # we receive a session. Should be require the session to bring its own
         # engine?
         engine = create_engine(self._get_db_url())
-        self.logger.debug(_("Engine '{}' created.".format(engine)))
+        self.logger.debug(_('Engine created.'))
         objects.metadata.bind = engine
         objects.metadata.create_all(engine)
         self.logger.debug(_("Database tables created."))
