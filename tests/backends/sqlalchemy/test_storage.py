@@ -112,8 +112,7 @@ class TestCategoryManager():
 
     def test_update_without_pk(self, alchemy_store, alchemy_category_factory):
         """Make sure that passing a category without a PK raises an error."""
-        category = alchemy_category_factory().as_hamster()
-        category.pk = None
+        category = alchemy_category_factory.build(pk=None).as_hamster()
         with pytest.raises(ValueError):
             alchemy_store.categories._update(category)
 
@@ -141,9 +140,14 @@ class TestCategoryManager():
 
     def test_remove_no_pk(self, alchemy_store, alchemy_category_factory):
         """Ensure that passing a alchemy_category without an PK raises an error."""
-        category = alchemy_category_factory.build().as_hamster()
-        category.pk = None
+        category = alchemy_category_factory.build(pk=None).as_hamster()
         with pytest.raises(ValueError):
+            alchemy_store.categories.remove(category)
+
+    def test_remove_invalid_pk(self, alchemy_store, alchemy_category_factory):
+        """Ensure that passing a alchemy_category without an PK raises an error."""
+        category = alchemy_category_factory.build(pk=800).as_hamster()
+        with pytest.raises(KeyError):
             alchemy_store.categories.remove(category)
 
     def test_get_existing_pk(self, alchemy_store, alchemy_category_factory):
