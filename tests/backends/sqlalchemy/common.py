@@ -9,5 +9,4 @@ This way it can be referencecd by fixtures and factories.
 
 from sqlalchemy import orm
 
-
 Session = orm.scoped_session(orm.sessionmaker())

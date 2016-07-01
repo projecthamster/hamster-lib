@@ -6,7 +6,7 @@ import datetime
 
 import pytest
 from hamster_lib.backends.sqlalchemy import (AlchemyActivity, AlchemyCategory,
-                                            AlchemyFact, SQLAlchemyStore)
+                                             AlchemyFact, SQLAlchemyStore)
 
 
 # The reason we see a great deal of count == 0 statements is to make sure that

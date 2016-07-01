@@ -5,7 +5,6 @@
 from __future__ import unicode_literals
 
 import datetime
-import pickle
 
 import faker as faker_
 import pytest
@@ -36,13 +35,6 @@ def convert_time_to_datetime(time_string):
 
 
 # Controler
-@pytest.fixture
-def tmp_fact(base_config, fact):
-    """Provide an existing 'ongoing fact'."""
-    fact.end = None
-    with open(base_config['tmpfile_path'], 'wb') as fobj:
-        pickle.dump(fact, fobj)
-    return fact
 
 
 @pytest.yield_fixture

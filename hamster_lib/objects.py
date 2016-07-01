@@ -27,7 +27,6 @@ from collections import namedtuple
 from future.utils import python_2_unicode_compatible
 from six import text_type
 
-
 # Named tuples used  to 'serialize' our object instances.
 CategoryTuple = namedtuple('CategoryTuple', ('pk', 'name'))
 ActivityTuple = namedtuple('ActivityTuple', ('pk', 'name', 'category', 'deleted'))

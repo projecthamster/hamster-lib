@@ -28,7 +28,7 @@ Note:
 """
 
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import datetime
 import logging
@@ -36,7 +36,7 @@ import os
 import pickle
 
 import hamster_lib
-import hamster_lib.helpers as helpers
+import hamster_lib.helpers.helpers as helpers
 from future.utils import python_2_unicode_compatible
 from hamster_lib import objects
 

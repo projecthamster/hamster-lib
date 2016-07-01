@@ -8,8 +8,8 @@ import datetime
 
 import factory
 from hamster_lib.backends.sqlalchemy.objects import (AlchemyActivity,
-                                                    AlchemyCategory,
-                                                    AlchemyFact)
+                                                     AlchemyCategory,
+                                                     AlchemyFact)
 
 from . import common
 

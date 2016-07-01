@@ -4,9 +4,27 @@
 
 import datetime
 import os.path
+import pickle
 
 import fauxfactory
 import pytest
+from pytest_factoryboy import register
+
+from .hamster_lib import factories as lib_factories
+
+register(lib_factories.FactFactory)
+register(lib_factories.CategoryFactory)
+register(lib_factories.ActivityFactory)
+
+
+# This fixture is used by ``test_helpers`` and ``test_storage``.
+@pytest.fixture
+def tmp_fact(base_config, fact):
+    """Provide an existing 'ongoing fact'."""
+    fact.end = None
+    with open(base_config['tmpfile_path'], 'wb') as fobj:
+        pickle.dump(fact, fobj)
+    return fact
 
 
 @pytest.fixture
