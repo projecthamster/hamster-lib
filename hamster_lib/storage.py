@@ -609,7 +609,7 @@ class BaseFactManager(BaseManager):
 
         return self._get_all(start, end, filter_term)
 
-    def _get_all(self, start=None, end=None, search_terms=''):
+    def _get_all(self, start=None, end=None, search_terms='', partial=False):
         """
         Return a list of ``Facts`` matching given criteria.
 
@@ -618,8 +618,10 @@ class BaseFactManager(BaseManager):
                 this datetime. Defaults to ``None``.
             end_date (datetime.datetime): Consider only Facts ending before or at
                 this datetime. Defaults to ``None``.
-            filter_term (str, optional): Only consider ``Facts`` with this string as part of their
-                associated ``Activity.name``.
+            search_term (text_type): Cases insensitive strings to match
+                ``Activity.name`` or ``Category.name``.
+            partial (bool): If ``False`` only facts which start *and* end
+                within the timeframe will be considered.
 
         Returns:
             list: List of ``Facts`` matching given specifications.
@@ -647,19 +649,6 @@ class BaseFactManager(BaseManager):
             datetime.datetime.combine(today, self.store.config['day_start']),
             helpers.end_day_to_datetime(today, self.store.config)
         )
-
-    def _timeframe_is_free(self, start, end):
-        """
-        Determine if a given timeframe already holds any facts start or end time.
-
-        Args:
-            start (datetime): *Start*-datetime that needs to be validated.
-            end (datetime): *End*-datetime that needs to be validated.
-
-        Returns:
-            bool: True if free, False if occupied.
-        """
-        raise NotImplementedError
 
     def _start_tmp_fact(self, fact):
         """

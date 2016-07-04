@@ -33,6 +33,16 @@ def start_end_datetimes_from_offset():
     return generate
 
 
+@pytest.fixture(params=(True, False))
+def bool_value_parametrized(request):
+    """
+    Return a parametrized boolean value.
+
+    This is usefull to easily parametrize tests using flags.
+    """
+    return request.param
+
+
 # Attribute fixtures (non-parametrized)
 @pytest.fixture
 def name():

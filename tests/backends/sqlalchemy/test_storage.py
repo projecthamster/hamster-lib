@@ -468,7 +468,7 @@ class TestFactManager():
 
     def test_add_occupied_timewindow(self, alchemy_store, fact, alchemy_fact):
         """
-        Make sure that passing a fact with a timewindow that already has a fact raisess error.
+        Make sure that passing a fact with a timewindow that already has a fact raises error.
         """
         fact.start = alchemy_fact.start - datetime.timedelta(days=4)
         fact.end = alchemy_fact.start + datetime.timedelta(minutes=15)
@@ -519,26 +519,72 @@ class TestFactManager():
         assert len(result) == len(set_of_alchemy_facts)
         assert len(result) == alchemy_store.session.query(AlchemyFact).count()
 
-    def test_get_all_with_datetimes(self, start_datetime, set_of_alchemy_facts, alchemy_store):
-        start = start_datetime
-        end = start + datetime.timedelta(hours=5)
-        result = alchemy_store.facts._get_all(start=start, end=end)
-        assert len(result) == 1
+    @pytest.mark.parametrize(('start_filter', 'end_filter'), (
+        (10, 12),
+        (10, None),
+        (None, -12),
+    ))
+    def test_get_all_existing_facts_not_in_timerange(self, alchemy_store, alchemy_fact,
+            bool_value_parametrized, start_filter, end_filter):
+        """Make sure that a valid timeframe returns an empty list."""
+        start, end = None, None
+        if start_filter:
+            start = alchemy_fact.start + datetime.timedelta(days=start_filter)
+        if end_filter:
+            end = alchemy_fact.start + datetime.timedelta(days=end_filter)
 
-    def test_timeframe_is_free_false_start(self, alchemy_store, alchemy_fact):
-        """Make sure that a start within our timeframe returns expected result."""
-        start = alchemy_fact.start + datetime.timedelta(hours=1)
-        end = alchemy_fact.start + datetime.timedelta(days=20)
-        assert alchemy_store.facts._timeframe_is_free(start, end) is False
+        result = alchemy_store.facts._get_all(start, end, partial=bool_value_parametrized)
+        assert result == []
 
-    def test_timeframe_is_free_false_end(self, alchemy_store, alchemy_fact):
-        """Make sure that a end within our timeframe returns expected result."""
-        start = alchemy_fact.start - datetime.timedelta(days=20)
-        end = alchemy_fact.start + datetime.timedelta(hours=1)
-        assert alchemy_store.facts._timeframe_is_free(start, end) is False
+    @pytest.mark.parametrize(('start_filter', 'end_filter'), (
+        (-1, 5),
+        (-1, None),
+        (None, 5),
+        (None, None),
+    ))
+    def test_get_all_existing_fact_fully_in_timerange(self, alchemy_store, alchemy_fact,
+            bool_value_parametrized, start_filter, end_filter):
+        """Ensure a fact fully within the timeframe is returned."""
+        start, end = None, None
+        if start_filter:
+            start = alchemy_fact.start + datetime.timedelta(days=start_filter)
+        if end_filter:
+            end = alchemy_fact.start + datetime.timedelta(days=end_filter)
 
-    def test_timeframe_is_free_true(self, alchemy_store, alchemy_fact):
-        """Make sure that a valid timeframe returns expected result."""
-        start = alchemy_fact.start - datetime.timedelta(days=20)
-        end = alchemy_fact.start - datetime.timedelta(seconds=1)
-        assert alchemy_store.facts._timeframe_is_free(start, end)
+        result = alchemy_store.facts._get_all(start, end, partial=bool_value_parametrized)
+        assert result == [alchemy_fact]
+
+    @pytest.mark.parametrize(('start_filter', 'end_filter'), (
+        # Fact.start is in timewindow
+        (None, 2),
+        (-900, 2),
+        # Fact.end is in timewindow
+        (5, None),
+        (5, 900),
+    ))
+    def test_get_all_existing_fact_partialy_in_timerange(self, alchemy_store, alchemy_fact,
+            bool_value_parametrized, start_filter, end_filter):
+        """Test that a fact partially within timeframe is returned with ``partial=True`` only"""
+        start, end = None, None
+        if start_filter:
+            start = alchemy_fact.start + datetime.timedelta(minutes=start_filter)
+        if end_filter:
+            end = alchemy_fact.start + datetime.timedelta(minutes=end_filter)
+
+        result = alchemy_store.facts._get_all(start, end, partial=bool_value_parametrized)
+        if bool_value_parametrized:
+            assert result == [alchemy_fact]
+        else:
+            assert result == []
+
+    def test_get_all_search_matches_activity(self, alchemy_store, set_of_alchemy_facts):
+        """Make sure facts with ``Fact.activity.name`` matching the term are returned."""
+        search_term = set_of_alchemy_facts[1].activity.name
+        result = alchemy_store.facts._get_all(search_term=search_term)
+        assert result == [set_of_alchemy_facts[1]]
+
+    def test_get_all_search_matches_category(self, alchemy_store, set_of_alchemy_facts):
+        """Make sure facts with ``Fact.category.name`` matching the term are returned."""
+        search_term = set_of_alchemy_facts[1].category.name
+        result = alchemy_store.facts._get_all(search_term=search_term)
+        assert result == [set_of_alchemy_facts[1]]

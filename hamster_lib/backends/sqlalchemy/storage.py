@@ -711,7 +711,7 @@ class FactManager(storage.BaseFactManager):
             ValueError: If the timewindow is already occupied.
         """
 
-        self.store.logger.debug(_("Recieved '{!r}', 'raw'={}.".format(fact, raw)))
+        self.store.logger.debug(_("Received '{!r}', 'raw'={}.".format(fact, raw)))
 
         if fact.pk:
             message = _(
@@ -721,7 +721,7 @@ class FactManager(storage.BaseFactManager):
             self.store.logger.error(message)
             raise ValueError(message)
 
-        if not self._timeframe_is_free(fact.start, fact.end):
+        if self._get_all(fact.start, fact.end, partial=True):
             message = _("Our database already contains facts for this facts timewindow."
                         "There can ever only be one fact at any given point in time")
             self.store.logger.error(message)
@@ -761,7 +761,8 @@ class FactManager(storage.BaseFactManager):
             self.store.logger.error(message)
             raise ValueError(message)
 
-        if not self._timeframe_is_free(fact.start, fact.end):
+        facts_in_timeframe = self._get_all(fact.start, fact.end, partial=True)
+        if facts_in_timeframe and not facts_in_timeframe == [fact]:
             message = _("Our database already contains facts for this facts timewindow."
                         " There can ever only be one fact at any given point in time")
             self.store.logger.error(message)
@@ -842,7 +843,7 @@ class FactManager(storage.BaseFactManager):
         self.store.logger.debug(_("Returning {!r}.".format(result)))
         return result
 
-    def _get_all(self, start=None, end=None, search_term=''):
+    def _get_all(self, start=None, end=None, search_term='', partial=False):
         """
         Return all facts within a given timeframe that match given search terms.
 
@@ -853,51 +854,75 @@ class FactManager(storage.BaseFactManager):
         Args:
             start (datetime.datetime, optional): Start of timeframe.
             end (datetime.datetime, optional): End of timeframe.
+            search_term (text_type): Cases insensitive strings to match
+                ``Activity.name`` or ``Category.name``.
+            partial (bool): If ``False`` only facts which start *and* end
+                within the timeframe will be considered.
 
         Returns:
             list: List of ``hamster_lib.Facts`` instances.
         """
 
-        self.store.logger.debug(_(
-            "Recieved start: '{}', end: '{}' and search_term='{}'.".format(start, end, search_term)
-        ))
+        def get_complete_overlaps(query, start, end):
+            """Return all facts with start and end within the timeframe."""
 
-        # [FIXME] Figure out against what to match search_terms
-        results = self.store.session.query(AlchemyFact)
-        if start and end:
-            results = results.filter(and_(AlchemyFact.start >= start, AlchemyFact.end <= end))
-        if search_term:
-            results = results.join(AlchemyActivity).join(AlchemyCategory).filter(
+            # SQLAlchemy does not allow ``<=`` used with ``None`` values, so we have
+            # check for passed arguments first.
+            if start:
+                query = query.filter(AlchemyFact.start >= start)
+            if end:
+                query = query.filter(AlchemyFact.end <= end)
+            return query
+
+        def get_partial_overlaps(query, start, end):
+            """Return all facts where either start or end falls within the timeframe."""
+
+            # SQLAlchemy does not allow ``<=`` used with ``None`` values, so we have
+            # check for passed arguments first.
+            if start and not end:
+                query = query.filter(or_(AlchemyFact.start >= start, AlchemyFact.end >= start))
+            elif not start and end:
+                query = query.filter(or_(AlchemyFact.start <= end, AlchemyFact.end <= end))
+            elif start and end:
+                query = query.filter(or_(
+                    and_(AlchemyFact.start >= start, AlchemyFact.start <= end),
+                    and_(AlchemyFact.end >= start, AlchemyFact.end <= end),
+                ))
+            else:
+                pass
+            return query
+
+        def filter_search_term(query, term):
+            """
+            Limit query to facts that match the search terms.
+
+            Terms are matched against ``Category.name`` and ``Activity.name``.
+            The matching is not case sensitive.
+            """
+            query = query.join(AlchemyActivity).join(AlchemyCategory).filter(
                 or_(AlchemyActivity.name.ilike('%{}%'.format(search_term)),
                     AlchemyCategory.name.ilike('%{}%'.format(search_term))
                     )
             )
+            return query
+
+        self.store.logger.debug(_(
+            "Received start: '{}', end: '{}' and search_term='{}'.".format(
+                start, end, search_term)
+        ))
+
+        # [FIXME] Figure out against what to match search_terms
+        query = self.store.session.query(AlchemyFact)
+
+        if partial:
+            query = get_partial_overlaps(query, start, end)
+        else:
+            query = get_complete_overlaps(query, start, end)
+
+        if search_term:
+            query = filter_search_term(query, search_term)
+
         # [FIXME]
         # Depending on scale, this could be a problem.
         self.store.logger.debug(_("Returning list of results."))
-        return [fact.as_hamster() for fact in results.all()]
-
-    def _timeframe_is_free(self, start, end):
-        """
-        Determine if a given timeframe already holds any facs start or endtime.
-
-        Args:
-            start (datetime): *Start*-datetime that needs to be validated.
-            end (datetime): *End*-datetime that needs to be validated.
-
-        Returns:
-            bool: True if free, False if occupied.
-        """
-
-        self.store.logger.debug(_("Recieved start: '{}' and end: '{}'.".format(start, end)))
-
-        query = self.store.session.query(AlchemyFact)
-        query = query.filter(or_(
-            and_(AlchemyFact.start >= start, AlchemyFact.start <= end),
-            and_(AlchemyFact.end >= start, AlchemyFact.end <= end),
-        ))
-        result = False
-        if not query.all():
-            result = True
-        self.store.logger.debug(_("Returning {!r}."))
-        return result
+        return [fact.as_hamster() for fact in query.all()]
