@@ -660,13 +660,14 @@ class ActivityManager(storage.BaseActivityManager):
         self.store.logger.debug(_("Returning: {!r}.".format(result)))
         return result
 
-    def get_all(self, category=None, search_term=''):
+    def get_all(self, category=False, search_term=''):
         """
         Retrieve all matching activities stored in the backend.
 
         Args:
             category (hamster_lib.Category, optional): Limit activities to this category.
-                Defaults to ``None``.
+                Defaults to ``False``. If ``category=None`` only activities without a
+                category will be considered.
             search_term (str, optional): Limit activities to those matching this string a substring
                 in their name. Defaults to ``empty string``.
 
@@ -678,19 +679,22 @@ class ActivityManager(storage.BaseActivityManager):
         message = _("Recieved '{!r}', 'search_term'={}.".format(category, search_term))
         self.store.logger.debug(message)
 
-        result = self.store.session.query(AlchemyActivity)
+        query = self.store.session.query(AlchemyActivity)
 
-        if category:
-            alchemy_category = self.store.session.query(AlchemyCategory).get(category.pk)
+        if category is not False:
+            if category:
+                alchemy_category = self.store.session.query(AlchemyCategory).get(category.pk)
+            else:
+                alchemy_category = None
+            query = query.filter_by(category=alchemy_category)
         else:
-            alchemy_category = None
-        result = result.filter_by(category=alchemy_category)
+            pass
 
         if search_term:
-            result = result.filter(AlchemyActivity.name.ilike('%{}%'.format(search_term)))
-        result.order_by(AlchemyActivity.name)
+            query = query.filter(AlchemyActivity.name.ilike('%{}%'.format(search_term)))
+        query.order_by(AlchemyActivity.name)
         self.store.logger.debug(_("Returning list of matches."))
-        return result.all()
+        return query.all()
 
 
 @python_2_unicode_compatible

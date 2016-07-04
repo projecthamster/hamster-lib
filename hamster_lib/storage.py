@@ -395,13 +395,14 @@ class BaseActivityManager(BaseManager):
 
         raise NotImplementedError
 
-    def get_all(self, category=None, search_term=''):
+    def get_all(self, category=False, search_term=''):
         """
         Return all matching activities.
 
         Args:
             category (hamster_lib.Category, optional): Limit activities to this category.
-                Defaults to ``None``.
+                Defaults to ``False``. If ``category=None`` only activities without a
+                category will be considered.
             search_term (str, optional): Limit activities to those matching this string
                 a substring in their name. Defaults to ``empty string``.
 
@@ -421,10 +422,6 @@ class BaseActivityManager(BaseManager):
         # ``__get_category_activivty`` order by lower(activity.name),
         # ``__get_activities```orders by most recent start date *and*
         # lower(activity.name).
-
-        # [FIXME]
-        # We need a way to distinguish between ``activity.category = None`` and
-        # "list all activities".
         raise NotImplementedError
 
 

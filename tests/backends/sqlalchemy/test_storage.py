@@ -416,13 +416,16 @@ class TestActivityManager():
             alchemy_store.activities.get_by_composite(invalid_name, activity.category)
 
     def test_get_all_without_category(self, alchemy_store, alchemy_activity):
-        """
-        Note:
-            This method is not meant to return 'all-activities' but rather
-            all of a certain alchemy_category.
-        """
+        """Make sure method returns all activities."""
         result = alchemy_store.activities.get_all()
-        assert len(result) == 0
+        assert len(result) == 1
+
+    def test_get_all_with_category_none(self, alchemy_store, alchemy_activity,
+            alchemy_activity_factory):
+        """Make sure only activities without a category are areturned."""
+        activity = alchemy_activity_factory(category=None)
+        result = alchemy_store.activities.get_all(category=activity.category)
+        assert len(result) == 1
 
     def test_get_all_with_category(self, alchemy_store, alchemy_activity):
         """Make sure that activities matching the given alchemy_category are returned."""
