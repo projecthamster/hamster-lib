@@ -9,6 +9,8 @@ env:
   - TOXENV=flake8
   - TOXENV=pep257
   - TOXENV=isort
+  - TOXENV=docs
+
 
 before_install:
   - pip install codecov

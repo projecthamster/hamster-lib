@@ -53,6 +53,9 @@ extensions = [
     'alabaster',
 ]
 
+# Prevent non local immage warnings from showing
+suppress_warnings = ['image.nonlocal_uri']
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -174,7 +177,7 @@ html_theme_path = [alabaster.get_path()]
 # here, relative to this directory. They are copied after the builtin
 # static files, so a file named "default.css" will overwrite the builtin
 # "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime format.
