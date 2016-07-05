@@ -2,9 +2,6 @@
 hamsterlib
 ===============================
 
-.. image:: https://img.shields.io/pypi/v/hamster-lib.svg
-        :target: https://pypi.python.org/pypi/hamster-lib
-
 .. image:: https://img.shields.io/travis/projecthamster/hamster-lib/master.svg
         :target: https://travis-ci.org/projecthamster/hamster_lib
 
