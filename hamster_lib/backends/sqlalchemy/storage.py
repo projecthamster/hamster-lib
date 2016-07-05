@@ -187,7 +187,7 @@ class CategoryManager(storage.BaseCategoryManager):
         Custom version of the default method in order to provide access to alchemy instances.
 
         Args:
-            category (hamster_lib.Category: Category we want.
+            category (hamster_lib.Category): Category we want.
             raw (bool): Wether to return the AlchemyCategory instead.
 
         Returns:
@@ -414,7 +414,7 @@ class ActivityManager(storage.BaseActivityManager):
         Custom version of the default method in order to provide access to alchemy instances.
 
         Args:
-            activity (hamster_lib.Activity: Activity we want.
+            activity (hamster_lib.Activity): Activity we want.
             raw (bool): Wether to return the AlchemyActivity instead.
 
         Returns:

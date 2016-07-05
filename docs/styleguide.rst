@@ -3,8 +3,8 @@ General
 
 .. class:: compact
 
-* Follow `PEP 8 <http://www.python.org/dev/peps/pep-0008/>`_ and
-  `PEP 257 <https://www.python.org/dev/peps/pep-0257/>`_.  
+* Follow `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_ and
+  `PEP 257 <https://www.python.org/dev/peps/pep-0257/>`_.
 * Try to stick to 79 chars. When this is not enough you may use up to 99 chars.
   This is more tolerable for code than for documentation.
 * Use double quotes for human readable strings and single quotes for all other strings.
@@ -29,7 +29,7 @@ Code-style
   all-encompassing ones.
 * Use well established and maintained high quality 3rd party libraries over own
   implementations.
-* Use expressive variable names. If you have to trade off verbosity and 
+* Use expressive variable names. If you have to trade off verbosity and
   expressiveness, go for the later.
 * Assigning variables even if they are used only once can be preferable if
   expressions become clearer and less dense.
@@ -42,7 +42,7 @@ Code-style
   exceptions wherever suitable.  While this may not allways improve readability
   it tends to make debugging easier as it provides one central breaking point.
 * Methods should have the following order: special (``__foo__``) > public  >
-  private (`_foo``). 
+  private (`_foo``).
 
 Imports
 -------
@@ -72,7 +72,7 @@ Documentation
 * Use `google-style <http://www.sphinx-doc.org/en/stable/ext/example_google.html#example-google>`_
   docstrings. Sphinx's `napoleon <http://www.sphinx-doc.org/en/stable/ext/napoleon.html#module-sphinx.ext.napoleon>`_
   extension will make turn this into valid ``rst``.
-* use block comments to explain implementation 
+* use block comments to explain implementation
 
 Committing and commit messages
 ------------------------------

@@ -617,7 +617,7 @@ class Fact(object):
             ``False`` ``tuple.pk = False``!
 
         Returns:
-            FactTuple: Representing this categories values.
+            hamster_lib.FactTuple: Representing this categories values.
         """
         pk = self.pk
         if not include_pk:

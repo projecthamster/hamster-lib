@@ -4,7 +4,7 @@ Each issue should have at least one label from the Type and Status
 section assigned.
 
 Type (#cc317c)
-------
+---------------
 Enhancement
    Issues that introduce new functionality. Original post should include the
    following information:
@@ -40,7 +40,7 @@ Story
    Used to track multiple related issues.
 
 Topic (#fbca04)
--------
+------------------
 Issues without a specific topic assigned deal with general functionality.
 The main purpose if these labels is to allow contributors with specific
 skill sets to find issues fitting them.
@@ -68,14 +68,14 @@ Meta
 
 
 Status (#159818)
--------
+-----------------
 Labels that indicate the status of an issue. Their provide a quick and easy
 answer to whether the issue is actionable or not.
 
 Decision needed
    Tickets that need a design decision are blocked for development until a
    project leader clarifies the way in which the issue should be approached.
-  
+
 Information needed
    This label indicates that the issue has not enough information in order to
    decide on how to go forward. See the documentation about our triage process
@@ -115,10 +115,11 @@ Ready for review
     developer is required prior to merging it.
 
 Good First Bug
-   This label marks tickets that are easy to get started with. The ticket 
+   This label marks tickets that are easy to get started with. The ticket
    should be ideal for beginners to dive into the code base, indicating
    `low-hanging fruits <http://www.urbandictionary.com/define.php?term=low-hanging%20fruit>`_.
-    These tickets generally should fit the following requirements:
+   These tickets generally should fit the following requirements:
+
    * No comprehensive knowledge of the entire code base needed.
    * No particular 3rd party library familiarity required.
    * Most likely does not involve long term effort.
