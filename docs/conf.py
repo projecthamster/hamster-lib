@@ -316,3 +316,9 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+# Ignore urls that don't play nice with SSL
+linkcheck_ignore = [
+    r'http://caremad.io/2013/07/setup-vs-requirement/'
+]
+
