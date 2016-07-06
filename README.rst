@@ -58,12 +58,18 @@ Additional Resources
 * `Coverage reports by 'codecov' <https://codecov.io/gh/projecthamster/hamster-lib>`_
 * `Dependency monitoring by 'requires.io' <https://requires.io/github/projecthamster/hamster-lib/requirements/?branch=master>`_
 
-News: Version 0.10.0
+News: Version 0.11.0
 ---------------------
-This new release marks our switch to semantic versioning and brings a few
-stability improvements as well as ``ìcal`` and ``xml`` export. We improved
-documentation, internal code and project handling a bit but for a full list of
-changes please refer to the changelog.
+This is the first release of ``hamster-lib`` as official part of
+`projecthamster <https://github.com/projecthamster>`_.
+As such it includes a lot of internal adjustments and minor fixes.
+Besides such housekeeping however, is also offers some genuine new features.
+You can now query ``ActivityManaget.get_all`` to return *all* activities, where
+it previously only returned *all for given category*. We also made
+``Category``, ``Activity`` and ``Fact`` hashable, so you can now use them as
+``dict`` keys or ``set`` elements.
+For a more detailed overview about what new, please refer to the changelog.
+Happy tracking; Eric.
 
 Todo
 ----
