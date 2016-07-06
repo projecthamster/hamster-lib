@@ -8,11 +8,12 @@ import os.path
 import xml
 
 import pytest
-from hamsterlib import reports
+from hamster_lib import reports
 from icalendar import Calendar
 from six import text_type
 
 
+# Fixtures
 @pytest.fixture
 def path(tmpdir):
     path = tmpdir.mkdir('reports').join('report.csv').strpath
@@ -39,6 +40,7 @@ def xml_writer(path):
     return reports.XMLWriter(path)
 
 
+# Tests
 class TestReportWriter(object):
     @pytest.mark.parametrize('datetime_format', [None, '%Y-%m-%d'])
     def test_init_stores_datetime_format(self, path, datetime_format):

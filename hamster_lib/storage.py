@@ -1,21 +1,21 @@
 # -*- encoding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+# Copyright (C) 2015-2016 Eric Goller <eric.goller@ninjaduck.solutions>
 
-# This file is part of 'hamsterlib'.
+# This file is part of 'hamster-lib'.
 #
-# 'hamsterlib' is free software: you can redistribute it and/or modify
+# 'hamster-lib' is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# 'hamsterlib' is distributed in the hope that it will be useful,
+# 'hamster-lib' is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+# along with 'hamster-lib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
 """
@@ -28,17 +28,17 @@ Note:
 """
 
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import datetime
 import logging
 import os
 import pickle
 
-import hamsterlib
-import hamsterlib.helpers as helpers
+import hamster_lib
+import hamster_lib.helpers.helpers as helpers
 from future.utils import python_2_unicode_compatible
-from hamsterlib import objects
+from hamster_lib import objects
 
 
 @python_2_unicode_compatible
@@ -54,7 +54,7 @@ class BaseStore(object):
 
     def __init__(self, config):
         self.config = config
-        self.logger = logging.getLogger('hamsterlib.storage')
+        self.logger = logging.getLogger('hamster_lib.storage')
         self.logger.addHandler(logging.NullHandler())
         self.categories = BaseCategoryManager(self)
         self.activities = BaseActivityManager(self)
@@ -86,10 +86,10 @@ class BaseCategoryManager(BaseManager):
         Internal code decides whether we need to add or update.
 
         Args:
-            category (hamsterlib.Category): Category instance to be saved.
+            category (hamster_lib.Category): Category instance to be saved.
 
         Returns:
-            hamsterlib.Category: Saved Category
+            hamster_lib.Category: Saved Category
 
         Raises:
             TypeError: If the ``category`` parameter is not a valid ``Category`` instance.
@@ -124,10 +124,10 @@ class BaseCategoryManager(BaseManager):
         db-backed version.
 
         Args:
-            category (hamsterlib.Category or None): The categories.
+            category (hamster_lib.Category or None): The categories.
 
         Returns:
-            hamsterlib.Category or None: The retrieved or created category. Either way,
+            hamster_lib.Category or None: The retrieved or created category. Either way,
                 the returned Category will contain all data from the backend, including
                 its primary key.
         """
@@ -149,10 +149,10 @@ class BaseCategoryManager(BaseManager):
         Add a ``Category`` to our backend.
 
         Args:
-            category (hamsterlib.Category): ``Category`` to be added.
+            category (hamster_lib.Category): ``Category`` to be added.
 
         Returns:
-            hamsterlib.Category: Newly created ``Category`` instance.
+            hamster_lib.Category: Newly created ``Category`` instance.
 
         Raises:
             ValueError: When the category name was already present! It is supposed to be
@@ -171,10 +171,10 @@ class BaseCategoryManager(BaseManager):
         Update a ``Categories`` values in our backend.
 
         Args:
-            category (hamsterlib.Category): Category to be updated.
+            category (hamster_lib.Category): Category to be updated.
 
         Returns:
-            hamsterlib.Category: The updated Category.
+            hamster_lib.Category: The updated Category.
 
         Raises:
             KeyError: If the ``Category`` can not be found by the backend.
@@ -192,14 +192,14 @@ class BaseCategoryManager(BaseManager):
         ``Activity().category=None``.
 
         Args:
-            category (hamsterlib.Category): Category to be updated.
+            category (hamster_lib.Category): Category to be updated.
 
         Returns:
             None: If everything went ok.
 
         Raises:
             KeyError: If the ``Category`` can not be found by the backend.
-            TypeError: If category passed is not an hamsterlib.Category instance.
+            TypeError: If category passed is not an hamster_lib.Category instance.
             ValueError: If category passed does not have an pk.
         """
         raise NotImplementedError
@@ -212,7 +212,7 @@ class BaseCategoryManager(BaseManager):
             pk (int): Primary key of the ``Category`` to be fetched.
 
         Returns:
-            hamsterlib.Category: ``Category`` with given primary key.
+            hamster_lib.Category: ``Category`` with given primary key.
 
         Raises:
             KeyError: If no ``Category`` with this primary key can be found by the backend.
@@ -228,7 +228,7 @@ class BaseCategoryManager(BaseManager):
             name (str): Unique name of the ``Category`` to we want to fetch.
 
         Returns:
-            hamsterlib.Category: ``Category`` with given name.
+            hamster_lib.Category: ``Category`` with given name.
 
         Raises:
             KeyError: If no ``Category`` with this name was found by the backend.
@@ -255,10 +255,10 @@ class BaseActivityManager(BaseManager):
         This public method decides if it calls either ``_add`` or ``_update``.
 
         Args:
-            activity (hamsterlib.Activity): ``Activity`` to be saved.
+            activity (hamster_lib.Activity): ``Activity`` to be saved.
 
         Returns:
-            hamsterlib.Activity: The saved ``Activity``.
+            hamster_lib.Activity: The saved ``Activity``.
         """
 
         self.store.logger.debug(_("'{}' has been received.".format(activity)))
@@ -273,16 +273,16 @@ class BaseActivityManager(BaseManager):
         Convenience method to either get an activity matching the specs or create a new one.
 
         Args:
-            activity (hamsterlib.Activity): The activity we want.
+            activity (hamster_lib.Activity): The activity we want.
 
         Returns:
-            hamsterlib.Activity: The retrieved or created activity
+            hamster_lib.Activity: The retrieved or created activity
         """
         self.store.logger.debug(_("'{}' has been received.".format(activity)))
         try:
             activity = self.get_by_composite(activity.name, activity.category)
         except KeyError:
-            activity = self.save(hamsterlib.Activity(activity.name, category=activity.category,
+            activity = self.save(hamster_lib.Activity(activity.name, category=activity.category,
                 deleted=activity.deleted))
         return activity
 
@@ -291,10 +291,10 @@ class BaseActivityManager(BaseManager):
         Add a new ``Activity`` instance to the database.
 
         Args:
-            activity (hamsterlib.Activity): The ``Activity`` to be added.
+            activity (hamster_lib.Activity): The ``Activity`` to be added.
 
         Returns:
-            hamsterlib.Activity: The newly created ``Activity``.
+            hamster_lib.Activity: The newly created ``Activity``.
 
         Raises:
             ValueError: If the passed activity has a PK.
@@ -319,10 +319,10 @@ class BaseActivityManager(BaseManager):
         are taken from passed activity as well.
 
         Args:
-            activity (hamsterlib.Activity): Activity to be updated.
+            activity (hamster_lib.Activity): Activity to be updated.
 
         Returns:
-            hamsterlib.Activity: Updated activity.
+            hamster_lib.Activity: Updated activity.
         Raises:
             ValueError: If the new name/category.name combination is already taken.
             ValueError: If the the passed activity does not have a PK assigned.
@@ -343,7 +343,7 @@ class BaseActivityManager(BaseManager):
         If it is not, we delete it from the backend.
 
         Args:
-            activity (hamsterlib.Activity): The activity to be removed.
+            activity (hamster_lib.Activity): The activity to be removed.
 
         Returns:
             bool: True
@@ -355,6 +355,7 @@ class BaseActivityManager(BaseManager):
             Should removing the last activity of a category also trigger category
             removal?
         """
+
         raise NotImplementedError
 
     def get(self, pk):
@@ -365,7 +366,7 @@ class BaseActivityManager(BaseManager):
             pk (int): Primary key of the activity
 
         Returns:
-            hamsterlib.Activity: Activity matching primary key.
+            hamster_lib.Activity: Activity matching primary key.
 
         Raises:
             KeyError: If the primary key can not be found in the database.
@@ -380,29 +381,33 @@ class BaseActivityManager(BaseManager):
 
         Args:
             name (str): Name of the ``Activities`` in question.
-            category (hamsterlib.Category or None): ``Category`` of the activities. May be None.
+            category (hamster_lib.Category or None): ``Category`` of the activities. May be None.
 
         Returns:
-            hamsterlib.Activity: The corresponding activity
+            hamster_lib.Activity: The corresponding activity
 
         Raises:
             KeyError: If the composite key can not be found.
         """
+        # [FIXME]
+        # Handle resurrection. See legacy
+        # ``hamster.sorage.db.__get_activity_by_name``
 
         raise NotImplementedError
 
-    def get_all(self, category=None, search_term=''):
+    def get_all(self, category=False, search_term=''):
         """
         Return all matching activities.
 
         Args:
-            category (hamsterlib.Category, optional): Limit activities to this category.
-                Defaults to ``None``.
+            category (hamster_lib.Category, optional): Limit activities to this category.
+                Defaults to ``False``. If ``category=None`` only activities without a
+                category will be considered.
             search_term (str, optional): Limit activities to those matching this string
                 a substring in their name. Defaults to ``empty string``.
 
         Returns:
-            list: List of ``hamsterlib.Activity`` instances matching constrains. This list
+            list: List of ``hamster_lib.Activity`` instances matching constrains. This list
                 is ordered by ``Activity.name``.
 
         Note:
@@ -413,6 +418,10 @@ class BaseActivityManager(BaseManager):
                 activity names converted to lowercase!
             * Does exclude activities with ``deleted=True``.
         """
+        # [FIXME]
+        # ``__get_category_activivty`` order by lower(activity.name),
+        # ``__get_activities```orders by most recent start date *and*
+        # lower(activity.name).
         raise NotImplementedError
 
 
@@ -427,11 +436,11 @@ class BaseFactManager(BaseManager):
         the config given ``fact_min_delta`` is enforced.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be saved. Needs to be complete otherwise
+            fact (hamster_lib.Fact): Fact to be saved. Needs to be complete otherwise
             this will fail.
 
         Returns:
-            hamsterlib.Fact: Saved Fact.
+            hamster_lib.Fact: Saved Fact.
 
         Raises:
             ValueError: If ``fact.delta`` is smaller than ``self.store.config['fact_min_delta']``-
@@ -460,10 +469,10 @@ class BaseFactManager(BaseManager):
         Add a new ``Fact`` to the backend.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be added.
+            fact (hamster_lib.Fact): Fact to be added.
 
         Returns:
-            hamsterlib.Fact: Added ``Fact``.
+            hamster_lib.Fact: Added ``Fact``.
 
         Raises:
             ValueError: If the passed fact has a PK assigned. New facts should not have one.
@@ -476,10 +485,10 @@ class BaseFactManager(BaseManager):
         Update and existing fact with new values.
 
         Args:
-            fact (hamsterlib.fact): Fact instance holding updated values.
+            fact (hamster_lib.fact): Fact instance holding updated values.
 
         Returns:
-            hamsterlib.fact: Updated Fact
+            hamster_lib.fact: Updated Fact
 
         Raises:
             KeyError: if a Fact with the relevant PK could not be found.
@@ -493,7 +502,7 @@ class BaseFactManager(BaseManager):
         Remove a given ``Fact`` from the backend.
 
         Args:
-            fact (hamsterlib.Fact): ``Fact`` instance to be removed.
+            fact (hamster_lib.Fact): ``Fact`` instance to be removed.
 
         Returns:
             bool: Success status
@@ -512,7 +521,7 @@ class BaseFactManager(BaseManager):
             pk (int): Primary key of the ``Fact to be retrieved``.
 
         Returns:
-            hamsterlib.Fact: The ``Fact`` corresponding to the primary key.
+            hamster_lib.Fact: The ``Fact`` corresponding to the primary key.
 
         Raises:
             KeyError: If primary key not found in the backend.
@@ -597,7 +606,7 @@ class BaseFactManager(BaseManager):
 
         return self._get_all(start, end, filter_term)
 
-    def _get_all(self, start=None, end=None, search_terms=''):
+    def _get_all(self, start=None, end=None, search_terms='', partial=False):
         """
         Return a list of ``Facts`` matching given criteria.
 
@@ -606,8 +615,10 @@ class BaseFactManager(BaseManager):
                 this datetime. Defaults to ``None``.
             end_date (datetime.datetime): Consider only Facts ending before or at
                 this datetime. Defaults to ``None``.
-            filter_term (str, optional): Only consider ``Facts`` with this string as part of their
-                associated ``Activity.name``.
+            search_term (text_type): Cases insensitive strings to match
+                ``Activity.name`` or ``Category.name``.
+            partial (bool): If ``False`` only facts which start *and* end
+                within the timeframe will be considered.
 
         Returns:
             list: List of ``Facts`` matching given specifications.
@@ -636,28 +647,15 @@ class BaseFactManager(BaseManager):
             helpers.end_day_to_datetime(today, self.store.config)
         )
 
-    def _timeframe_is_free(self, start, end):
-        """
-        Determine if a given timeframe already holds any facts start or end time.
-
-        Args:
-            start (datetime): *Start*-datetime that needs to be validated.
-            end (datetime): *End*-datetime that needs to be validated.
-
-        Returns:
-            bool: True if free, False if occupied.
-        """
-        raise NotImplementedError
-
     def _start_tmp_fact(self, fact):
         """
         Store new ongoing fact in persistent tmp file
 
         Args:
-            fact (hamsterlib.Fact): Fact to be stored.
+            fact (hamster_lib.Fact): Fact to be stored.
 
         Returns:
-            hamsterlib.Fact: Fact stored.
+            hamster_lib.Fact: Fact stored.
 
         Raises:
             ValueError: If we already have a ongoing fact running.
@@ -686,7 +684,7 @@ class BaseFactManager(BaseManager):
         Stop current 'ongoing fact'.
 
         Returns:
-            hamsterlib.Fact: The stored fact.
+            hamster_lib.Fact: The stored fact.
 
         Raises:
             ValueError: If there is no currently 'ongoing fact' present.
@@ -709,7 +707,7 @@ class BaseFactManager(BaseManager):
         Provide a way to retrieve any existing 'ongoing fact'.
 
         Returns:
-            hamsterlib.Fact: An instance representing our current 'ongoing fact'.capitalize
+            hamster_lib.Fact: An instance representing our current 'ongoing fact'.capitalize
 
         Raises:
             KeyError: If no ongoing fact is present.

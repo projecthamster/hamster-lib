@@ -1,21 +1,21 @@
 # -*- encoding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+# Copyright (C) 2015-2016 Eric Goller <eric.goller@ninjaduck.solutions>
 
-# This file is part of 'hamsterlib'.
+# This file is part of 'hamster-lib'.
 #
-# 'hamsterlib' is free software: you can redistribute it and/or modify
+# 'hamster-lib' is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# 'hamsterlib' is distributed in the hope that it will be useful,
+# 'hamster-lib' is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+# along with 'hamster-lib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from __future__ import unicode_literals
@@ -24,7 +24,7 @@ import os.path
 from builtins import str
 
 from future.utils import python_2_unicode_compatible
-from hamsterlib import storage
+from hamster_lib import storage
 from six import text_type
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -81,7 +81,7 @@ class SQLAlchemyStore(storage.BaseStore):
         # we receive a session. Should be require the session to bring its own
         # engine?
         engine = create_engine(self._get_db_url())
-        self.logger.debug(_("Engine '{}' created.".format(engine)))
+        self.logger.debug(_('Engine created.'))
         objects.metadata.bind = engine
         objects.metadata.create_all(engine)
         self.logger.debug(_("Database tables created."))
@@ -187,23 +187,20 @@ class CategoryManager(storage.BaseCategoryManager):
         Custom version of the default method in order to provide access to alchemy instances.
 
         Args:
-            category (hamsterlib.Category: Category we want.
+            category (hamster_lib.Category): Category we want.
             raw (bool): Wether to return the AlchemyCategory instead.
 
         Returns:
-            hamsterlib.Category or None: Category.
+            hamster_lib.Category or None: Category.
         """
 
         message = _("Recieved {!r} and raw={}.".format(category, raw))
         self.store.logger.debug(message)
 
-        if category:
-            try:
-                category = self.get_by_name(category.name, raw=raw)
-            except KeyError:
-                category = self._add(category, raw=raw)
-        else:
-            category = None
+        try:
+            category = self.get_by_name(category.name, raw=raw)
+        except KeyError:
+            category = self._add(category, raw=raw)
         return category
 
     def _add(self, category, raw=False):
@@ -215,11 +212,11 @@ class CategoryManager(storage.BaseCategoryManager):
         done correctly..
 
         Args:
-            category (hamsterlib.Category): Hamster Category instance.
+            category (hamster_lib.Category): Hamster Category instance.
             raw (bool): Wether to return the AlchemyCategory instead.
 
         Returns:
-            hamsterlib.Category: Saved instance, as_hamster()
+            hamster_lib.Category: Saved instance, as_hamster()
 
         Raises:
             ValueError: If the name to be added is already present in the db.
@@ -259,10 +256,10 @@ class CategoryManager(storage.BaseCategoryManager):
         Update a given Category.
 
         Args:
-            category (hamsterlib.Category): Category to be updated.
+            category (hamster_lib.Category): Category to be updated.
 
         Returns:
-            hamsterlib.Category: Updated category.
+            hamster_lib.Category: Updated category.
 
         Raises:
             ValueError: If the new name is already taken.
@@ -304,7 +301,7 @@ class CategoryManager(storage.BaseCategoryManager):
         Delete a given category.
 
         Args:
-            category (hamsterlib.Category): Category to be removed.
+            category (hamster_lib.Category): Category to be removed.
 
         Returns:
             None: If everything went alright.
@@ -339,7 +336,7 @@ class CategoryManager(storage.BaseCategoryManager):
             pk (int): PK of the category to be retrieved.
 
         Returns:
-            hamsterlib.Category: Category matching given PK.
+            hamster_lib.Category: Category matching given PK.
 
         Raises:
             KeyError: If no such PK was found.
@@ -370,7 +367,7 @@ class CategoryManager(storage.BaseCategoryManager):
 
 
         Returns:
-            hamsterlib.Category: Category of given name.
+            hamster_lib.Category: Category of given name.
 
         Raises:
             KeyError: If no category matching the name was found.
@@ -417,11 +414,11 @@ class ActivityManager(storage.BaseActivityManager):
         Custom version of the default method in order to provide access to alchemy instances.
 
         Args:
-            activity (hamsterlib.Activity: Activity we want.
+            activity (hamster_lib.Activity): Activity we want.
             raw (bool): Wether to return the AlchemyActivity instead.
 
         Returns:
-            hamsterlib.Activity: Activity.
+            hamster_lib.Activity: Activity.
         """
 
         message = _("Recieved {!r}, raw={}.".format(activity, raw))
@@ -439,10 +436,10 @@ class ActivityManager(storage.BaseActivityManager):
         Add a new ``Activity`` instance to the databasse.
 
         Args:
-            activity (hamsterlib.Activity): Hamster activity
+            activity (hamster_lib.Activity): Hamster activity
 
         Returns:
-            hamsterlib.Activity: Hamster activity representation of stored instance.
+            hamster_lib.Activity: Hamster activity representation of stored instance.
 
         Raises:
             ValueError: If the passed activity has a PK.
@@ -494,10 +491,10 @@ class ActivityManager(storage.BaseActivityManager):
         Update a given Activity.
 
         Args:
-            activity (hamsterlib.Activity): Activity to be updated.
+            activity (hamster_lib.Activity): Activity to be updated.
 
         Returns:
-            hamsterlib.Activity: Updated activity.
+            hamster_lib.Activity: Updated activity.
 
         Raises:
             ValueError: If the new name/category.name combination is already taken.
@@ -549,7 +546,7 @@ class ActivityManager(storage.BaseActivityManager):
         Remove an activity from our internal backend.
 
         Args:
-            activity (hamsterlib.Activity): The activity to be removed.
+            activity (hamster_lib.Activity): The activity to be removed.
 
         Returns:
             bool: True
@@ -589,7 +586,7 @@ class ActivityManager(storage.BaseActivityManager):
             raw (bool): Return the AlchemyActivity instead.
 
         Returns:
-            hamsterlib.Activity: Activity with given PK.
+            hamster_lib.Activity: Activity with given PK.
 
         Raises:
             KeyError: If no such pk was found.
@@ -614,11 +611,11 @@ class ActivityManager(storage.BaseActivityManager):
 
         Args:
             name (str): The activities name.
-            category (hamsterlib.Category or None): The activities category. May be None.
+            category (hamster_lib.Category or None): The activities category. May be None.
             raw (bool): Return the AlchemyActivity instead.
 
         Returns:
-            hamsterlib.Activity: The activity if it exists in this combination.
+            hamster_lib.Activity: The activity if it exists in this combination.
 
         Raises:
             KeyError: if composite key can not be found in the db.
@@ -663,37 +660,41 @@ class ActivityManager(storage.BaseActivityManager):
         self.store.logger.debug(_("Returning: {!r}.".format(result)))
         return result
 
-    def get_all(self, category=None, search_term=''):
+    def get_all(self, category=False, search_term=''):
         """
         Retrieve all matching activities stored in the backend.
 
         Args:
-            category (hamsterlib.Category, optional): Limit activities to this category.
-                Defaults to ``None``.
+            category (hamster_lib.Category, optional): Limit activities to this category.
+                Defaults to ``False``. If ``category=None`` only activities without a
+                category will be considered.
             search_term (str, optional): Limit activities to those matching this string a substring
                 in their name. Defaults to ``empty string``.
 
         Returns:
-            list: List of ``hamsterlib.Activity`` instances matching constrains. This list
+            list: List of ``hamster_lib.Activity`` instances matching constrains. This list
                 is ordered by ``Activity.name``.
         """
 
         message = _("Recieved '{!r}', 'search_term'={}.".format(category, search_term))
         self.store.logger.debug(message)
 
-        result = self.store.session.query(AlchemyActivity)
+        query = self.store.session.query(AlchemyActivity)
 
-        if category:
-            alchemy_category = self.store.session.query(AlchemyCategory).get(category.pk)
+        if category is not False:
+            if category:
+                alchemy_category = self.store.session.query(AlchemyCategory).get(category.pk)
+            else:
+                alchemy_category = None
+            query = query.filter_by(category=alchemy_category)
         else:
-            alchemy_category = None
-        result = result.filter_by(category=alchemy_category)
+            pass
 
         if search_term:
-            result = result.filter(AlchemyActivity.name.ilike('%{}%'.format(search_term)))
-        result.order_by(AlchemyActivity.name)
+            query = query.filter(AlchemyActivity.name.ilike('%{}%'.format(search_term)))
+        query.order_by(AlchemyActivity.name)
         self.store.logger.debug(_("Returning list of matches."))
-        return result.all()
+        return query.all()
 
 
 @python_2_unicode_compatible
@@ -703,18 +704,18 @@ class FactManager(storage.BaseFactManager):
         Add a new fact to the database.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be added.
+            fact (hamster_lib.Fact): Fact to be added.
             raw (bool): If ``True`` return ``AlchemyFact`` instead.
 
         Returns:
-            hamsterlib.Fact: Fact as stored in the database
+            hamster_lib.Fact: Fact as stored in the database
 
         Raises:
             ValueError: If the passed fact has a PK assigned. New facts should not have one.
             ValueError: If the timewindow is already occupied.
         """
 
-        self.store.logger.debug(_("Recieved '{!r}', 'raw'={}.".format(fact, raw)))
+        self.store.logger.debug(_("Received '{!r}', 'raw'={}.".format(fact, raw)))
 
         if fact.pk:
             message = _(
@@ -724,7 +725,7 @@ class FactManager(storage.BaseFactManager):
             self.store.logger.error(message)
             raise ValueError(message)
 
-        if not self._timeframe_is_free(fact.start, fact.end):
+        if self._get_all(fact.start, fact.end, partial=True):
             message = _("Our database already contains facts for this facts timewindow."
                         "There can ever only be one fact at any given point in time")
             self.store.logger.error(message)
@@ -742,11 +743,11 @@ class FactManager(storage.BaseFactManager):
         Update and existing fact with new values.
 
         Args:
-            fact (hamsterlib.fact): Fact instance holding updated values.
+            fact (hamster_lib.fact): Fact instance holding updated values.
             raw (bool): If ``True`` return ``AlchemyFact`` instead.
 
         Returns:
-            hamsterlib.fact: Updated Fact
+            hamster_lib.fact: Updated Fact
 
         Raises:
             KeyError: if a Fact with the relevant PK could not be found.
@@ -764,7 +765,8 @@ class FactManager(storage.BaseFactManager):
             self.store.logger.error(message)
             raise ValueError(message)
 
-        if not self._timeframe_is_free(fact.start, fact.end):
+        facts_in_timeframe = self._get_all(fact.start, fact.end, partial=True)
+        if facts_in_timeframe and not facts_in_timeframe == [fact]:
             message = _("Our database already contains facts for this facts timewindow."
                         " There can ever only be one fact at any given point in time")
             self.store.logger.error(message)
@@ -789,7 +791,7 @@ class FactManager(storage.BaseFactManager):
         Remove a fact from our internal backend.
 
         Args:
-            fact (hamsterlib.Fact): Fact to be removed
+            fact (hamster_lib.Fact): Fact to be removed
 
         Returns:
             bool: Success status
@@ -827,7 +829,7 @@ class FactManager(storage.BaseFactManager):
             pk: PK of the fact to be retrieved
 
         Returns:
-            hamsterlib.Fact: Fact matching given PK
+            hamster_lib.Fact: Fact matching given PK
 
         Raises:
             KeyError: If no Fact of given key was found.
@@ -845,62 +847,86 @@ class FactManager(storage.BaseFactManager):
         self.store.logger.debug(_("Returning {!r}.".format(result)))
         return result
 
-    def _get_all(self, start=None, end=None, search_term=''):
+    def _get_all(self, start=None, end=None, search_term='', partial=False):
         """
-        Return all facts within a given timeframe (beginning of start_date
-        end of end_date) that match given search terms.
+        Return all facts within a given timeframe that match given search terms.
 
         ``get_all`` already took care of any normalization required.
 
         If no timeframe is given, return all facts?
 
         Args:
-            start (datetime.datetime, optional): Start of timeframe
+            start (datetime.datetime, optional): Start of timeframe.
+            end (datetime.datetime, optional): End of timeframe.
+            search_term (text_type): Cases insensitive strings to match
+                ``Activity.name`` or ``Category.name``.
+            partial (bool): If ``False`` only facts which start *and* end
+                within the timeframe will be considered.
 
         Returns:
-            list: List of ``hamsterlib.Facts`` instances.
+            list: List of ``hamster_lib.Facts`` instances.
         """
 
-        self.store.logger.debug(_(
-            "Recieved start: '{}', end: '{}' and search_term='{}'.".format(start, end, search_term)
-        ))
+        def get_complete_overlaps(query, start, end):
+            """Return all facts with start and end within the timeframe."""
 
-        # [FIXME] Figure out against what to match search_terms
-        results = self.store.session.query(AlchemyFact)
-        if start and end:
-            results = results.filter(and_(AlchemyFact.start >= start, AlchemyFact.end <= end))
-        if search_term:
-            results = results.join(AlchemyActivity).join(AlchemyCategory).filter(
+            # SQLAlchemy does not allow ``<=`` used with ``None`` values, so we have
+            # check for passed arguments first.
+            if start:
+                query = query.filter(AlchemyFact.start >= start)
+            if end:
+                query = query.filter(AlchemyFact.end <= end)
+            return query
+
+        def get_partial_overlaps(query, start, end):
+            """Return all facts where either start or end falls within the timeframe."""
+
+            # SQLAlchemy does not allow ``<=`` used with ``None`` values, so we have
+            # check for passed arguments first.
+            if start and not end:
+                query = query.filter(or_(AlchemyFact.start >= start, AlchemyFact.end >= start))
+            elif not start and end:
+                query = query.filter(or_(AlchemyFact.start <= end, AlchemyFact.end <= end))
+            elif start and end:
+                query = query.filter(or_(
+                    and_(AlchemyFact.start >= start, AlchemyFact.start <= end),
+                    and_(AlchemyFact.end >= start, AlchemyFact.end <= end),
+                ))
+            else:
+                pass
+            return query
+
+        def filter_search_term(query, term):
+            """
+            Limit query to facts that match the search terms.
+
+            Terms are matched against ``Category.name`` and ``Activity.name``.
+            The matching is not case sensitive.
+            """
+            query = query.join(AlchemyActivity).join(AlchemyCategory).filter(
                 or_(AlchemyActivity.name.ilike('%{}%'.format(search_term)),
                     AlchemyCategory.name.ilike('%{}%'.format(search_term))
                     )
             )
+            return query
+
+        self.store.logger.debug(_(
+            "Received start: '{}', end: '{}' and search_term='{}'.".format(
+                start, end, search_term)
+        ))
+
+        # [FIXME] Figure out against what to match search_terms
+        query = self.store.session.query(AlchemyFact)
+
+        if partial:
+            query = get_partial_overlaps(query, start, end)
+        else:
+            query = get_complete_overlaps(query, start, end)
+
+        if search_term:
+            query = filter_search_term(query, search_term)
+
         # [FIXME]
         # Depending on scale, this could be a problem.
         self.store.logger.debug(_("Returning list of results."))
-        return [fact.as_hamster() for fact in results.all()]
-
-    def _timeframe_is_free(self, start, end):
-        """
-        Determine if a given timeframe already holds any facs start or endtime.
-
-        Args:
-            start (datetime): *Start*-datetime that needs to be validated.
-            end (datetime): *End*-datetime that needs to be validated.
-
-        Returns:
-            bool: True if free, False if occupied.
-        """
-
-        self.store.logger.debug(_("Recieved start: '{}' and end: '{}'.".format(start, end)))
-
-        query = self.store.session.query(AlchemyFact)
-        query = query.filter(or_(
-            and_(AlchemyFact.start >= start, AlchemyFact.start <= end),
-            and_(AlchemyFact.end >= start, AlchemyFact.end <= end),
-        ))
-        result = False
-        if not query.all():
-            result = True
-        self.store.logger.debug(_("Returning {!r}."))
-        return result
+        return [fact.as_hamster() for fact in query.all()]

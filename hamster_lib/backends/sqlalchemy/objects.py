@@ -1,21 +1,21 @@
 # -*- encoding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+# Copyright (C) 2015-2016 Eric Goller <eric.goller@ninjaduck.solutions>
 
-# This file is part of 'hamsterlib'.
+# This file is part of 'hamster-lib'.
 #
-# 'hamsterlib' is free software: you can redistribute it and/or modify
+# 'hamster-lib' is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# 'hamsterlib' is distributed in the hope that it will be useful,
+# 'hamster-lib' is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+# along with 'hamster-lib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
 """
@@ -34,7 +34,7 @@ manually.
 Note:
     Our dedicated SQLAlchemy objects do not perform any general data validation
     as not to duplicate code. This is expected to be handled by the generic
-    ``hamsterlib`` objects.
+    ``hamster_lib`` objects.
     If need for backend specific validation should arise, it could of cause be added
     here.
 """
@@ -43,7 +43,7 @@ Note:
 from __future__ import unicode_literals
 
 from future.utils import python_2_unicode_compatible
-from hamsterlib import Activity, Category, Fact
+from hamster_lib import Activity, Category, Fact
 from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer,
                         MetaData, Table, Unicode, UniqueConstraint)
 from sqlalchemy.orm import mapper, relationship
@@ -58,7 +58,7 @@ class AlchemyCategory(Category):
         Initiate a new SQLAlchemy activity instance.
 
         Args:
-            category (hamsterlib.Category): A hamster category that is to
+            category (hamster_lib.Category): A hamster category that is to
                 be represented as a backend object.
 
         Raises:
@@ -69,7 +69,7 @@ class AlchemyCategory(Category):
         self.name = name
 
     def as_hamster(self):
-        """Provide an convenient way to return it as a ``hamsterlib.Category`` instance."""
+        """Provide an convenient way to return it as a ``hamster_lib.Category`` instance."""
         return Category(
             pk=self.pk,
             name=self.name
@@ -83,7 +83,7 @@ class AlchemyActivity(Activity):
         Initiate a new instance.
 
         Args:
-            activity (hamsterlib.Activity): An activity that is to be represented
+            activity (hamster_lib.Activity): An activity that is to be represented
                 as a backend instance.
 
         Raises:
@@ -96,7 +96,7 @@ class AlchemyActivity(Activity):
         self.deleted = deleted
 
     def as_hamster(self):
-        """Provide an convenient way to return it as a ``hamsterlib.Activity`` instance."""
+        """Provide an convenient way to return it as a ``hamster_lib.Activity`` instance."""
         if self.category:
             category = self.category.as_hamster()
         else:
@@ -116,7 +116,7 @@ class AlchemyFact(Fact):
         Initiate a new instance.
 
         Args:
-            fact (hamsterlib.Fact): A fact that is to be represented
+            fact (hamster_lib.Fact): A fact that is to be represented
                 as a backend instance.
 
         Raises:
@@ -133,7 +133,7 @@ class AlchemyFact(Fact):
         self.tags = tags
 
     def as_hamster(self):
-        """Provide an convenient way to return it as a ``hamsterlib.Fact`` instance."""
+        """Provide an convenient way to return it as a ``hamster_lib.Fact`` instance."""
         return Fact(
             pk=self.pk,
             activity=self.activity.as_hamster(),

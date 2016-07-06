@@ -7,18 +7,9 @@ import pickle
 
 import pytest
 from freezegun import freeze_time
-from hamsterlib import Fact
-from hamsterlib.storage import BaseStore
+from hamster_lib import Fact
 
 
-# Fixtures
-@pytest.fixture
-def basestore(base_config):
-    store = BaseStore(base_config)
-    return store
-
-
-# Tests
 class TestBaseStore():
     def test_cleanup(self, basestore):
         with pytest.raises(NotImplementedError):

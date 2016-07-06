@@ -5,13 +5,14 @@ from __future__ import unicode_literals
 import datetime
 
 import pytest
-from hamsterlib.backends.sqlalchemy import (AlchemyActivity, AlchemyCategory,
-                                            AlchemyFact)
+from hamster_lib.backends.sqlalchemy import (AlchemyActivity, AlchemyCategory,
+                                             AlchemyFact, SQLAlchemyStore)
 
 
 # The reason we see a great deal of count == 0 statements is to make sure that
 # db rollback works as expected. Once we are confident in our sqlalchemy/pytest
 # setup those are not really needed.
+
 
 class TestStore(object):
     """Tests to make sure our store/test setup behaves as expected."""
@@ -60,6 +61,11 @@ class TestStore(object):
         alchemy_store.config = alchemy_config_missing_store_config_parametrized
         with pytest.raises(ValueError):
             alchemy_store._get_db_url()
+
+    def test_init_with_unicode_path(self, alchemy_config, db_path_parametrized):
+        """Test that Instantiating a store with a unicode path works."""
+        alchemy_config['db_path'] = db_path_parametrized
+        assert SQLAlchemyStore(alchemy_config)
 
 
 class TestCategoryManager():
@@ -111,9 +117,16 @@ class TestCategoryManager():
         assert category.equal_fields(db_instance)
 
     def test_update_without_pk(self, alchemy_store, alchemy_category_factory):
-        category = alchemy_category_factory().as_hamster()
-        category.pk = None
+        """Make sure that passing a category without a PK raises an error."""
+        category = alchemy_category_factory.build(pk=None).as_hamster()
         with pytest.raises(ValueError):
+            alchemy_store.categories._update(category)
+
+    def test_update_invalid_pk(self, alchemy_store, alchemy_category_factory):
+        """Make sure that passing a category with a non existing PK raises an error."""
+        category = alchemy_category_factory().as_hamster()
+        category.pk = category.pk + 10
+        with pytest.raises(KeyError):
             alchemy_store.categories._update(category)
 
     def test_update_existing_name(self, alchemy_store, alchemy_category_factory):
@@ -133,9 +146,14 @@ class TestCategoryManager():
 
     def test_remove_no_pk(self, alchemy_store, alchemy_category_factory):
         """Ensure that passing a alchemy_category without an PK raises an error."""
-        category = alchemy_category_factory.build().as_hamster()
-        category.pk = None
+        category = alchemy_category_factory.build(pk=None).as_hamster()
         with pytest.raises(ValueError):
+            alchemy_store.categories.remove(category)
+
+    def test_remove_invalid_pk(self, alchemy_store, alchemy_category_factory):
+        """Ensure that passing a alchemy_category without an PK raises an error."""
+        category = alchemy_category_factory.build(pk=800).as_hamster()
+        with pytest.raises(KeyError):
             alchemy_store.categories.remove(category)
 
     def test_get_existing_pk(self, alchemy_store, alchemy_category_factory):
@@ -398,13 +416,16 @@ class TestActivityManager():
             alchemy_store.activities.get_by_composite(invalid_name, activity.category)
 
     def test_get_all_without_category(self, alchemy_store, alchemy_activity):
-        """
-        Note:
-            This method is not meant to return 'all-activities' but rather
-            all of a certain alchemy_category.
-        """
+        """Make sure method returns all activities."""
         result = alchemy_store.activities.get_all()
-        assert len(result) == 0
+        assert len(result) == 1
+
+    def test_get_all_with_category_none(self, alchemy_store, alchemy_activity,
+            alchemy_activity_factory):
+        """Make sure only activities without a category are areturned."""
+        activity = alchemy_activity_factory(category=None)
+        result = alchemy_store.activities.get_all(category=activity.category)
+        assert len(result) == 1
 
     def test_get_all_with_category(self, alchemy_store, alchemy_activity):
         """Make sure that activities matching the given alchemy_category are returned."""
@@ -450,7 +471,7 @@ class TestFactManager():
 
     def test_add_occupied_timewindow(self, alchemy_store, fact, alchemy_fact):
         """
-        Make sure that passing a fact with a timewindow that already has a fact raisess error.
+        Make sure that passing a fact with a timewindow that already has a fact raises error.
         """
         fact.start = alchemy_fact.start - datetime.timedelta(days=4)
         fact.end = alchemy_fact.start + datetime.timedelta(minutes=15)
@@ -501,26 +522,72 @@ class TestFactManager():
         assert len(result) == len(set_of_alchemy_facts)
         assert len(result) == alchemy_store.session.query(AlchemyFact).count()
 
-    def test_get_all_with_datetimes(self, start_datetime, set_of_alchemy_facts, alchemy_store):
-        start = start_datetime
-        end = start + datetime.timedelta(hours=5)
-        result = alchemy_store.facts._get_all(start=start, end=end)
-        assert len(result) == 1
+    @pytest.mark.parametrize(('start_filter', 'end_filter'), (
+        (10, 12),
+        (10, None),
+        (None, -12),
+    ))
+    def test_get_all_existing_facts_not_in_timerange(self, alchemy_store, alchemy_fact,
+            bool_value_parametrized, start_filter, end_filter):
+        """Make sure that a valid timeframe returns an empty list."""
+        start, end = None, None
+        if start_filter:
+            start = alchemy_fact.start + datetime.timedelta(days=start_filter)
+        if end_filter:
+            end = alchemy_fact.start + datetime.timedelta(days=end_filter)
 
-    def test_timeframe_is_free_false_start(self, alchemy_store, alchemy_fact):
-        """Make sure that a start within our timeframe returns expected result."""
-        start = alchemy_fact.start + datetime.timedelta(hours=1)
-        end = alchemy_fact.start + datetime.timedelta(days=20)
-        assert alchemy_store.facts._timeframe_is_free(start, end) is False
+        result = alchemy_store.facts._get_all(start, end, partial=bool_value_parametrized)
+        assert result == []
 
-    def test_timeframe_is_free_false_end(self, alchemy_store, alchemy_fact):
-        """Make sure that a end within our timeframe returns expected result."""
-        start = alchemy_fact.start - datetime.timedelta(days=20)
-        end = alchemy_fact.start + datetime.timedelta(hours=1)
-        assert alchemy_store.facts._timeframe_is_free(start, end) is False
+    @pytest.mark.parametrize(('start_filter', 'end_filter'), (
+        (-1, 5),
+        (-1, None),
+        (None, 5),
+        (None, None),
+    ))
+    def test_get_all_existing_fact_fully_in_timerange(self, alchemy_store, alchemy_fact,
+            bool_value_parametrized, start_filter, end_filter):
+        """Ensure a fact fully within the timeframe is returned."""
+        start, end = None, None
+        if start_filter:
+            start = alchemy_fact.start + datetime.timedelta(days=start_filter)
+        if end_filter:
+            end = alchemy_fact.start + datetime.timedelta(days=end_filter)
 
-    def test_timeframe_is_free_true(self, alchemy_store, alchemy_fact):
-        """Make sure that a valid timeframe returns expected result."""
-        start = alchemy_fact.start - datetime.timedelta(days=20)
-        end = alchemy_fact.start - datetime.timedelta(seconds=1)
-        assert alchemy_store.facts._timeframe_is_free(start, end)
+        result = alchemy_store.facts._get_all(start, end, partial=bool_value_parametrized)
+        assert result == [alchemy_fact]
+
+    @pytest.mark.parametrize(('start_filter', 'end_filter'), (
+        # Fact.start is in timewindow
+        (None, 2),
+        (-900, 2),
+        # Fact.end is in timewindow
+        (5, None),
+        (5, 900),
+    ))
+    def test_get_all_existing_fact_partialy_in_timerange(self, alchemy_store, alchemy_fact,
+            bool_value_parametrized, start_filter, end_filter):
+        """Test that a fact partially within timeframe is returned with ``partial=True`` only"""
+        start, end = None, None
+        if start_filter:
+            start = alchemy_fact.start + datetime.timedelta(minutes=start_filter)
+        if end_filter:
+            end = alchemy_fact.start + datetime.timedelta(minutes=end_filter)
+
+        result = alchemy_store.facts._get_all(start, end, partial=bool_value_parametrized)
+        if bool_value_parametrized:
+            assert result == [alchemy_fact]
+        else:
+            assert result == []
+
+    def test_get_all_search_matches_activity(self, alchemy_store, set_of_alchemy_facts):
+        """Make sure facts with ``Fact.activity.name`` matching the term are returned."""
+        search_term = set_of_alchemy_facts[1].activity.name
+        result = alchemy_store.facts._get_all(search_term=search_term)
+        assert result == [set_of_alchemy_facts[1]]
+
+    def test_get_all_search_matches_category(self, alchemy_store, set_of_alchemy_facts):
+        """Make sure facts with ``Fact.category.name`` matching the term are returned."""
+        search_term = set_of_alchemy_facts[1].category.name
+        result = alchemy_store.facts._get_all(search_term=search_term)
+        assert result == [set_of_alchemy_facts[1]]

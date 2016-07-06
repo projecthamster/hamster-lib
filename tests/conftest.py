@@ -1,10 +1,30 @@
 # -*- encoding: utf-8 -*-
 
+"""Global fixtures."""
+
 import datetime
 import os.path
+import pickle
 
 import fauxfactory
 import pytest
+from pytest_factoryboy import register
+
+from .hamster_lib import factories as lib_factories
+
+register(lib_factories.FactFactory)
+register(lib_factories.CategoryFactory)
+register(lib_factories.ActivityFactory)
+
+
+# This fixture is used by ``test_helpers`` and ``test_storage``.
+@pytest.fixture
+def tmp_fact(base_config, fact):
+    """Provide an existing 'ongoing fact'."""
+    fact.end = None
+    with open(base_config['tmpfile_path'], 'wb') as fobj:
+        pickle.dump(fact, fobj)
+    return fact
 
 
 @pytest.fixture
@@ -31,6 +51,16 @@ def start_end_datetimes_from_offset():
     return generate
 
 
+@pytest.fixture(params=(True, False))
+def bool_value_parametrized(request):
+    """
+    Return a parametrized boolean value.
+
+    This is usefull to easily parametrize tests using flags.
+    """
+    return request.param
+
+
 # Attribute fixtures (non-parametrized)
 @pytest.fixture
 def name():
@@ -54,6 +84,7 @@ def start_datetime():
 
 @pytest.fixture
 def description():
+    """Return a generic text suitable to mimic a ``Fact.description``."""
     return fauxfactory.gen_iplum()
 
 
@@ -111,6 +142,7 @@ def pk_valid_parametrized(request):
 
 @pytest.fixture(params=(True, False, 0, 1, '', 'foobar'))
 def deleted_valid_parametrized(request):
+    """Return various valid values for the ``deleted`` argument."""
     return request.param
 
 
@@ -123,4 +155,4 @@ def description_valid_parametrized(request):
 @pytest.fixture(params='alpha cyrillic latin1 utf8'.split())
 def tag_list_valid_parametrized(request):
     """Provide a variety of strings that should be valid *descriptions*."""
-    return [fauxfactory.gen_string(request.param) for i in range(4)]
+    return set([fauxfactory.gen_string(request.param) for i in range(4)])

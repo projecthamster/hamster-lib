@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Packaging instruction for setup tools."""
 
 
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
     from distutils.core import setup
 
@@ -15,30 +16,26 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 requirements = [
+    'appdirs',
     'future',
     'sqlalchemy',
     'icalendar',
+    'configparser',
 ]
 
 setup(
-    name='hamsterlib',
-    version='0.1.0',
+    name='hamster-lib',
+    version='0.11.0',
     description="A library for common timetracking functionality.",
     long_description=readme + '\n\n' + history,
     author="Eric Goller",
-    author_email='Elbenfreund@DenkenInEchtzeit.net',
-    url='https://github.com/elbenfreund/hamsterlib',
-    packages=[
-        'hamsterlib',
-        'hamsterlib.backends',
-        'hamsterlib.backends.sqlalchemy',
-    ],
-    package_dir={'hamsterlib':
-                 'hamsterlib'},
+    author_email='eric.goller@ninjaduck.solutions',
+    url='https://github.com/projecthamster/hamster-lib',
+    packages=find_packages(),
     install_requires=requirements,
     license="GPL3",
     zip_safe=False,
-    keywords='hamsterlib',
+    keywords='hamster-lib',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

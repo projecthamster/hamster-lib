@@ -5,7 +5,7 @@ Contributing
 Contributions are welcome, and they are greatly appreciated! Every
 little bit helps, and credit will always be given.
 Further details on labels and their respective meaning can be found in the
-`wiki <https://github.com/elbenfreund/hamsterlib/wiki/Labels,-and-how-to-use-them>`_.
+`wiki <https://github.com/projecthamster/hamster-lib/wiki/Labels,-and-how-to-use-them>`_.
 
 You can contribute in many ways:
 
@@ -15,7 +15,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/elbenfreund/hamsterlib/issues.
+Report bugs at https://github.com/projecthamster/hamster-lib/issues.
 
 If you are reporting a bug, please include:
 
@@ -38,14 +38,14 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-hamsterlib could always use more documentation, whether as part of the
-official hamsterlib docs, in docstrings, or even on the web in blog posts,
+'hamster-lib' could always use more documentation, whether as part of the
+official 'hamster-lib' docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/elbenfreund/hamsterlib/issues.
+The best way to send feedback is to file an issue at https://github.com/projecthamster/hamster-lib/issues.
 
 If you are proposing a feature:
 
@@ -57,19 +57,19 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `hamsterlib` for local development.
+Ready to contribute? Here's how to set up `hamster-lib` for local development.
 
-1. Fork the `hamsterlib` repo on GitHub.
+1. Fork the `hamster-lib` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/hamsterlib.git
+    $ git clone git@github.com:projecthamster/hamster-lib.git
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed,
    this is how you set up your fork for local development. It will also take care of
    installing all packes required for a dev environment::
 
-    $ mkvirtualenv hamsterlib
-    $ cd hamsterlib/
+    $ mkvirtualenv hamster-lib
+    $ cd hamster-lib/
     $ make develop
     $ python setup.py develop
 
@@ -91,7 +91,7 @@ Ready to contribute? Here's how to set up `hamsterlib` for local development.
    If you just want to check against a specific python (``py27`` or ``py34``) version, run::
 
      $ tox -e py27
-     
+
    or::
 
      $ tox -e py34
@@ -115,8 +115,8 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 2.7 and 3.4. Check
-   https://codeship.com/elbenfreund/hamsterlib/pull_requests
+3. The pull request should work for Python 2.7 and 3.4. Check `Travis
+   <https://travis-ci.org/projecthamster/hamster-lib/builds/142418469>`_
    and make sure that the tests pass for all supported Python versions.
 
 Tips
@@ -124,4 +124,4 @@ Tips
 
 To run a subset of tests::
 
-    $ python -m unittest tests.test_hamsterlib
+    $ python -m unittest tests.test_hamster_lib

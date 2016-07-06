@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import datetime
 import pickle
 
 import pytest
 from freezegun import freeze_time
-from hamsterlib import helpers
+from hamster_lib.helpers import helpers
 
 
 class TestGetDayEnd(object):

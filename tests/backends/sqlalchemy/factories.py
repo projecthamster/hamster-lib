@@ -1,23 +1,27 @@
 # -*- encoding: utf-8 -*-
 
+"""Factories for sqlalchemy models."""
+
 from __future__ import unicode_literals
 
 import datetime
 
 import factory
-import faker
-from hamsterlib.backends.sqlalchemy.objects import (AlchemyActivity,
-                                                    AlchemyCategory,
-                                                    AlchemyFact)
+from hamster_lib.backends.sqlalchemy.objects import (AlchemyActivity,
+                                                     AlchemyCategory,
+                                                     AlchemyFact)
 
 from . import common
 
 
 class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """Factory class for generic ``AlchemyCategory`` instances."""
+
     pk = factory.Sequence(lambda n: n)
 
     @factory.sequence
     def name(n):  # NOQA
+        """Return a name that is guaranteed to be unique."""
         return '{name} - {key}'.format(name=factory.Faker('word'), key=n)
 
     class Meta:
@@ -27,6 +31,8 @@ class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
 
 
 class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """Factory class for generic ``AlchemyActivity`` instances."""
+
     pk = factory.Sequence(lambda n: n)
     name = factory.Faker('sentence')
     category = factory.SubFactory(AlchemyCategoryFactory)
@@ -39,10 +45,12 @@ class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
 
 
 class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """Factory class for generic ``AlchemyFact`` instances."""
+
     pk = factory.Sequence(lambda n: n)
     activity = factory.SubFactory(AlchemyActivityFactory)
-    start = faker.Faker().date_time()
-    end = start + datetime.timedelta(hours=3)
+    start = factory.Faker('date_time')
+    end = factory.LazyAttribute(lambda o: o.start + datetime.timedelta(hours=3))
     description = factory.Faker('paragraph')
     tags = []
 

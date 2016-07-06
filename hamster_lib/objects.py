@@ -1,21 +1,21 @@
 # -*- encoding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>
+# Copyright (C) 2015-2016 Eric Goller <eric.goller@ninjaduck.solutions>
 
-# This file is part of 'hamsterlib'.
+# This file is part of 'hamster-lib'.
 #
-# 'hamsterlib' is free software: you can redistribute it and/or modify
+# 'hamster-lib' is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# 'hamsterlib' is distributed in the hope that it will be useful,
+# 'hamster-lib' is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with 'hamsterlib'.  If not, see <http://www.gnu.org/licenses/>.
+# along with 'hamster-lib'.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from __future__ import unicode_literals
@@ -27,6 +27,7 @@ from collections import namedtuple
 from future.utils import python_2_unicode_compatible
 from six import text_type
 
+# Named tuples used  to 'serialize' our object instances.
 CategoryTuple = namedtuple('CategoryTuple', ('pk', 'name'))
 ActivityTuple = namedtuple('ActivityTuple', ('pk', 'name', 'category', 'deleted'))
 FactTuple = namedtuple('FactTuple', ('pk', 'activity', 'start', 'end', 'description', 'tags'))
@@ -107,10 +108,15 @@ class Category(object):
             other = None
         return self.as_tuple() == other
 
+    def __hash__(self):
+        """Naive hashing method."""
+        return hash(self.as_tuple())
+
     def __str__(self):
-        return '{name}'.format(name=self.name)
+        return text_type('{name}'.format(name=self.name))
 
     def __repr__(self):
+        """Return an instance representation containing additional information."""
         return str('[{pk}] {name}'.format(pk=repr(self.pk), name=repr(self.name)))
 
 
@@ -216,37 +222,42 @@ class Activity(object):
             other = other.as_tuple()
         return self.as_tuple() == other
 
+    def __hash__(self):
+        """Naive hashing method."""
+        return hash(self.as_tuple())
+
     def __str__(self):
         if self.category is None:
             string = '{name}'.format(name=self.name)
         else:
-            string = '{name} ({category})'.format(name=self.name, category=self.category.name)
-        return string
+            string = '{name} ({category})'.format(
+                name=self.name, category=self.category.name)
+        return text_type(string)
 
     def __repr__(self):
+        """Return an instance representation containing additional information."""
         if self.category is None:
-            string = str('[{pk}] {name}').format(pk=repr(self.pk), name=repr(self.name))
+            string = '[{pk}] {name}'.format(pk=repr(self.pk), name=repr(self.name))
         else:
-            string = str('[{pk}] {name} ({category})').format(
+            string = '[{pk}] {name} ({category})'.format(
                 pk=repr(self.pk), name=repr(self.name), category=repr(self.category.name))
-        return string
+        return str(string)
 
 
 @python_2_unicode_compatible
 class Fact(object):
-    """Storage agnostic class for facts.
-
-    Note:
-        There is some weired black magic still to be integrated from
-        ``store.db.Storage``. Among it ``__get_facts()``.
-    """
+    """Storage agnostic class for facts."""
+    # [TODO]
+    # There is some weired black magic still to be integrated from
+    # ``store.db.Storage``. Among it ``__get_facts()``.
+    #
 
     def __init__(self, activity, start, end=None, pk=None, description=None, tags=None):
         """
         Initiate our new instance.
 
         Args:
-            activity (hamsterlib.Activity): Activity associated with this fact.
+            activity (hamster_lib.Activity): Activity associated with this fact.
             start (datetime.datetime): Start datetime of this fact.
             end (datetime.datetime, optional): End datetime of this fact. Defaults to ``None``.
             pk (optional): Primary key used by the backend to identify this instance. Defaults
@@ -267,13 +278,13 @@ class Fact(object):
         self.end = end
         self.description = description
         if tags is None:
-            tags = []
-        self.tags = list(tags)
+            tags = set()
+        self.tags = set(tags)
 
     @classmethod
     def create_from_raw_fact(cls, raw_fact):
         """
-        Construct a new ``hamsterlib.Fact`` from a ``raw fact`` string.
+        Construct a new ``hamster_lib.Fact`` from a ``raw fact`` string.
 
         Please note that this just handles the parsing and construction of a new
         Fact including *new* ``Category`` and ``Activity`` instances.
@@ -281,7 +292,7 @@ class Fact(object):
         to figure out if those probably already exist!
 
         This approach has the benefit of providing this one single point of entry.
-        Once any such raw fact has been turned in to a proper ``hamsterlib.Fact``
+        Once any such raw fact has been turned in to a proper ``hamster_lib.Fact``
         we can rely on it having encapsulated all.
 
         See serialized_name for details on the raw_fact format.
@@ -296,7 +307,7 @@ class Fact(object):
             raw_fact (str): Raw fact to be parsed.
 
         Returns:
-            hamsterlib.Fact: ``Fact`` object with data parsed from raw fact.
+            hamster_lib.Fact: ``Fact`` object with data parsed from raw fact.
 
         Note:
             * The resulting fact just contains any information stored in the ``raw_fact`` string.
@@ -379,12 +390,12 @@ class Fact(object):
                 ``hamster.lib.parse_fact``. It seems that here we only extract
                 times that then are understood relative to today.
                 This seems significantly less powerful that our
-                ``hamsterlib.helpers.parse_time_range`` method which itself has been
+                ``hamster_lib.helpers.parse_time_range`` method which itself has been
                 taken from legacy hamsters ``hamster-cli``.
             """
             # [FIXME]
             # Check if there is any rationale against using
-            # ``hamsterlib.helpers.parse_time_range`` instead.
+            # ``hamster_lib.helpers.parse_time_range`` instead.
             # This would also unify the 'complete missing information' fallback
             # behaviour.
 
@@ -593,57 +604,27 @@ class Fact(object):
         return self.start.date()
 
     @property
-    def serialized_name(self):
-        """
-        Provide a string representation of this fact.
-
-        Returns:
-            str: String serializing all relevant fields of this fact.
-
-        Note:
-            * Pattern: [<start>-<end>] <activity_name>[@<category_name>, <description_text>]
-            * Time format information from hamster-cli:
-                * 'YYYY-MM-DD hh:mm:ss': If date is missing, it will default to today.
-                    If time is missing, it will default to 00:00 for start time and 23:59 for
-                    end time.
-                * '-minutes': Relative time in minutes from the current date and time.
-            * Our version of this method does not contain time information!
-        """
-        result = text_type(self.activity.name)
-
-        if self.category:
-            result += "@%s" % self.category.name
-
-        if self.description or self.tags:
-            # [FIXME]
-            # Workaround until we address tags!
-            result += ', {}'.format(self.description or "")
-            # result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
-            #                    self.description or "")
-        return result
-
-    @property
     def category(self):
         """For convenience only."""
         return self.activity.category
 
     def as_tuple(self, include_pk=True):
         """
-        Provide a tuple representation of this facts relevant 'fields'.
+        Provide a tuple representation of this facts relevant attributes.
 
         Args:
             include_pk (bool): Whether to include the instances pk or not. Note that if
             ``False`` ``tuple.pk = False``!
 
         Returns:
-            FactTuple: Representing this categories values.
+            hamster_lib.FactTuple: Representing this categories values.
         """
         pk = self.pk
         if not include_pk:
             pk = False
         # [FIXME] Once tags are implemented, they need to be added here!
         return FactTuple(pk, self.activity.as_tuple(include_pk=include_pk), self.start,
-            self.end, self.description, [])
+            self.end, self.description, frozenset())
 
     def equal_fields(self, other):
         """
@@ -668,14 +649,58 @@ class Fact(object):
 
         return self.as_tuple() == other
 
+    def __hash__(self):
+        """Naive hashing method."""
+        return hash(self.as_tuple())
+
     def __str__(self):
-        time = self.start.strftime("%d-%m-%Y %H:%M")
+        result = text_type(self.activity.name)
+
+        if self.category:
+            result += "@%s" % text_type(self.category.name)
+
+        if self.description or self.tags:
+            # [FIXME]
+            # Workaround until we address tags!
+            result += ', {}'.format(text_type(self.description) or '')
+            # result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
+            #                    self.description or "")
+
+        if self.start:
+            start = self.start.strftime("%d-%m-%Y %H:%M")
+
         if self.end:
-            time = "%s - %s" % (time, self.end.strftime("%H:%M"))
-        return "%s %s" % (time, self.serialized_name)
+            end = self.end.strftime("%d-%m-%Y %H:%M")
+
+        if self.start and self.end:
+            result = '{} to {} {}'.format(start, end, result)
+        elif self.start and not self.end:
+            result = '{} {}'.format(start, result)
+
+        return text_type(result)
 
     def __repr__(self):
-        time = self.start.strftime("%d-%m-%Y %H:%M")
+        result = repr(self.activity.name)
+
+        if self.category:
+            result += "@%s" % repr(self.category.name)
+
+        if self.description or self.tags:
+            # [FIXME]
+            # Workaround until we address tags!
+            result += ', {}'.format(repr(self.description) or '')
+            # result += "%s, %s" % (" ".join(["#%s" % tag for tag in self.tags]),
+            #                    self.description or "")
+
+        if self.start:
+            start = repr(self.start.strftime("%d-%m-%Y %H:%M"))
+
         if self.end:
-            time = str('%s - %s') % (time, self.end.strftime("%H:%M"))
-        return str('%s %s') % (time, repr(self.serialized_name))
+            end = repr(self.end.strftime("%d-%m-%Y %H:%M"))
+
+        if self.start and self.end:
+            result = '{} to {} {}'.format(start, end, result)
+        elif self.start and not self.end:
+            result = '{} {}'.format(start, result)
+
+        return str(result)

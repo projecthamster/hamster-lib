@@ -9,7 +9,7 @@ from builtins import str as text
 import faker as faker_
 import pytest
 from freezegun import freeze_time
-from hamsterlib import Activity, Category, Fact
+from hamster_lib import Activity, Category, Fact
 
 faker = faker_.Faker()
 
@@ -60,14 +60,34 @@ class TestCategory(object):
         assert category is not other_category
         assert category == other_category
 
+    def test_is_hashable(self, category):
+        """Test that ``Category`` instances are hashable."""
+        assert hash(category)
+
+    def test_hash_method(self, category):
+        """Test that ``__hash__`` returns the hash expected."""
+        assert hash(category) == hash(category.as_tuple())
+
+    def test_hash_different_between_instances(self, category_factory):
+        """
+        Test that different instances have different hashes.
+
+        This is actually unneeded as we are merely testing the builtin ``hash``
+        function and ``Category.as_tuple`` but for reassurance we test it anyway.
+        """
+        assert hash(category_factory()) != hash(category_factory())
+
     def test__str__(self, category):
         """Test string representation."""
         assert '{name}'.format(name=category.name) == text(category)
 
     def test__repr__(self, category):
-        """Test debug representation."""
-        assert str('[{pk}] {name}').format(
-            pk=repr(category.pk), name=repr(category.name)) == repr(category)
+        """Test representation method."""
+        result = repr(category)
+        assert isinstance(result, str)
+        expectation = '[{pk}] {name}'.format(pk=repr(category.pk),
+            name=repr(category.name))
+        assert result == expectation
 
 
 class TestActivity(object):
@@ -133,6 +153,23 @@ class TestActivity(object):
         assert activity is not other
         assert activity == other
 
+    def test_is_hashable(self, activity):
+        """Test that ``Category`` instances are hashable."""
+        assert hash(activity)
+
+    def test_hash_method(self, activity):
+        """Test that ``__hash__`` returns the hash expected."""
+        assert hash(activity) == hash(activity.as_tuple())
+
+    def test_hash_different_between_instances(self, activity_factory):
+        """
+        Test that different instances have different hashes.
+
+        This is actually unneeded as we are merely testing the builtin ``hash``
+        function and ``Category.as_tuple`` but for reassurance we test it anyway.
+        """
+        assert hash(activity_factory()) != hash(activity_factory())
+
     def test__str__without_category(self, activity):
         activity.category = None
         assert text(activity) == '{name}'.format(name=activity.name)
@@ -143,14 +180,19 @@ class TestActivity(object):
 
     def test__repr__with_category(self, activity):
         """Make sure our debugging representation matches our expectations."""
-        assert repr(activity) == str('[{pk}] {name} ({category})').format(
+        result = repr(activity)
+        assert isinstance(result, str)
+        expectation = '[{pk}] {name} ({category})'.format(
             pk=repr(activity.pk), name=repr(activity.name), category=repr(activity.category.name))
+        assert result == expectation
 
     def test__repr__without_category(self, activity):
         """Make sure our debugging representation matches our expectations."""
         activity.category = None
-        assert repr(activity) == str('[{pk}] {name}').format(pk=repr(activity.pk),
-            name=repr(activity.name))
+        result = repr(activity)
+        assert isinstance(result, str)
+        expectation = '[{pk}] {name}'.format(pk=repr(activity.pk), name=repr(activity.name))
+        assert result == expectation
 
 
 class TestFact(object):
@@ -257,23 +299,6 @@ class TestFact(object):
         """Make sure the property returns just the date of ``Fact().start``."""
         assert fact.date == fact.start.date()
 
-    def test_serialized_name_with_category_and_description(self, fact):
-        """Make sure that the property returns a string matching our expectation."""
-        expectation = '{f.activity.name}@{f.category.name}, {f.description}'.format(f=fact)
-        assert fact.serialized_name == expectation
-
-    def test_serialized_name_with_category_no_description(self, fact):
-        """Make sure that the property returns a string matching our expectation."""
-        fact.description = None
-        expectation = '{f.activity.name}@{f.category.name}'.format(f=fact)
-        assert fact.serialized_name == expectation
-
-    def test_serialized_name_with_description_no_category(self, fact):
-        """Make sure that the property returns a string matching our expectation."""
-        fact.activity.category = None
-        expectation = '{f.activity.name}, {f.description}'.format(f=fact)
-        assert fact.serialized_name == expectation
-
     def test_category_property(self, fact):
         """Make sure the property returns this facts category."""
         assert fact.category == fact.activity.category
@@ -314,30 +339,90 @@ class TestFact(object):
         assert fact is not other
         assert fact == other
 
+    def test_is_hashable(self, fact):
+        """Test that ``Fact`` instances are hashable."""
+        assert hash(fact)
+
+    def test_hash_method(self, fact):
+        """Test that ``__hash__`` returns the hash expected."""
+        assert hash(fact) == hash(fact.as_tuple())
+
+    def test_hash_different_between_instances(self, fact_factory):
+        """
+        Test that different instances have different hashes.
+
+        This is actually unneeded as we are merely testing the builtin ``hash``
+        function and ``Fact.as_tuple`` but for reassurance we test it anyway.
+        """
+        assert hash(fact_factory()) != hash(fact_factory())
+
     def test__str__(self, fact):
-        expectation = '{start} - {end} {serialized_name}'.format(
-            start=fact.start.strftime("%d-%m-%Y %H:%M"),
-            end=fact.end.strftime("%H:%M"),
-            serialized_name=fact.serialized_name)
+        expectation = '{start} to {end} {activity}@{category}, {description}'.format(
+            start=fact.start.strftime('%d-%m-%Y %H:%M'),
+            end=fact.end.strftime('%d-%m-%Y %H:%M'),
+            activity=fact.activity.name,
+            category=fact.category.name,
+            description=fact.description
+        )
         assert text(fact) == expectation
 
     def test__str__no_end(self, fact):
         fact.end = None
-        expectation = '{start} {serialized_name}'.format(
-            start=fact.start.strftime("%d-%m-%Y %H:%M"),
-            serialized_name=fact.serialized_name)
+        expectation = '{start} {activity}@{category}, {description}'.format(
+            start=fact.start.strftime('%d-%m-%Y %H:%M'),
+            activity=fact.activity.name,
+            category=fact.category.name,
+            description=fact.description
+        )
+        assert text(fact) == expectation
+
+    def test__str__no_start_no_end(self, fact):
+        fact.start = None
+        fact.end = None
+        expectation = '{activity}@{category}, {description}'.format(
+            activity=fact.activity.name,
+            category=fact.category.name,
+            description=fact.description
+        )
         assert text(fact) == expectation
 
     def test__repr__(self, fact):
-        expectation = str('{start} - {end} {serialized_name}').format(
-            start=fact.start.strftime("%d-%m-%Y %H:%M"),
-            end=fact.end.strftime("%H:%M"),
-            serialized_name=repr(fact.serialized_name))
-        assert repr(fact) == expectation
+        """Make sure our debugging representation matches our expectations."""
+        expectation = '{start} to {end} {activity}@{category}, {description}'.format(
+            start=repr(fact.start.strftime('%d-%m-%Y %H:%M')),
+            end=repr(fact.end.strftime('%d-%m-%Y %H:%M')),
+            activity=repr(fact.activity.name),
+            category=repr(fact.category.name),
+            description=repr(fact.description)
+        )
+        result = repr(fact)
+        assert isinstance(result, str)
+        assert result == expectation
 
     def test__repr__no_end(self, fact):
+        """Test that facts without end datetime are represented properly."""
+        result = repr(fact)
+        assert isinstance(result, str)
         fact.end = None
-        expectation = str('{start} {serialized_name}').format(
-            start=fact.start.strftime("%d-%m-%Y %H:%M"),
-            serialized_name=repr(fact.serialized_name))
-        assert repr(fact) == expectation
+        expectation = '{start} {activity}@{category}, {description}'.format(
+            start=repr(fact.start.strftime('%d-%m-%Y %H:%M')),
+            activity=repr(fact.activity.name),
+            category=repr(fact.category.name),
+            description=repr(fact.description)
+        )
+        result = repr(fact)
+        assert isinstance(result, str)
+        assert result == expectation
+
+    def test__repr__no_start_no_end(self, fact):
+        """Test that facts without timeinfo are represented properly."""
+        fact.start = None
+        fact.end = None
+        expectation = '{activity}@{category}, {description}'.format(
+            activity=repr(fact.activity.name),
+            category=repr(fact.category.name),
+            description=repr(fact.description)
+        )
+        result = repr(fact)
+        assert isinstance(result, str)
+        assert result == expectation

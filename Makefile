@@ -63,7 +63,7 @@ develop:
 	pip install -U -r requirements/dev.txt
 
 lint:
-	flake8 hamsterlib tests
+	flake8 hamster_lib tests
 
 test:
 	py.test $(TEST_ARGS) tests/
@@ -80,15 +80,15 @@ coverage-html: coverage
 	$(BROWSER) htmlcov/index.html
 
 docs:
-	rm -f docs/hamsterlib.rst
+	rm -f docs/hamster-lib.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ hamsterlib
+	sphinx-apidoc -o docs/ hamster_lib
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
 
 isort:
-	isort --recursive setup.py hamsterlib/ tests/
+	isort --recursive setup.py hamster_lib/ tests/
 
 
 servedocs: docs
