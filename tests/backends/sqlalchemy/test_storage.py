@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import datetime
 
+import hamster_lib
 import pytest
 from hamster_lib.backends.sqlalchemy import (AlchemyActivity, AlchemyCategory,
                                              AlchemyFact, SQLAlchemyStore)
@@ -494,6 +495,14 @@ class TestFactManager():
         assert old_fact_count == new_fact_count
         assert old_alchemy_activity_count == new_alchemy_activity_count
         assert db_instance.as_hamster().equal_fields(fact)
+
+    def test_update_fact_with_same_timeframe(self, alchemy_store, alchemy_fact):
+        """Make sure we can update a fact with unchanged start/end times."""
+        fact = alchemy_fact.as_hamster()
+        fact.description = 'foobar'
+        assert isinstance(fact, hamster_lib.Fact)
+        result = alchemy_store.facts._update(fact)
+        assert result.description == fact.description
 
     def test_save_new(self, fact, alchemy_store):
         count_before = alchemy_store.session.query(AlchemyFact).count()

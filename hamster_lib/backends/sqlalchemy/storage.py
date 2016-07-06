@@ -766,7 +766,11 @@ class FactManager(storage.BaseFactManager):
             raise ValueError(message)
 
         facts_in_timeframe = self._get_all(fact.start, fact.end, partial=True)
-        if facts_in_timeframe and not facts_in_timeframe == [fact]:
+        # This works because the conditional gets evaluated from left to right.
+        # If ``facts_in_timeframe`` would be empty and hence would throw an
+        # index error, we wouldn't reach the offending part ...
+        if facts_in_timeframe and not (len(facts_in_timeframe) == 1 and
+                                       facts_in_timeframe[0].pk == fact.pk):
             message = _("Our database already contains facts for this facts timewindow."
                         " There can ever only be one fact at any given point in time")
             self.store.logger.error(message)
