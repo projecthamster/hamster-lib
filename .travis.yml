@@ -3,21 +3,15 @@
 
 language: python
 
-env:
-  - TOXENV=py34
-  - TOXENV=py27
-  - TOXENV=flake8
-  - TOXENV=pep257
-  - TOXENV=isort
-  - TOXENV=docs
-
+python:
+  - "2.7"
+  - "3.4"
 
 before_install:
-  - pip install codecov
+  - pip install -U codecov tox-travis
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install:
-  - pip install -U tox codecov
+#install:
 
 # command to run tests, e.g. python setup.py test
 script:
