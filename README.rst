@@ -1,5 +1,5 @@
 ===============================
-hamsterlib
+hamster-lib
 ===============================
 
 .. image:: https://img.shields.io/travis/projecthamster/hamster-lib/master.svg
