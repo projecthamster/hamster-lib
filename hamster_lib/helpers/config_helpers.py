@@ -169,5 +169,5 @@ def get_config_instance(fallback_config_instance, app_name=DEFAULT_APP_NAME,
     config = SafeConfigParser()
     path = get_config_path(app_name)
     if not config.read(path):
-        config = write_config_file(app_name, fallback_config_instance, file_name=file_name)
+        config = write_config_file(fallback_config_instance, app_name, file_name=file_name)
     return config
