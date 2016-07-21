@@ -167,7 +167,7 @@ def get_config_instance(fallback_config_instance, app_name=DEFAULT_APP_NAME,
             the content of our newly creating default config.
     """
     config = SafeConfigParser()
-    path = get_config_path(app_name)
+    path = get_config_path(app_name, file_name)
     if not config.read(path):
         config = write_config_file(fallback_config_instance, app_name, file_name=file_name)
     return config
