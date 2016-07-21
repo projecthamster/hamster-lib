@@ -147,6 +147,7 @@ html_theme_options = {
         '<img alt="Build Status" src="https://img.shields.io/travis/projecthamster/hamster-lib/master.svg">': 'https://travis-ci.org/projecthamster/hamster-lib',
         '<img alt="Release Status" src="https://img.shields.io/pypi/v/hamster-lib.svg">': 'https://travis-ci.org/projecthamster/hamster-lib',
         '<img alt="Coverage Status" src="https://img.shields.io/codecov/c/github/projecthamster/hamster-lib/master.svg">': 'https://codecov.io/github/projecthamster/hamsster-lib?branch=master',
+        '<img alt="Documentation Status" src="https://readthedocs.org/projects/hamster-lib/badge/?version=latest">': 'http://hamster-lib.docs.projecthamster.org/en/latest/',
         '<img alt="Requirements Status" src="https://requires.io/github/projecthamster/hamster-lib/requirements.svg?branch=master">': 'https://requires.io/github/projecthamster/hamster-lib/requirements/?branch=master',
     },
     'analytics_id': '',

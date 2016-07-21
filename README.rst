@@ -11,7 +11,7 @@ hamsterlib
 .. image:: https://img.shields.io/codecov/c/github/projecthamster/hamster-lib/master.svg
         :target: https://codecov.io/github/projecthamster/hamster-lib
 
-.. image:: https://readthedocs.org/projects/hamster-lib/badge/?version=master
+.. image:: https://readthedocs.org/projects/hamster-lib/badge/?version=latest
         :target: http://hamster-lib.docs.projecthamster.org/en/latest/
         :alt: Documentation Status
 
