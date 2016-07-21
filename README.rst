@@ -5,6 +5,9 @@ hamsterlib
 .. image:: https://img.shields.io/travis/projecthamster/hamster-lib/master.svg
         :target: https://travis-ci.org/projecthamster/hamster_lib
 
+.. image:: https://img.shields.io/pypi/v/hamster-lib.svg?maxAge=2592000
+         :target: https://pypi.python.org/pypi/hamster-gtk/
+
 .. image:: https://img.shields.io/codecov/c/github/projecthamster/hamster-lib/master.svg
         :target: https://codecov.io/github/projecthamster/hamster-lib
 
