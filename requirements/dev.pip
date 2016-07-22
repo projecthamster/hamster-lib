@@ -3,8 +3,8 @@
 # a reproduceable development environment. For check out ``docs/packaging``.
 # For package-requirements refer to ``setup.py``.
 
--r ./docs.txt
--r ./test.txt
+-r docs.pip
+-r test.pip
 
 bumpversion==0.5.3
 ipython==5.0.0
