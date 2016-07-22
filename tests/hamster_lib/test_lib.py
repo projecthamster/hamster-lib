@@ -24,6 +24,13 @@ class TestControler:
         with pytest.raises(KeyError):
             controler._get_store()
 
+    def test_update_config(self, controler, base_config, mocker):
+        """Make sure we assign new config and get a new store."""
+        controler._get_store = mocker.MagicMock()
+        controler.update_config({})
+        assert controler.config == {}
+        assert controler._get_store.called
+
     def test_get_logger(self, controler):
         """Make sure we recieve a logger that maches our expectations."""
         logger = controler._get_logger()

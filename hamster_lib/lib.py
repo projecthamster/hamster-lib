@@ -73,6 +73,11 @@ class HamsterControl(object):
         self.activities = self.store.activities
         self.facts = self.store.facts
 
+    def update_config(self, config):
+        """Use a new config dictionary and apply its settings."""
+        self.config = config
+        self.store = self._get_store()
+
     def _get_store(self):
         """
         Setup the store used by this controler.
