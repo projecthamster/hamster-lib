@@ -36,9 +36,10 @@ import os
 import pickle
 
 import hamster_lib
-import hamster_lib.helpers.helpers as helpers
 from future.utils import python_2_unicode_compatible
 from hamster_lib import objects
+from hamster_lib.helpers import time as time_helpers
+from hamster_lib.helpers import helpers
 
 
 @python_2_unicode_compatible
@@ -589,7 +590,7 @@ class BaseFactManager(BaseManager):
                 # which is why we need to except this case first.
                 pass
             elif isinstance(end, datetime.date):
-                end = helpers.end_day_to_datetime(end, self.store.config)
+                end = time_helpers.end_day_to_datetime(end, self.store.config)
             elif isinstance(end, datetime.time):
                 end = datetime.datetime.combine(datetime.date.today(), end)
             else:
@@ -644,7 +645,7 @@ class BaseFactManager(BaseManager):
         today = datetime.date.today()
         return self.get_all(
             datetime.datetime.combine(today, self.store.config['day_start']),
-            helpers.end_day_to_datetime(today, self.store.config)
+            time_helpers.end_day_to_datetime(today, self.store.config)
         )
 
     def _start_tmp_fact(self, fact):
