@@ -16,6 +16,7 @@ from . import factories
 
 register(factories.CategoryFactory)
 register(factories.ActivityFactory)
+register(factories.TagFactory)
 register(factories.FactFactory)
 
 faker = faker_.Faker()

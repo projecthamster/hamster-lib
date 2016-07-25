@@ -21,8 +21,7 @@ class TestLoadTmpFact(object):
         with pytest.raises(TypeError):
             helpers._load_tmp_fact(base_config['tmpfile_path'])
 
-    def test_valid(self, base_config, tmp_fact, fact):
+    def test_valid(self, base_config, tmp_fact):
         """Make sure that we return the stored 'ongoing fact' as expected."""
-        fact.end = None
         result = helpers._load_tmp_fact(base_config['tmpfile_path'])
-        assert result == fact
+        assert result == tmp_fact

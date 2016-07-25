@@ -12,15 +12,19 @@ from pytest_factoryboy import register
 
 from .hamster_lib import factories as lib_factories
 
-register(lib_factories.FactFactory)
 register(lib_factories.CategoryFactory)
 register(lib_factories.ActivityFactory)
+register(lib_factories.TagFactory)
+register(lib_factories.FactFactory)
 
 
 # This fixture is used by ``test_helpers`` and ``test_storage``.
 @pytest.fixture
-def tmp_fact(base_config, fact):
+def tmp_fact(base_config, fact_factory):
     """Provide an existing 'ongoing fact'."""
+    # For reasons unknow ``fact.tags`` would be empty when using the ``fact``
+    # fixture.
+    fact = fact_factory()
     fact.end = None
     with open(base_config['tmpfile_path'], 'wb') as fobj:
         pickle.dump(fact, fobj)
@@ -100,13 +104,24 @@ def new_category_values():
 
 
 @pytest.fixture
-def new_fact_values():
+def new_tag_values():
+    """Return garanteed modified values for a given tag."""
+    def modify(tag):
+        return {
+            'name': tag.name + 'foobar',
+        }
+    return modify
+
+
+@pytest.fixture
+def new_fact_values(tag_factory):
     """Provide guaranteed different Fact-values for a given Fact-instance."""
     def modify(fact):
         return {
             'start': fact.start - datetime.timedelta(days=10),
             'end': fact.end - datetime.timedelta(days=10),
             'description': fact.description + 'foobar',
+            'tags': set([tag_factory() for i in range(5)])
         }
     return modify
 

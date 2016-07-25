@@ -20,7 +20,8 @@ requirements = [
     'future',
     'sqlalchemy',
     'icalendar',
-    'configparser',
+    'six',
+    'configparser >= 3.5.0b2',
 ]
 
 setup(

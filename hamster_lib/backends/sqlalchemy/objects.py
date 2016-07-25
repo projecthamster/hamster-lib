@@ -43,7 +43,7 @@ Note:
 from __future__ import unicode_literals
 
 from future.utils import python_2_unicode_compatible
-from hamster_lib import Activity, Category, Fact
+from hamster_lib import Activity, Category, Fact, Tag
 from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer,
                         MetaData, Table, Unicode, UniqueConstraint)
 from sqlalchemy.orm import mapper, relationship
@@ -55,11 +55,7 @@ DEFAULT_STRING_LENGTH = 254
 class AlchemyCategory(Category):
     def __init__(self, pk, name):
         """
-        Initiate a new SQLAlchemy activity instance.
-
-        Args:
-            category (hamster_lib.Category): A hamster category that is to
-                be represented as a backend object.
+        Initiate a new SQLAlchemy category instance.
 
         Raises:
             TypeError: If ``category`` is not a ``Category`` instance.
@@ -110,8 +106,29 @@ class AlchemyActivity(Activity):
 
 
 @python_2_unicode_compatible
+class AlchemyTag(Tag):
+    def __init__(self, pk, name):
+        """
+        Initiate a new SQLAlchemy tag instance.
+
+        Raises:
+            TypeError: If ``category`` is not a ``Category`` instance.
+        """
+
+        self.pk = pk
+        self.name = name
+
+    def as_hamster(self):
+        """Provide an convenient way to return it as a ``hamster_lib.Tag`` instance."""
+        return Tag(
+            pk=self.pk,
+            name=self.name
+        )
+
+
+@python_2_unicode_compatible
 class AlchemyFact(Fact):
-    def __init__(self, pk, activity, start, end, description, tags):
+    def __init__(self, pk, activity, start, end, description):
         """
         Initiate a new instance.
 
@@ -128,9 +145,8 @@ class AlchemyFact(Fact):
         self.start = start
         self.end = end
         self.description = description
-        # [FIXME]
-        # We currently don't support tags on the actual db level!
-        self.tags = tags
+        # Tags can only be assigned after the fact has been created.
+        self.tags = list()
 
     def as_hamster(self):
         """Provide an convenient way to return it as a ``hamster_lib.Fact`` instance."""
@@ -140,6 +156,7 @@ class AlchemyFact(Fact):
             start=self.start,
             end=self.end,
             description=self.description,
+            tags=set([tag.as_hamster() for tag in self.tags]),
         )
 
 
@@ -169,6 +186,16 @@ mapper(AlchemyActivity, activities, properties={
     'category': relationship(AlchemyCategory, backref='activities'),
 })
 
+tags = Table(
+    'tags', metadata,
+    Column('id', Integer, primary_key=True),
+    Column('name', Unicode(DEFAULT_STRING_LENGTH), unique=True)
+)
+
+mapper(AlchemyTag, tags, properties={
+    'pk': tags.c.id,
+})
+
 facts = Table(
     'facts', metadata,
     Column('id', Integer, primary_key=True),
@@ -181,4 +208,11 @@ facts = Table(
 mapper(AlchemyFact, facts, properties={
     'pk': facts.c.id,
     'activity': relationship(AlchemyActivity, backref='facts'),
+    'tags': relationship(AlchemyTag, backref='facts', secondary=lambda: facttags),
 })
+
+facttags = Table(
+    'facttags', metadata,
+    Column('fact_id', Integer, ForeignKey(facts.c.id)),
+    Column('tag_id', Integer, ForeignKey(tags.c.id)),
+)

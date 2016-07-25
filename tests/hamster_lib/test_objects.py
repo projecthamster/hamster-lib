@@ -9,7 +9,7 @@ from builtins import str as text
 import faker as faker_
 import pytest
 from freezegun import freeze_time
-from hamster_lib import Activity, Category, Fact
+from hamster_lib import Activity, Category, Fact, Tag
 
 faker = faker_.Faker()
 
@@ -195,6 +195,82 @@ class TestActivity(object):
         assert result == expectation
 
 
+class TestTag(object):
+    def test_init_valid(self, name_string_valid_parametrized, pk_valid_parametrized):
+        """Make sure that Tag constructor accepts all valid values."""
+        tag = Tag(name_string_valid_parametrized, pk_valid_parametrized)
+        assert tag.name == name_string_valid_parametrized
+        assert tag.pk == pk_valid_parametrized
+
+    def test_init_invalid(self, name_string_invalid_parametrized):
+        """Make sure that Tag constructor rejects all invalid values."""
+        with pytest.raises(ValueError):
+            Tag(name_string_invalid_parametrized)
+
+    def test_as_tuple_include_pk(self, tag):
+        """Make sure tags tuple representation works as intended and pk is included."""
+        assert tag.as_tuple() == (tag.pk, tag.name)
+
+    def test_as_tuple_exclude_pf(self, tag):
+        """Make sure tags tuple representation works as intended and pk is excluded."""
+        assert tag.as_tuple(include_pk=False) == (False, tag.name)
+
+    def test_equal_fields_true(self, tag):
+        """Make sure that two tags that differ only in their PK compare equal."""
+        other_tag = copy.deepcopy(tag)
+        other_tag.pk = 1
+        assert tag.equal_fields(other_tag)
+
+    def test_equal_fields_false(self, tag):
+        """Make sure that two tags that differ not only in their PK compare unequal."""
+        other_tag = copy.deepcopy(tag)
+        other_tag.pk = 1
+        other_tag.name += 'foobar'
+        assert tag.equal_fields(other_tag) is False
+
+    def test__eq__false(self, tag):
+        """Make sure that two distinct tags return ``False``."""
+        other_tag = copy.deepcopy(tag)
+        other_tag.pk = 1
+        assert tag is not other_tag
+        assert tag != other_tag
+
+    def test__eq__true(self, tag):
+        """Make sure that two identical categories return ``True``."""
+        other_tag = copy.deepcopy(tag)
+        assert tag is not other_tag
+        assert tag == other_tag
+
+    def test_is_hashable(self, tag):
+        """Test that ``Tag`` instances are hashable."""
+        assert hash(tag)
+
+    def test_hash_method(self, tag):
+        """Test that ``__hash__`` returns the hash expected."""
+        assert hash(tag) == hash(tag.as_tuple())
+
+    def test_hash_different_between_instances(self, tag_factory):
+        """
+        Test that different instances have different hashes.
+
+        This is actually unneeded as we are merely testing the builtin ``hash``
+        function and ``Tag.as_tuple`` but for reassurance we test it anyway.
+        """
+        assert hash(tag_factory()) != hash(tag_factory())
+
+    def test__str__(self, tag):
+        """Test string representation."""
+        assert '{name}'.format(name=tag.name) == text(tag)
+
+    def test__repr__(self, tag):
+        """Test representation method."""
+        result = repr(tag)
+        assert isinstance(result, str)
+        expectation = '[{pk}] {name}'.format(pk=repr(tag.pk),
+            name=repr(tag.name))
+        assert result == expectation
+
+
 class TestFact(object):
     def test_fact_init_valid(self, activity, start_end_datetimes, pk_valid_parametrized,
             description_valid_parametrized, tag_list_valid_parametrized):
@@ -306,12 +382,13 @@ class TestFact(object):
     def test_as_tuple_include_pk(self, fact):
         """Make sure that conversion to a tuple matches our expectations."""
         assert fact.as_tuple() == (fact.pk, fact.activity.as_tuple(include_pk=True),
-            fact.start, fact.end, fact.description, fact.tags)
+            fact.start, fact.end, fact.description, frozenset(fact.tags))
 
     def test_as_tuple_exclude_pk(self, fact):
         """Make sure that conversion to a tuple matches our expectations."""
         assert fact.as_tuple(include_pk=False) == (False, fact.activity.as_tuple(include_pk=False),
-            fact.start, fact.end, fact.description, fact.tags)
+            fact.start, fact.end, fact.description,
+            frozenset([tag.as_tuple(include_pk=False) for tag in fact.tags]))
 
     def test_equal_fields_true(self, fact):
         """Make sure that two facts that differ only in their PK compare equal."""

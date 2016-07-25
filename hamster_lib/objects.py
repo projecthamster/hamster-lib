@@ -29,6 +29,7 @@ from six import text_type
 
 # Named tuples used  to 'serialize' our object instances.
 CategoryTuple = namedtuple('CategoryTuple', ('pk', 'name'))
+TagTuple = namedtuple('TagTuple', ('pk', 'name'))
 ActivityTuple = namedtuple('ActivityTuple', ('pk', 'name', 'category', 'deleted'))
 FactTuple = namedtuple('FactTuple', ('pk', 'activity', 'start', 'end', 'description', 'tags'))
 
@@ -245,6 +246,93 @@ class Activity(object):
 
 
 @python_2_unicode_compatible
+class Tag(object):
+    """Storage agnostic class for tags."""
+
+    def __init__(self, name, pk=None):
+        """
+        Initialize this instance.
+
+        Args:
+            name (str): This tags name.
+            pk: The unique primary key used by the backend.
+        """
+
+        self.pk = pk
+        self.name = name
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        if not name:
+            # Catching ``None`` and ``empty string``.
+            raise ValueError(_("You need to specify a name."))
+        self._name = text_type(name)
+
+    def as_tuple(self, include_pk=True):
+        """
+        Provide a tuple representation of this tags relevant 'fields'.
+
+        Args:
+            include_pk (bool): Whether to include the instances pk or not.
+            Note that if ``False`` ``tuple.pk = False``!
+
+        Returns:
+            TagTuple: Representing this tags values.
+        """
+        pk = self.pk
+        if not include_pk:
+            pk = False
+        return TagTuple(pk=pk, name=self.name)
+
+    def equal_fields(self, other):
+        """
+        Compare this instances fields with another tag. This excludes comparing the PK.
+
+        Args:
+            other (Tag): Tag to compare this instance with.
+
+        Returns:
+            bool: ``True`` if all fields but ``pk`` are equal, ``False`` if not.
+
+        Note:
+            This is particularly useful if you want to compare a new ``Tag`` instance
+            with a freshly created backend instance. As the latter will probably have a
+            primary key assigned now and so ``__eq__`` would fail.
+        """
+        if other:
+            other = other.as_tuple(include_pk=False)
+        else:
+            other = None
+
+        return self.as_tuple(include_pk=False) == other
+
+    def __eq__(self, other):
+        if other:
+            if isinstance(other, TagTuple):
+                pass
+            else:
+                other = other.as_tuple()
+        else:
+            other = None
+        return self.as_tuple() == other
+
+    def __hash__(self):
+        """Naive hashing method."""
+        return hash(self.as_tuple())
+
+    def __str__(self):
+        return text_type('{name}'.format(name=self.name))
+
+    def __repr__(self):
+        """Return an instance representation containing additional information."""
+        return str('[{pk}] {name}'.format(pk=repr(self.pk), name=repr(self.name)))
+
+
+@python_2_unicode_compatible
 class Fact(object):
     """Storage agnostic class for facts."""
     # [TODO]
@@ -277,9 +365,9 @@ class Fact(object):
         self.start = start
         self.end = end
         self.description = description
-        if tags is None:
-            tags = set()
-        self.tags = set(tags)
+        self.tags = set()
+        if tags:
+            self.tags = set(tags)
 
     @classmethod
     def create_from_raw_fact(cls, raw_fact):
@@ -622,9 +710,9 @@ class Fact(object):
         pk = self.pk
         if not include_pk:
             pk = False
-        # [FIXME] Once tags are implemented, they need to be added here!
         return FactTuple(pk, self.activity.as_tuple(include_pk=include_pk), self.start,
-            self.end, self.description, frozenset())
+            self.end, self.description,
+            frozenset([tag.as_tuple(include_pk=include_pk) for tag in self.tags]))
 
     def equal_fields(self, other):
         """
