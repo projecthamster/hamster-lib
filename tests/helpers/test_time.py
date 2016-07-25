@@ -7,6 +7,7 @@ import datetime
 import pytest
 from freezegun import freeze_time
 from hamster_lib.helpers import time as time_helpers
+from hamster_lib.helpers.time import TimeFrame
 
 
 class TestGetDayEnd(object):
@@ -38,45 +39,124 @@ class TestEndDayToDatetime(object):
 
 class TestParseTimeRange(object):
     @pytest.mark.parametrize(('time_info', 'expectation'), [
-        ('',
-         time_helpers.TimeFrame(None, None, None, None, None)),
-        ('foobar',
-         time_helpers.TimeFrame(None, None, None, None, None)),
-        ('-30',
-         time_helpers.TimeFrame(None, None, None, None, datetime.timedelta(minutes=30))),
-        ('2014-01-05 18:15 - 2014-04-01 05:19',
-         time_helpers.TimeFrame(datetime.date(2014, 1, 5), datetime.time(18, 15),
-            datetime.date(2014, 4, 1), datetime.time(5, 19), None)),
-        ('2014-01-05 - 2014-04-01 05:19',
-         time_helpers.TimeFrame(datetime.date(2014, 1, 5), None,
-            datetime.date(2014, 4, 1), datetime.time(5, 19), None)),
-        ('2014-01-05 - 2014-04-01',
-         time_helpers.TimeFrame(datetime.date(2014, 1, 5), None,
-            datetime.date(2014, 4, 1), None, None)),
-        # We can ommit whitespace between two absolute dates.
-        ('2014-01-05-2014-04-01',
-         time_helpers.TimeFrame(datetime.date(2014, 1, 5), None,
-            datetime.date(2014, 4, 1), None, None)),
-        # More than one whitespace afer '-' however will prevent parsing of the rest.
-        ('2014-01-05 -     2014-04-01',
-         time_helpers.TimeFrame(datetime.date(2014, 1, 5), None,
-            None, None, None)),
-        ('2014-04-01', time_helpers.TimeFrame(datetime.date(2014, 4, 1), None, None, None, None)),
-        ('18:43', time_helpers.TimeFrame(None, datetime.time(18, 43), None, None, None)),
+        ('', (TimeFrame(None, None, None, None, None), '')),
+        ('foobar', (TimeFrame(None, None, None, None, None), 'foobar')),
+        ('-30 foo', (TimeFrame(None, None, None, None, datetime.timedelta(minutes=30)), 'foo')),
+        ('2014-01-05 18:15 - 2014-04-01 05:19 foobar',
+         (TimeFrame(datetime.date(2014, 1, 5), datetime.time(18, 15),
+                    datetime.date(2014, 4, 1), datetime.time(5, 19), None),
+          'foobar')),
+        ('2014-01-05 - 2014-04-01 05:19 foobar',
+         (TimeFrame(datetime.date(2014, 1, 5), None,
+            datetime.date(2014, 4, 1), datetime.time(5, 19), None), 'foobar')),
+        ('2014-01-05 - 2014-04-01 foobar',
+         (TimeFrame(datetime.date(2014, 1, 5), None,
+            datetime.date(2014, 4, 1), None, None), 'foobar')),
+        ('2014-04-01 foo', (TimeFrame(datetime.date(2014, 4, 1), None, None, None, None), 'foo')),
+        ('18:43 foo', (TimeFrame(None, datetime.time(18, 43), None, None, None), 'foo')),
+        # Invalid/non-matched strings
         # We can not ommit the start and just specify the end.
-        (' - 2014-04-01', time_helpers.TimeFrame(None, None, None, None, None)),
+        (' - 2014-04-01', (TimeFrame(None, None, None, None, None), '- 2014-04-01')),
+        # More than one whitespace before/afer will prevent the end info to be
+        # parsed.'.
+        ('2014-01-05 -     2014-04-01',
+         (TimeFrame(datetime.date(2014, 1, 5), None, None, None, None),
+          '-     2014-04-01')),
+        ('2014-01-05-2014-04-01 foobar',
+         (TimeFrame(None, None, None, None, None), '2014-01-05-2014-04-01 foobar')),
     ])
     def test_various_time_infos(self, time_info, expectation):
         """Make sure that our parser works according to our expectations."""
-        assert time_helpers.parse_time_range(time_info) == expectation
-
-    def test_with_relative_and_absolute_time_info(self):
-        """If a relative time offset is given as well as an absolute timespan, expect an error!"""
-        with pytest.raises(ValueError):
-            time_helpers.parse_time_range('-30 2014-01-05 18:15 - 2014-04-01 05:19')
+        assert time_helpers.extract_time_info(time_info) == expectation
 
 
 class TestCompleteTimeFrame(object):
+    @pytest.mark.parametrize(('timeframe', 'expectation'), [
+        (
+            time_helpers.TimeFrame(
+                start_date=None,
+                start_time=None,
+                end_date=None,
+                end_time=None,
+                offset=datetime.timedelta(minutes=90)
+            ),
+            (
+                datetime.datetime(2015, 12, 10, 11, 0, 0),
+                None
+            ),
+        ),
+        (
+            time_helpers.TimeFrame(
+                start_date=None,
+                start_time=None,
+                end_date=None,
+                end_time=None,
+                offset=None
+            ),
+            (
+                None,
+                None
+            ),
+        ),
+        (
+            time_helpers.TimeFrame(
+                start_date=datetime.date(2015, 12, 1),
+                start_time=None,
+                end_date=datetime.date(2015, 12, 4),
+                end_time=None,
+                offset=None
+            ),
+            (
+                datetime.datetime(2015, 12, 1, 5, 30, 0),
+                datetime.datetime(2015, 12, 5, 5, 29, 59)
+            ),
+        ),
+        (
+            time_helpers.TimeFrame(
+                start_date=None,
+                start_time=datetime.time(18, 55),
+                end_date=None,
+                end_time=datetime.time(23, 2),
+                offset=None
+            ),
+            (
+                datetime.datetime(2015, 12, 10, 18, 55, 0),
+                datetime.datetime(2015, 12, 10, 23, 2, 0)
+            ),
+        ),
+        (
+            time_helpers.TimeFrame(
+                start_date=datetime.date(2015, 12, 1),
+                start_time=None,
+                end_date=None,
+                end_time=datetime.time(17, 0, 0),
+                offset=None
+            ),
+            (
+                datetime.datetime(2015, 12, 1, 5, 30, 0),
+                datetime.datetime(2015, 12, 10, 17, 0, 0)
+            ),
+        ),
+        (
+            time_helpers.TimeFrame(
+                start_date=datetime.date(2015, 12, 1),
+                start_time=None,
+                end_date=None,
+                end_time=datetime.time(2, 0, 0),
+                offset=None
+            ),
+            (
+                datetime.datetime(2015, 12, 1, 5, 30, 0),
+                datetime.datetime(2015, 12, 10, 2, 0, 0)
+            ),
+        ),
+    ])
+    @freeze_time('2015-12-10 12:30')
+    def test_various_valid_timeframes_partial(self, base_config, timeframe, expectation):
+        """Test that completing timeframe only where some info is present works.""",
+        assert time_helpers.complete_timeframe(timeframe, base_config,
+            partial=True) == expectation
+
     @pytest.mark.parametrize(('timeframe', 'expectation'), [
         (
             time_helpers.TimeFrame(

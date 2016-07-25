@@ -21,10 +21,10 @@
 from __future__ import unicode_literals
 
 import datetime
-import re
 from collections import namedtuple
 
 from future.utils import python_2_unicode_compatible
+from hamster_lib.helpers import time as time_helpers
 from six import text_type
 
 # Named tuples used  to 'serialize' our object instances.
@@ -370,7 +370,7 @@ class Fact(object):
             self.tags = set(tags)
 
     @classmethod
-    def create_from_raw_fact(cls, raw_fact):
+    def create_from_raw_fact(cls, raw_fact, config=None):
         """
         Construct a new ``hamster_lib.Fact`` from a ``raw fact`` string.
 
@@ -393,6 +393,8 @@ class Fact(object):
 
         Args:
             raw_fact (str): Raw fact to be parsed.
+            config (dict, optional): Controler config provided additional settings
+                relevant for timeframe completion.
 
         Returns:
             hamster_lib.Fact: ``Fact`` object with data parsed from raw fact.
@@ -430,98 +432,6 @@ class Fact(object):
                 front, back = front.strip(), back.strip()
             return (front, back)
 
-        def time_activity_split(string):
-            """
-            Separate time information from activity name.
-
-            Args:
-                string (str): Expects a string ``<timeinformation> <activity>``.
-
-            Returns
-                tuple: ``(time, activity)``. If no seperating whitespace was found,
-                    ``time=None``. Both substrings will have their leading/tailing
-                    whitespace trimmed.
-
-            Note:
-                * We separate at the most left whitespace. That means that our
-                timeinformation substring may very well include additional
-                whitespaces.
-                * If no whitespace is found, we consider the entire string to be
-                the activity name.
-            """
-
-            result = string.rsplit(' ', 1)
-            length = len(result)
-            if length == 1:
-                time, activity = None, result[0].strip()
-            else:
-                time, activity = tuple(result)
-                time, activity = time.strip(), activity.strip()
-            return (time, activity)
-
-        def parse_time_info(string):
-            """
-            Parse time info of a given raw fact.
-
-            Args:
-                string (str): String representing the timeinfo. The string is expected
-                    to have one of the following three formats: ``-offset in minutes``,
-                    ``HH:MM`` or ``HH:MM-HH:MM``.
-
-            Returns:
-                tuple: ``(start_time, end_time)`` tuple, where both elements are
-                    ``datetime.datetime`` instances. If no end time was extracted
-                    ``end_time=None``.
-
-            Note:
-                This parsing method is is informed by the legacy hamster
-                ``hamster.lib.parse_fact``. It seems that here we only extract
-                times that then are understood relative to today.
-                This seems significantly less powerful that our
-                ``hamster_lib.helpers.parse_time_range`` method which itself has been
-                taken from legacy hamsters ``hamster-cli``.
-            """
-            # [FIXME]
-            # Check if there is any rationale against using
-            # ``hamster_lib.helpers.parse_time_range`` instead.
-            # This would also unify the 'complete missing information' fallback
-            # behaviour.
-
-            now = datetime.datetime.now()
-
-            delta_re = re.compile("^-[0-9]{1,3}$")
-            time_re = re.compile("^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$")
-            time_range_re = re.compile(
-                "^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$")
-
-            if delta_re.match(string):
-                start = now + datetime.timedelta(minutes=int(string))
-                result = (start, None)
-            elif time_re.match(string):
-                start = datetime.datetime.combine(
-                    now.date(),
-                    datetime.datetime.strptime(string, "%H:%M").time()
-                )
-                result = (start, None)
-            elif time_range_re.match(string):
-                start, end = string.split("-")
-                start = datetime.datetime.combine(
-                    now.date(),
-                    datetime.datetime.strptime(start, "%H:%M").time()
-                )
-                end = datetime.datetime.combine(
-                    now.date(),
-                    datetime.datetime.strptime(end, "%H:%M").time()
-                )
-                result = (start, end)
-            else:
-                raise ValueError(_(
-                    "You seem to have passed some time information ('{}'), however"
-                    " we were unable to identify the format it was given in.".format(
-                        time_info)
-                ))
-            return result
-
         def comma_split(string):
             """
             Split string at the most left comma.
@@ -549,13 +459,12 @@ class Fact(object):
                 category, description = category.strip(), description.strip()
             return (category.strip(), description)
 
-        front, back = at_split(raw_fact)
+        if not config:
+            config = {'day_start': datetime.time(0, 0, 0)}
 
-        time_info, activity_name = time_activity_split(front)
-        if time_info:
-            start, end = parse_time_info(time_info)
-        else:
-            start, end = None, None
+        time_info, rest = time_helpers.extract_time_info(raw_fact)
+        start, end = time_helpers.complete_timeframe(time_info, config, partial=True)
+        activity_name, back = at_split(rest)
 
         if back:
             category_name, description = comma_split(back)

@@ -286,7 +286,7 @@ class TestFact(object):
         assert fact.tags == tag_list_valid_parametrized
 
     def test_create_from_raw_fact_valid(self, raw_fact_parametrized):
-        """Make sure the constructed ``Fact``s anatomy reflets our expectations."""
+        """Make sure the constructed ``Fact``s anatomy reflects our expectations."""
         raw_fact, expectation = raw_fact_parametrized
         fact = Fact.create_from_raw_fact(raw_fact)
         assert fact.start == expectation['start']

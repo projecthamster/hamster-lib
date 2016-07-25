@@ -631,6 +631,26 @@ class TestFactManager():
         db_instance = alchemy_store.session.query(AlchemyFact).get(result.pk)
         assert db_instance.as_hamster().equal_fields(fact)
 
+    def test_update_nonexisting_fact(self, alchemy_store, alchemy_fact, new_fact_values):
+        """Make sure that trying to update a fact that does not exist raises error."""
+        fact = alchemy_fact.as_hamster()
+        new_values = new_fact_values(fact)
+        fact.start = new_values['start']
+        fact.end = new_values['end']
+        fact.pk += 100
+        with pytest.raises(KeyError):
+            alchemy_store.facts._update(fact)
+
+    def test_update_new_fact(self, alchemy_store, alchemy_fact, new_fact_values):
+        """Make sure that trying to update a new fact ,e.g. one without a pk."""
+        fact = alchemy_fact.as_hamster()
+        new_values = new_fact_values(fact)
+        fact.start = new_values['start']
+        fact.end = new_values['end']
+        fact.pk = None
+        with pytest.raises(ValueError):
+            alchemy_store.facts._update(fact)
+
     def test_update_fact_new_valid_timeframe(self, alchemy_store, alchemy_fact, new_fact_values):
         """Make sure updating an existing fact works as expected."""
         fact = alchemy_fact.as_hamster()

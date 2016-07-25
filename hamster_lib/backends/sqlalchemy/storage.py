@@ -1006,8 +1006,9 @@ class FactManager(storage.BaseFactManager):
 
         alchemy_fact = self.store.session.query(AlchemyFact).get(fact.pk)
         if not alchemy_fact:
+            message = _("No fact with PK: {} was found.".format(fact.pk))
             self.store.logger.error(message)
-            raise KeyError(_("No fact with PK: {} was found.".format(fact.pk)))
+            raise KeyError(message)
 
         alchemy_fact.start = fact.start
         alchemy_fact.end = fact.end

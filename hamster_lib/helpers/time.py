@@ -82,28 +82,30 @@ def end_day_to_datetime(end_day, config):
     return end
 
 
-def parse_time_range(time_info):
+def extract_time_info(text):
     """
-    Generic parser for timerange information.
+    Extract valid time(-range) information from a string according to our specs.
 
     Args:
-        time_info (str): Raw string containing encoded time(-span) information.
+        text (text_type): Raw string containing encoded time(-span) information.
             Date/Time-combinations are expected in a ``YYYY-MM-DD hh:mm`` format.
             Relative  times can be given with ``-minutes``.
             Please note that either *relative* or *absolute* times will be considered.
+            It is possible to either just specify a start date (as time, date,
+            or datetime) or a timerange (start and end). If a timerange is given
+            start and end need to be delimited exactly by ' - '.
 
     Returns:
-        TimeFrame: Tuple that provides convinient access to all seperate elements
-            extracted from the raw string.
+        tuple: ``(timeframe, rest)`` tuple. Where ``timeframe`` is a tuple that
+            provides convinient access to all seperate elements extracted from
+            the raw string and ``rest`` is any substring stat has not been
+            matched to valid time/date info.
 
     Note:
         * Relative times always return just ``(None, None, None, None, timedelta)``.
     """
 
     # [TODO] Add a list of supported formats.
-
-    # Credits to tbaugis (https://github.com/tbaugis) for the original
-    # implementation in hamster-cli.
 
     def get_time(time):
         """Convert a times string representation to datetime.time instance."""
@@ -117,64 +119,97 @@ def parse_time_range(time_info):
             date = datetime.datetime.strptime(date.strip(), "%Y-%m-%d").date()
         return date
 
-    patterns = (
-        '^((?P<relative>-\d.+)?|('
-        '(?P<date1>\d{4}-\d{2}-\d{2})?'
-        '(?P<time1> ?\d{2}:\d{2})?'
-        '(?P<dash> ?-)?'
-        '(?P<date2> ?\d{4}-\d{2}-\d{2})?'
-        '(?P<time2> ?\d{2}:\d{2})?)?)'
-        '(?P<rest>\D.+)?$'
-    )
-    result = TimeFrame(None, None, None, None, None)
-    match = re.compile(patterns).match(time_info)
-    if match:
-        fragments = match.groupdict()
-
-        if fragments['relative']:
-            try:
-                result = TimeFrame(None, None, None, None,
-                    datetime.timedelta(minutes=abs(int(fragments['relative']))))
-            except ValueError:
-                raise ValueError(_(
-                    "It seems you provided more than just a relative time"
-                    " Please check your time_info string. You can only use relative OR"
-                    " absolute time statements."
-                ))
+    def date_time_from_groupdict(groupdict):
+        """Return a date/time tuple by introspecting a passed dict."""
+        if groupdict['datetime']:
+            dt = parse_time(groupdict['datetime'])
+            time = dt.time()
+            date = dt.date()
         else:
-            result = TimeFrame(
-                start_date=get_date(fragments.get('date1', None)),
-                start_time=get_time(fragments.get('time1', None)),
-                end_date=get_date(fragments.get('date2', None)),
-                end_time=get_time(fragments.get('time2', None)),
-                offset=None
-            )
-    return result
+            date = get_date(groupdict.get('date', None))
+            time = get_time(groupdict.get('time', None))
+        return (date, time)
+
+    # Baseline/default values.
+    result = {
+        'start_date': None,
+        'start_time': None,
+        'end_date': None,
+        'end_time': None,
+        'offset': None
+    }
+    rest = None
+
+    # Individual patterns for time/date  substrings.
+    relative_pattern = '(?P<relative>-\d+)'
+    time_pattern = '(?P<time>\d{2}:\d{2})'
+    date_pattern = '(?P<date>\d{4}-\d{2}-\d{2})'
+    datetime_pattern = '(?P<datetime>\d{4}-\d{2}-\d{2} \d{2}:\d{2})'
+
+    start = re.match('^({}|{}|{}|{}) (?P<rest>.+)'.format(relative_pattern, datetime_pattern,
+        date_pattern, time_pattern), text)
+    if start:
+        start_groups = start.groupdict()
+        if start_groups['relative']:
+            result['offset'] = datetime.timedelta(minutes=abs(int(start_groups['relative'])))
+        else:
+            date, time = date_time_from_groupdict(start_groups)
+            result['start_date'] = date
+            result['start_time'] = time
+        rest = start_groups['rest']
+
+        if rest:
+            end = re.match('^- ({}|{}|{}) (?P<rest>.+)'.format(datetime_pattern, date_pattern,
+                time_pattern), rest)
+        else:
+            end = None
+
+        if end and not start_groups['relative']:
+            end_groups = end.groupdict()
+            date, time = date_time_from_groupdict(end_groups)
+            result['end_date'] = date
+            result['end_time'] = time
+            rest = end_groups['rest']
+
+    result = TimeFrame(result['start_date'], result['start_time'], result['end_date'],
+        result['end_time'], result['offset'])
+
+    # Consider the whole string as 'rest' if no time/date info was extracted
+    if not rest:
+        rest = text
+    return (result, rest.strip())
 
 
-def complete_timeframe(timeframe, config):
+def complete_timeframe(timeframe, config, partial=False):
     """
     Apply fallback strategy to incomplete timeframes.
 
     Our fallback strategy is as follows:
         * Missing start-date: Fallback to ``today``.
         * Missing start-time: Fallback to ``store.config['day_start']``.
-        * Missing end-date: Fallback to ``today`` of ``day_start='00:00', ``tomorrow`` otherwise.
-            See ``hamster_lib.helpers.end_day_to_datetime`` for details and explanaitions.
+        * Missing end-date: Fallback to ``today`` for ``day_start='00:00`,
+          ``tomorrow`` otherwise.
+          See ``hamster_lib.helpers.end_day_to_datetime`` for details and
+          explanations.
         * Missing end-time: 1 second before ``store.config['day_start']``.
 
     Args:
-        timeframe (TimeFrame): ``TimeFrame`` instance incorporating all available information
-            available about the timespan. Any missing info will be completed per fallback
-            strategy.
-        config (dict): A config-dict providing settings relevant to determin fallback values.
+        timeframe (TimeFrame): ``TimeFrame`` instance incorporating all
+            available information available about the timespan. Any missing info
+            will be completed per fallback strategy.
+        config (dict): A config-dict providing settings relevant to determine
+            fallback values.
+        partial (bool, optional): If true, we will only complete start/end times if there
+            is at least either date or time information present. Defaults to
+            ``False``.
 
     Returns:
-        tuple: ``(start, end)`` tuple. Where ``start`` and ``end`` are full ``datetime.datetime``
-            instances.
+        tuple: ``(start, end)`` tuple. Where ``start`` and ``end`` are full
+        ``datetime.datetime`` instances.
 
     Raises:
-        TypeError: If any of the ``timeframe`` values is of inabpropiate datetime type.
+        TypeError: If any of the ``timeframe`` values is of inappropriate
+            datetime type.
     """
 
     def complete_start_date(date):
@@ -242,12 +277,16 @@ def complete_timeframe(timeframe, config):
             result = end_day_to_datetime(date, config)
         return result
 
-    if not timeframe.offset:
-        start = complete_start(timeframe.start_date, timeframe.start_time, config)
-    else:
-        start = datetime.datetime.now() - timeframe.offset
+    start, end = None, None
 
-    end = complete_end(timeframe.end_date, timeframe.end_time, config)
+    if any((timeframe.offset, timeframe.start_time, timeframe.start_date)) or not partial:
+        if not timeframe.offset:
+            start = complete_start(timeframe.start_date, timeframe.start_time, config)
+        else:
+            start = datetime.datetime.now() - timeframe.offset
+
+    if any((timeframe.end_date, timeframe.end_time)) or not partial:
+        end = complete_end(timeframe.end_date, timeframe.end_time, config)
     return (start, end)
 
 
