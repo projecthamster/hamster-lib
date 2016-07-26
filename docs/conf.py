@@ -323,4 +323,6 @@ texinfo_documents = [
 linkcheck_ignore = [
     r'http://caremad.io/2013/07/setup-vs-requirement/'
 ]
+# Increase timeout to avoid false positives esp. on Travis-CI
+linkcheck_timeout = 30
 
