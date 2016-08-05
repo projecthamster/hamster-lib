@@ -20,12 +20,13 @@ requirements = [
     'future',
     'sqlalchemy',
     'icalendar',
-    'configparser',
+    'six',
+    'configparser >= 3.5.0b2',
 ]
 
 setup(
     name='hamster-lib',
-    version='0.11.1',
+    version='0.12.0',
     description="A library for common timetracking functionality.",
     long_description=readme + '\n\n' + history,
     author="Eric Goller",

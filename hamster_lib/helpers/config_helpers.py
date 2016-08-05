@@ -145,17 +145,11 @@ def write_config_file(config_instance, app_name=DEFAULT_APP_NAME,
     return config_instance
 
 
-def get_config_instance(fallback_config_instance, app_name=DEFAULT_APP_NAME,
-        file_name=DEFAULT_CONFIG_FILENAME):
+def load_config_file(app_name=DEFAULT_APP_NAME, file_name=DEFAULT_CONFIG_FILENAME):
     """
-    Either retrieve a ``SafeConfigParser`` instance from disk of create a fallback config.
-
-    If we can not find a config file under its expected location, we trigger creation
-    of a new default file. Either way a ``SafeConfigParser`` instance is returned.
+    Retrieve a config information from file at default location.
 
     Args:
-        fallback_config_instance: Default config instance to be written to disk if none
-            is present.
         app_name (text_type, optional): Name of the application, defaults to
         ``'projecthamster``. Allows you to use your own application specific
         namespace if you wish.
@@ -163,11 +157,11 @@ def get_config_instance(fallback_config_instance, app_name=DEFAULT_APP_NAME,
         ``config.conf``.
 
     Returns:
-        SafeConfigParser: Either the config loaded from file or an instance representing
-            the content of our newly creating default config.
+        SafeConfigParser: Config loaded from file or ``None`` if not
+            successfull.
     """
     config = SafeConfigParser()
-    path = get_config_path(app_name)
+    path = get_config_path(app_name, file_name)
     if not config.read(path):
-        config = write_config_file(app_name, fallback_config_instance, file_name=file_name)
+        config = None
     return config

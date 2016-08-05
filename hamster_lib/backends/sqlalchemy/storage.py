@@ -33,7 +33,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import and_, or_
 
 from . import objects
-from .objects import AlchemyActivity, AlchemyCategory, AlchemyFact
+from .objects import AlchemyActivity, AlchemyCategory, AlchemyFact, AlchemyTag
 
 
 @python_2_unicode_compatible
@@ -94,6 +94,7 @@ class SQLAlchemyStore(storage.BaseStore):
             self.session = session
         self.categories = CategoryManager(self)
         self.activities = ActivityManager(self)
+        self.tags = TagManager(self)
         self.facts = FactManager(self)
 
     def cleanup(self):
@@ -698,6 +699,232 @@ class ActivityManager(storage.BaseActivityManager):
 
 
 @python_2_unicode_compatible
+class TagManager(storage.BaseTagManager):
+    def get_or_create(self, tag, raw=False):
+        """
+        Custom version of the default method in order to provide access to alchemy instances.
+
+        Args:
+            tag (hamster_lib.Tag): Tag we want.
+            raw (bool): Wether to return the AlchemyTag instead.
+
+        Returns:
+            hamster_lib.Tag or None: Tag.
+        """
+
+        message = _("Recieved {!r} and raw={}.".format(tag, raw))
+        self.store.logger.debug(message)
+
+        try:
+            tag = self.get_by_name(tag.name, raw=raw)
+        except KeyError:
+            tag = self._add(tag, raw=raw)
+        return tag
+
+    def _add(self, tag, raw=False):
+        """
+        Add a new tag to the database.
+
+        This method should not be used by any client code. Call ``save`` to make
+        the decission wether to modify an existing entry or to add a new one is
+        done correctly..
+
+        Args:
+            tag (hamster_lib.Tag): Hamster Tag instance.
+            raw (bool): Wether to return the AlchemyTag instead.
+
+        Returns:
+            hamster_lib.Tag: Saved instance, as_hamster()
+
+        Raises:
+            ValueError: If the name to be added is already present in the db.
+            ValueError: If tag passed already got an PK. Indicating that update would
+                be more apropiate.
+        """
+
+        message = _("Recieved {!r} and raw={}.".format(tag, raw))
+        self.store.logger.debug(message)
+
+        if tag.pk:
+            message = _(
+                "The tag ('{!r}') you are trying to add already has an PK."
+                " Are you sure you do not want to ``_update`` instead?".format(tag)
+            )
+            self.store.logger.error(message)
+            raise ValueError(message)
+        alchemy_tag = AlchemyTag(pk=None, name=tag.name)
+        self.store.session.add(alchemy_tag)
+        try:
+            self.store.session.commit()
+        except IntegrityError as e:
+            message = _(
+                "An error occured! Are you sure the tag.name is not already present in our"
+                " database? Here is the full original exception: '{}'.".format(e)
+            )
+            self.store.logger.error(message)
+            raise ValueError(message)
+        self.store.logger.debug(_("'{!r}' added.".format(alchemy_tag)))
+
+        if not raw:
+            alchemy_tag = alchemy_tag.as_hamster()
+        return alchemy_tag
+
+    def _update(self, tag):
+        """
+        Update a given Tag.
+
+        Args:
+            tag (hamster_lib.Tag): Tag to be updated.
+
+        Returns:
+            hamster_lib.Tag: Updated tag.
+
+        Raises:
+            ValueError: If the new name is already taken.
+            ValueError: If tag passed does not have a PK.
+            KeyError: If no tag with passed PK was found.
+        """
+
+        message = _("Recieved {!r}.".format(tag))
+        self.store.logger.debug(message)
+
+        if not tag.pk:
+            message = _(
+                "The tag passed ('{!r}') does not seem to havea PK. We don't know"
+                "which entry to modify.".format(tag)
+            )
+            self.store.logger.error(message)
+            raise ValueError(message)
+        alchemy_tag = self.store.session.query(AlchemyTag).get(tag.pk)
+        if not alchemy_tag:
+            message = _("No tag with PK: {} was found!".format(tag.pk))
+            self.store.logger.error(message)
+            raise KeyError(message)
+        alchemy_tag.name = tag.name
+
+        try:
+            self.store.session.commit()
+        except IntegrityError as e:
+            message = _(
+                "An error occured! Are you sure the tag.name is not already present in our"
+                " database? Here is the full original exception: '{}'.".format(e)
+            )
+            self.store.logger.error(message)
+            raise ValueError(message)
+
+        return alchemy_tag.as_hamster()
+
+    def remove(self, tag):
+        """
+        Delete a given tag.
+
+        Args:
+            tag (hamster_lib.Tag): Tag to be removed.
+
+        Returns:
+            None: If everything went alright.
+
+        Raises:
+            KeyError: If the ``Tag`` can not be found by the backend.
+            ValueError: If tag passed does not have an pk.
+        """
+
+        message = _("Recieved {!r}.".format(tag))
+        self.store.logger.debug(message)
+
+        if not tag.pk:
+            message = _("PK-less Tag. Are you trying to remove a new Tag?")
+            self.store.logger.error(message)
+            raise ValueError(message)
+        alchemy_tag = self.store.session.query(AlchemyTag).get(tag.pk)
+        if not alchemy_tag:
+            message = _("``Tag`` can not be found by the backend.")
+            self.store.logger.error(message)
+            raise KeyError(message)
+        self.store.session.delete(alchemy_tag)
+        message = _("{!r} successfully deleted.".format(tag))
+        self.store.logger.debug(message)
+        self.store.session.commit()
+
+    def get(self, pk):
+        """
+        Return a tag based on their pk.
+
+        Args:
+            pk (int): PK of the tag to be retrieved.
+
+        Returns:
+            hamster_lib.Tag: Tag matching given PK.
+
+        Raises:
+            KeyError: If no such PK was found.
+
+        Note:
+            We need this for now, as the service just provides pks, not names.
+        """
+
+        message = _("Recieved PK: '{}'.".format(pk))
+        self.store.logger.debug(message)
+
+        result = self.store.session.query(AlchemyTag).get(pk)
+        if not result:
+            message = _("No tag with 'pk: {}' was found!".format(pk))
+            self.store.logger.error(message)
+            raise KeyError(message)
+        message = _("Returning {!r}.".format(result))
+        self.store.logger.debug(message)
+        return result.as_hamster()
+
+    def get_by_name(self, name, raw=False):
+        """
+        Return a tag based on its name.
+
+        Args:
+            name (str): Unique name of the tag.
+            raw (bool): Wether to return the AlchemyTag instead.
+
+
+        Returns:
+            hamster_lib.Tag: Tag of given name.
+
+        Raises:
+            KeyError: If no tag matching the name was found.
+
+        """
+
+        message = _("Recieved name: '{}', raw={}.".format(name, raw))
+        self.store.logger.debug(message)
+
+        name = text_type(name)
+        try:
+            result = self.store.session.query(AlchemyTag).filter_by(name=name).one()
+        except NoResultFound:
+            message = _("No tag with 'name: {}' was found!".format(name))
+            self.store.logger.error(message)
+            raise KeyError(message)
+
+        if not raw:
+            result = result.as_hamster()
+            self.store.logger.debug(_("Returning: {!r}.").format(result))
+        return result
+
+    def get_all(self):
+        """
+        Get all tags.
+
+        Returns:
+            list: List of all Categories present in the database, ordered by lower(name).
+        """
+
+        # We avoid the costs of always computing the length of the returned list
+        # or even spamming the logs with the enrire list. Instead we just state
+        # that we return something.
+        self.store.logger.debug(_("Returning list of all tags."))
+        return [alchemy_tag for alchemy_tag in (
+            self.store.session.query(AlchemyTag).order_by(AlchemyTag.name).all())]
+
+
+@python_2_unicode_compatible
 class FactManager(storage.BaseFactManager):
     def _add(self, fact, raw=False):
         """
@@ -731,8 +958,9 @@ class FactManager(storage.BaseFactManager):
             self.store.logger.error(message)
             raise ValueError(message)
 
-        alchemy_fact = AlchemyFact(None, None, fact.start, fact.end, fact.description, None)
+        alchemy_fact = AlchemyFact(None, None, fact.start, fact.end, fact.description)
         alchemy_fact.activity = self.store.activities.get_or_create(fact.activity, raw=True)
+        alchemy_fact.tags = [self.store.tags.get_or_create(tag, raw=True) for tag in fact.tags]
         self.store.session.add(alchemy_fact)
         self.store.session.commit()
         self.store.logger.debug(_("Added {!r}.".format(alchemy_fact)))
@@ -778,14 +1006,16 @@ class FactManager(storage.BaseFactManager):
 
         alchemy_fact = self.store.session.query(AlchemyFact).get(fact.pk)
         if not alchemy_fact:
+            message = _("No fact with PK: {} was found.".format(fact.pk))
             self.store.logger.error(message)
-            raise KeyError(_("No fact with PK: {} was found.".format(fact.pk)))
+            raise KeyError(message)
 
         alchemy_fact.start = fact.start
         alchemy_fact.end = fact.end
         alchemy_fact.description = fact.description
-        # [TODO] Handle tags
         alchemy_fact.activity = self.store.activities.get_or_create(fact.activity, raw=True)
+        tags = [self.store.tags.get_or_create(tag, raw=True) for tag in fact.tags]
+        alchemy_fact.tags = tags
         self.store.session.commit()
         self.store.logger.debug(_("{!r} has been updated.".format(fact)))
         return fact

@@ -145,6 +145,76 @@ class TestActivityManager:
             basestore.activities.get_all()
 
 
+class TestTagManager():
+    def test_add(self, basestore, tag):
+        with pytest.raises(NotImplementedError):
+            basestore.tags._add(tag)
+
+    def test_update(self, basestore, tag):
+        with pytest.raises(NotImplementedError):
+            basestore.tags._update(tag)
+
+    def test_remove(self, basestore, tag):
+        with pytest.raises(NotImplementedError):
+            basestore.tags.remove(tag)
+
+    def test_get_invalid_pk(self, basestore):
+        with pytest.raises(NotImplementedError):
+            basestore.tags.get(12)
+
+    def test_get_invalid_pk_type(self, basestore):
+        with pytest.raises(NotImplementedError):
+            basestore.tags.get_by_name('fooo')
+
+    def test_save_wrong_type(self, basestore, tag):
+        with pytest.raises(TypeError):
+            basestore.tags.save([])
+
+    def test_save_new(self, basestore, tag, mocker):
+        """Make sure that saving an new tag calls ``__add``."""
+        basestore.tags._add = mocker.MagicMock(return_value=tag)
+        try:
+            basestore.tags.save(tag)
+        except NotImplementedError:
+            pass
+        assert basestore.tags._add.called
+
+    def test_save_existing(self, basestore, tag, mocker):
+        tag.pk = 0
+        basestore.tags._update = mocker.MagicMock(return_value=tag)
+        try:
+            basestore.tags.save(tag)
+        except NotImplementedError:
+            pass
+        assert basestore.tags._update.called
+
+    def test_get_or_create_existing(self, basestore, tag, mocker):
+        """Make sure the tag is beeing looked up and no new one is created."""
+        basestore.tags.get_by_name = mocker.MagicMock(return_value=tag)
+        basestore.tags._add = mocker.MagicMock(return_value=tag)
+        try:
+            basestore.tags.get_or_create(tag.name)
+        except NotImplementedError:
+            pass
+        assert basestore.tags._add.called is False
+        assert basestore.tags.get_by_name.called
+
+    def test_get_or_create_new_tag(self, basestore, tag, mocker):
+        """Make sure the tag is beeing looked up and new one is created."""
+        basestore.tags._add = mocker.MagicMock(return_value=tag)
+        basestore.tags.get_by_name = mocker.MagicMock(side_effect=KeyError)
+        try:
+            basestore.tags.get_or_create(tag.name)
+        except NotImplementedError:
+            pass
+        assert basestore.tags.get_by_name.called
+        assert basestore.tags._add.called
+
+    def test_get_all(self, basestore):
+        with pytest.raises(NotImplementedError):
+            basestore.tags.get_all()
+
+
 class TestFactManager:
     def test_save_tmp_fact(self, basestore, fact, mocker):
         """
@@ -272,7 +342,7 @@ class TestFactManager:
         fact_to_be_added = basestore.facts._add.call_args[0][0]
         assert fact_to_be_added.end
         fact_to_be_added.end = None
-        assert fact == fact_to_be_added
+        assert fact_to_be_added == tmp_fact
         assert os.path.exists(basestore.facts._get_tmp_fact_path()) is False
 
     def test_stop_tmp_fact_non_existing(self, basestore):

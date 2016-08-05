@@ -19,5 +19,6 @@
 
 """Submodule providing a SQLAlchemy storage backend for ``hamster-lib``."""
 
-from .objects import AlchemyActivity, AlchemyCategory, AlchemyFact  # NOQA
+from .objects import (AlchemyActivity, AlchemyCategory, AlchemyFact,  # NOQA
+                      AlchemyTag)
 from .storage import SQLAlchemyStore  # NOQA

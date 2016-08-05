@@ -146,21 +146,15 @@ class TestWriteConfigFile(object):
         assert isinstance(result, SafeConfigParser)
 
 
-class TestGetConfigInstance(object):
+class TestLoadConfigFile(object):
+    """Make sure file retrival works as expected."""
+
     def test_no_file_present(self, appdirs, config_instance, mocker):
-        """Make sure a new vanilla config is written if no config is found."""
-        mocker.patch('hamster_lib.helpers.config_helpers.write_config_file')
-        config_helpers.get_config_instance(config_instance)
-        assert config_helpers.write_config_file.called
+        """Make sure we return ``None``."""
+        result = config_helpers.load_config_file()
+        assert result is None
 
-    def test_file_present(self, config_instance, config_file, mocker):
+    def test_file_present(self, config_instance, config_file):
         """Make sure we try parsing a found config file."""
-        result = config_helpers.get_config_instance(config_instance)
+        result = config_helpers.load_config_file()
         assert result == config_instance
-
-    def test_get_config_path(self, appdirs, config_instance, mocker):
-        """Make sure the config target path is constructed to our expectations."""
-        mocker.patch('hamster_lib.helpers.config_helpers.write_config_file')
-        config_helpers.get_config_instance(config_instance)
-        expectation = os.path.join(appdirs.user_config_dir, 'config.conf')
-        assert config_helpers.write_config_file.called_with(expectation)

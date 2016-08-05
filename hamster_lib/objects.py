@@ -21,14 +21,15 @@
 from __future__ import unicode_literals
 
 import datetime
-import re
 from collections import namedtuple
 
 from future.utils import python_2_unicode_compatible
+from hamster_lib.helpers import time as time_helpers
 from six import text_type
 
 # Named tuples used  to 'serialize' our object instances.
 CategoryTuple = namedtuple('CategoryTuple', ('pk', 'name'))
+TagTuple = namedtuple('TagTuple', ('pk', 'name'))
 ActivityTuple = namedtuple('ActivityTuple', ('pk', 'name', 'category', 'deleted'))
 FactTuple = namedtuple('FactTuple', ('pk', 'activity', 'start', 'end', 'description', 'tags'))
 
@@ -245,6 +246,93 @@ class Activity(object):
 
 
 @python_2_unicode_compatible
+class Tag(object):
+    """Storage agnostic class for tags."""
+
+    def __init__(self, name, pk=None):
+        """
+        Initialize this instance.
+
+        Args:
+            name (str): This tags name.
+            pk: The unique primary key used by the backend.
+        """
+
+        self.pk = pk
+        self.name = name
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        if not name:
+            # Catching ``None`` and ``empty string``.
+            raise ValueError(_("You need to specify a name."))
+        self._name = text_type(name)
+
+    def as_tuple(self, include_pk=True):
+        """
+        Provide a tuple representation of this tags relevant 'fields'.
+
+        Args:
+            include_pk (bool): Whether to include the instances pk or not.
+            Note that if ``False`` ``tuple.pk = False``!
+
+        Returns:
+            TagTuple: Representing this tags values.
+        """
+        pk = self.pk
+        if not include_pk:
+            pk = False
+        return TagTuple(pk=pk, name=self.name)
+
+    def equal_fields(self, other):
+        """
+        Compare this instances fields with another tag. This excludes comparing the PK.
+
+        Args:
+            other (Tag): Tag to compare this instance with.
+
+        Returns:
+            bool: ``True`` if all fields but ``pk`` are equal, ``False`` if not.
+
+        Note:
+            This is particularly useful if you want to compare a new ``Tag`` instance
+            with a freshly created backend instance. As the latter will probably have a
+            primary key assigned now and so ``__eq__`` would fail.
+        """
+        if other:
+            other = other.as_tuple(include_pk=False)
+        else:
+            other = None
+
+        return self.as_tuple(include_pk=False) == other
+
+    def __eq__(self, other):
+        if other:
+            if isinstance(other, TagTuple):
+                pass
+            else:
+                other = other.as_tuple()
+        else:
+            other = None
+        return self.as_tuple() == other
+
+    def __hash__(self):
+        """Naive hashing method."""
+        return hash(self.as_tuple())
+
+    def __str__(self):
+        return text_type('{name}'.format(name=self.name))
+
+    def __repr__(self):
+        """Return an instance representation containing additional information."""
+        return str('[{pk}] {name}'.format(pk=repr(self.pk), name=repr(self.name)))
+
+
+@python_2_unicode_compatible
 class Fact(object):
     """Storage agnostic class for facts."""
     # [TODO]
@@ -277,12 +365,12 @@ class Fact(object):
         self.start = start
         self.end = end
         self.description = description
-        if tags is None:
-            tags = set()
-        self.tags = set(tags)
+        self.tags = set()
+        if tags:
+            self.tags = set(tags)
 
     @classmethod
-    def create_from_raw_fact(cls, raw_fact):
+    def create_from_raw_fact(cls, raw_fact, config=None):
         """
         Construct a new ``hamster_lib.Fact`` from a ``raw fact`` string.
 
@@ -305,6 +393,8 @@ class Fact(object):
 
         Args:
             raw_fact (str): Raw fact to be parsed.
+            config (dict, optional): Controler config provided additional settings
+                relevant for timeframe completion.
 
         Returns:
             hamster_lib.Fact: ``Fact`` object with data parsed from raw fact.
@@ -342,98 +432,6 @@ class Fact(object):
                 front, back = front.strip(), back.strip()
             return (front, back)
 
-        def time_activity_split(string):
-            """
-            Separate time information from activity name.
-
-            Args:
-                string (str): Expects a string ``<timeinformation> <activity>``.
-
-            Returns
-                tuple: ``(time, activity)``. If no seperating whitespace was found,
-                    ``time=None``. Both substrings will have their leading/tailing
-                    whitespace trimmed.
-
-            Note:
-                * We separate at the most left whitespace. That means that our
-                timeinformation substring may very well include additional
-                whitespaces.
-                * If no whitespace is found, we consider the entire string to be
-                the activity name.
-            """
-
-            result = string.rsplit(' ', 1)
-            length = len(result)
-            if length == 1:
-                time, activity = None, result[0].strip()
-            else:
-                time, activity = tuple(result)
-                time, activity = time.strip(), activity.strip()
-            return (time, activity)
-
-        def parse_time_info(string):
-            """
-            Parse time info of a given raw fact.
-
-            Args:
-                string (str): String representing the timeinfo. The string is expected
-                    to have one of the following three formats: ``-offset in minutes``,
-                    ``HH:MM`` or ``HH:MM-HH:MM``.
-
-            Returns:
-                tuple: ``(start_time, end_time)`` tuple, where both elements are
-                    ``datetime.datetime`` instances. If no end time was extracted
-                    ``end_time=None``.
-
-            Note:
-                This parsing method is is informed by the legacy hamster
-                ``hamster.lib.parse_fact``. It seems that here we only extract
-                times that then are understood relative to today.
-                This seems significantly less powerful that our
-                ``hamster_lib.helpers.parse_time_range`` method which itself has been
-                taken from legacy hamsters ``hamster-cli``.
-            """
-            # [FIXME]
-            # Check if there is any rationale against using
-            # ``hamster_lib.helpers.parse_time_range`` instead.
-            # This would also unify the 'complete missing information' fallback
-            # behaviour.
-
-            now = datetime.datetime.now()
-
-            delta_re = re.compile("^-[0-9]{1,3}$")
-            time_re = re.compile("^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$")
-            time_range_re = re.compile(
-                "^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$")
-
-            if delta_re.match(string):
-                start = now + datetime.timedelta(minutes=int(string))
-                result = (start, None)
-            elif time_re.match(string):
-                start = datetime.datetime.combine(
-                    now.date(),
-                    datetime.datetime.strptime(string, "%H:%M").time()
-                )
-                result = (start, None)
-            elif time_range_re.match(string):
-                start, end = string.split("-")
-                start = datetime.datetime.combine(
-                    now.date(),
-                    datetime.datetime.strptime(start, "%H:%M").time()
-                )
-                end = datetime.datetime.combine(
-                    now.date(),
-                    datetime.datetime.strptime(end, "%H:%M").time()
-                )
-                result = (start, end)
-            else:
-                raise ValueError(_(
-                    "You seem to have passed some time information ('{}'), however"
-                    " we were unable to identify the format it was given in.".format(
-                        time_info)
-                ))
-            return result
-
         def comma_split(string):
             """
             Split string at the most left comma.
@@ -461,13 +459,12 @@ class Fact(object):
                 category, description = category.strip(), description.strip()
             return (category.strip(), description)
 
-        front, back = at_split(raw_fact)
+        if not config:
+            config = {'day_start': datetime.time(0, 0, 0)}
 
-        time_info, activity_name = time_activity_split(front)
-        if time_info:
-            start, end = parse_time_info(time_info)
-        else:
-            start, end = None, None
+        time_info, rest = time_helpers.extract_time_info(raw_fact)
+        start, end = time_helpers.complete_timeframe(time_info, config, partial=True)
+        activity_name, back = at_split(rest)
 
         if back:
             category_name, description = comma_split(back)
@@ -622,9 +619,9 @@ class Fact(object):
         pk = self.pk
         if not include_pk:
             pk = False
-        # [FIXME] Once tags are implemented, they need to be added here!
         return FactTuple(pk, self.activity.as_tuple(include_pk=include_pk), self.start,
-            self.end, self.description, frozenset())
+            self.end, self.description,
+            frozenset([tag.as_tuple(include_pk=include_pk) for tag in self.tags]))
 
     def equal_fields(self, other):
         """

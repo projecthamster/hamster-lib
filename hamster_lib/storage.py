@@ -36,9 +36,10 @@ import os
 import pickle
 
 import hamster_lib
-import hamster_lib.helpers.helpers as helpers
 from future.utils import python_2_unicode_compatible
 from hamster_lib import objects
+from hamster_lib.helpers import time as time_helpers
+from hamster_lib.helpers import helpers
 
 
 @python_2_unicode_compatible
@@ -58,6 +59,7 @@ class BaseStore(object):
         self.logger.addHandler(logging.NullHandler())
         self.categories = BaseCategoryManager(self)
         self.activities = BaseActivityManager(self)
+        self.tags = BaseTagManager(self)
         self.facts = BaseFactManager(self)
 
     def cleanup(self):
@@ -426,6 +428,170 @@ class BaseActivityManager(BaseManager):
 
 
 @python_2_unicode_compatible
+class BaseTagManager(BaseManager):
+    """Base class defining the minimal API for a TagManager implementation."""
+
+    def save(self, tag):
+        """
+        Save a Tag to our selected backend.
+        Internal code decides whether we need to add or update.
+
+        Args:
+            tag (hamster_lib.Tag): Tag instance to be saved.
+
+        Returns:
+            hamster_lib.Tag: Saved Tag
+
+        Raises:
+            TypeError: If the ``tag`` parameter is not a valid ``Tag`` instance.
+        """
+
+        if not isinstance(tag, objects.Tag):
+            message = _("You need to pass a hamster tag")
+            self.store.logger.debug(message)
+            raise TypeError(message)
+
+        self.store.logger.debug(_("'{}' has been received.".format(tag)))
+
+        # We don't check for just ``tag.pk`` because we don't want to make
+        # assumptions about the PK being an int or being >0.
+        if tag.pk or tag.pk == 0:
+            result = self._update(tag)
+        else:
+            result = self._add(tag)
+        return result
+
+    def get_or_create(self, tag):
+        """
+        Check if we already got a tag with that name, if not create one.
+
+        This is a convenience method as it seems sensible to rather implement
+        this once in our controller than having every client implementation
+        deal with it anew.
+
+        It is worth noting that the lookup completely ignores any PK contained in the
+        passed tag. This makes this suitable to just create the desired Tag
+        and pass it along. One way or the other one will end up with a persisted
+        db-backed version.
+
+        Args:
+            tag (hamster_lib.Tag or None): The categories.
+
+        Returns:
+            hamster_lib.Tag or None: The retrieved or created tag. Either way,
+                the returned Tag will contain all data from the backend, including
+                its primary key.
+        """
+
+        self.store.logger.debug(_("'{}' has been received.'.".format(tag)))
+        if tag:
+            try:
+                tag = self.get_by_name(tag)
+            except KeyError:
+                tag = objects.Tag(tag)
+                tag = self._add(tag)
+        else:
+            # We want to allow passing ``tag=None``, so we normalize here.
+            tag = None
+        return tag
+
+    def _add(self, tag):
+        """
+        Add a ``Tag`` to our backend.
+
+        Args:
+            tag (hamster_lib.Tag): ``Tag`` to be added.
+
+        Returns:
+            hamster_lib.Tag: Newly created ``Tag`` instance.
+
+        Raises:
+            ValueError: When the tag name was already present! It is supposed to be
+            unique.
+            ValueError: If tag passed already got an PK. Indicating that update would
+                be more appropriate.
+        """
+        raise NotImplementedError
+
+    def _update(self, tag):
+        """
+        Update a ``Tags`` values in our backend.
+
+        Args:
+            tag (hamster_lib.Tag): Tag to be updated.
+
+        Returns:
+            hamster_lib.Tag: The updated Tag.
+
+        Raises:
+            KeyError: If the ``Tag`` can not be found by the backend.
+            ValueError: If the ``Tag().name`` is already being used by
+                another ``Tag`` instance.
+            ValueError: If tag passed does not have a PK.
+        """
+        raise NotImplementedError
+
+    def remove(self, tag):
+        """
+        Remove a tag.
+
+        Any ``Fact`` referencing the passed tag will have this tag removed.
+
+        Args:
+            tag (hamster_lib.Tag): Tag to be updated.
+
+        Returns:
+            None: If everything went ok.
+
+        Raises:
+            KeyError: If the ``Tag`` can not be found by the backend.
+            TypeError: If tag passed is not an hamster_lib.Tag instance.
+            ValueError: If tag passed does not have an pk.
+        """
+        raise NotImplementedError
+
+    def get(self, pk):
+        """
+        Get an ``Tag`` by its primary key.
+
+        Args:
+            pk (int): Primary key of the ``Tag`` to be fetched.
+
+        Returns:
+            hamster_lib.Tag: ``Tag`` with given primary key.
+
+        Raises:
+            KeyError: If no ``Tag`` with this primary key can be found by the backend.
+        """
+
+        raise NotImplementedError
+
+    def get_by_name(self, name):
+        """
+        Look up a tag by its name.
+
+        Args:
+            name (str): Unique name of the ``Tag`` to we want to fetch.
+
+        Returns:
+            hamster_lib.Tag: ``Tag`` with given name.
+
+        Raises:
+            KeyError: If no ``Tag`` with this name was found by the backend.
+        """
+        raise NotImplementedError
+
+    def get_all(self):
+        """
+        Return a list of all tags.
+
+        Returns:
+            list: List of ``Tags``, ordered by ``lower(name)``.
+        """
+        raise NotImplementedError
+
+
+@python_2_unicode_compatible
 class BaseFactManager(BaseManager):
     """Base class defining the minimal API for a FactManager implementation."""
     def save(self, fact):
@@ -589,7 +755,7 @@ class BaseFactManager(BaseManager):
                 # which is why we need to except this case first.
                 pass
             elif isinstance(end, datetime.date):
-                end = helpers.end_day_to_datetime(end, self.store.config)
+                end = time_helpers.end_day_to_datetime(end, self.store.config)
             elif isinstance(end, datetime.time):
                 end = datetime.datetime.combine(datetime.date.today(), end)
             else:
@@ -644,7 +810,7 @@ class BaseFactManager(BaseManager):
         today = datetime.date.today()
         return self.get_all(
             datetime.datetime.combine(today, self.store.config['day_start']),
-            helpers.end_day_to_datetime(today, self.store.config)
+            time_helpers.end_day_to_datetime(today, self.store.config)
         )
 
     def _start_tmp_fact(self, fact):

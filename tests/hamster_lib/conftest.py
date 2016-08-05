@@ -16,6 +16,7 @@ from . import factories
 
 register(factories.CategoryFactory)
 register(factories.ActivityFactory)
+register(factories.TagFactory)
 register(factories.FactFactory)
 
 faker = faker_.Faker()
@@ -163,6 +164,20 @@ def current_fact(fact_factory):
         'category': None,
         'description': None,
     }),
+    ('11:00 12:00 foo@bar', {
+        'start': convert_time_to_datetime('11:00'),
+        'end': None,
+        'activity': '12:00 foo',
+        'category': 'bar',
+        'description': None,
+    }),
+    ('rumpelratz foo@bar', {
+        'start': None,
+        'end': None,
+        'activity': 'rumpelratz foo',
+        'category': 'bar',
+        'description': None,
+    }),
     ('foo@bar', {
         'start': None,
         'end': None,
@@ -190,10 +205,18 @@ def current_fact(fact_factory):
         'category': None,
         'description': 'palimpalum',
     }),
-    ('12:00-14:14 foo@bar, palimpalum', {
+    ('12:00 - 14:14 foo@bar, palimpalum', {
         'start': convert_time_to_datetime('12:00'),
         'end': convert_time_to_datetime('14:14'),
         'activity': 'foo',
+        'category': 'bar',
+        'description': 'palimpalum',
+    }),
+    # Missing whitespace around ``-`` will prevent timeinfo from beeing parsed.
+    ('12:00-14:14 foo@bar, palimpalum', {
+        'start': None,
+        'end': None,
+        'activity': '12:00-14:14 foo',
         'category': 'bar',
         'description': 'palimpalum',
     }),
@@ -205,8 +228,6 @@ def raw_fact_parametrized(request):
 
 @pytest.fixture(params=[
     '',
-    '11:00 12:00 foo@bar',
-    'rumpelratz foo@bar',
 ])
 def invalid_raw_fact_parametrized(request):
     """Return various invalid ``raw fact`` strings."""

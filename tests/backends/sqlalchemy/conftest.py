@@ -9,7 +9,7 @@ import os
 
 import fauxfactory
 import pytest
-from hamster_lib import Activity, Category, Fact
+from hamster_lib import Activity, Category, Fact, Tag
 from hamster_lib.backends.sqlalchemy import objects
 from hamster_lib.backends.sqlalchemy.storage import SQLAlchemyStore
 from pytest_factoryboy import register
@@ -19,6 +19,7 @@ from . import common, factories
 
 register(factories.AlchemyCategoryFactory)
 register(factories.AlchemyActivityFactory)
+register(factories.AlchemyTagFactory)
 register(factories.AlchemyFactFactory)
 
 
@@ -178,6 +179,12 @@ def set_of_categories(alchemy_category_factory):
 
 
 @pytest.fixture
+def set_of_tags(alchemy_tag_factory):
+    """Provide a number of perstent facts at once."""
+    return [alchemy_tag_factory() for i in range(5)]
+
+
+@pytest.fixture
 def set_of_alchemy_facts(start_datetime, alchemy_fact_factory):
     """
     Provide a multitude of generic persistent facts.
@@ -211,6 +218,20 @@ def category(request, category_factory):
 
 
 @pytest.fixture
+def tag_factory(request, name):
+    """Provide a ``hamster_lib.Tag`` factory."""
+    def generate():
+        return Tag(name, None)
+    return generate
+
+
+@pytest.fixture
+def tag(request, tag_factory):
+    """Provide a randomized ``hamster_lib.Tag`` instance."""
+    return tag_factory()
+
+
+@pytest.fixture
 def activity_factory(request, name, category_factory):
     """
     Provide a ``hamster_lib.Activity`` factory.
@@ -232,19 +253,21 @@ def activity(request, activity_factory):
 
 
 @pytest.fixture
-def fact_factory(request, activity_factory, start_end_datetimes, description):
+def fact_factory(request, activity_factory, tag_factory, start_end_datetimes, description):
     """
     Provide a ``hamster_lib.Fact`` factory.
 
     Note:
         * The returned fact will have a *new* activity (and by consequence category)
-        associated as well.
+          associated as well.
         * Values are randomized but *not parametrized*.
     """
     def generate():
         activity = activity_factory()
+        tags = set([tag_factory() for i in range(1)])
         start, end = start_end_datetimes
-        return Fact(activity, start, end, pk=None, description=description)
+        fact = Fact(activity, start, end, pk=None, description=description, tags=tags)
+        return fact
     return generate
 
 

@@ -44,7 +44,6 @@ Not supported legacy 'functionality'
 ---------------------------------------
 Not now:
 
-* tags
 * ``search_name``
 * indexing
 * ical export

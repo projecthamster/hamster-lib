@@ -60,7 +60,7 @@ clean-test:
 develop:
 	pip install -U pip setuptools wheel
 	pip install -U -e .
-	pip install -U -r requirements/dev.txt
+	pip install -U -r requirements/dev.pip
 
 lint:
 	flake8 hamster_lib tests

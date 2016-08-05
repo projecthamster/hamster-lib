@@ -1,14 +1,17 @@
 ===============================
-hamsterlib
+hamster-lib
 ===============================
 
 .. image:: https://img.shields.io/travis/projecthamster/hamster-lib/master.svg
         :target: https://travis-ci.org/projecthamster/hamster_lib
 
+.. image:: https://img.shields.io/pypi/v/hamster-lib.svg?maxAge=2592000
+         :target: https://pypi.python.org/pypi/hamster-gtk/
+
 .. image:: https://img.shields.io/codecov/c/github/projecthamster/hamster-lib/master.svg
         :target: https://codecov.io/github/projecthamster/hamster-lib
 
-.. image:: https://readthedocs.org/projects/hamster-lib/badge/?version=master
+.. image:: https://readthedocs.org/projects/hamster-lib/badge/?version=latest
         :target: http://hamster-lib.docs.projecthamster.org/en/latest/
         :alt: Documentation Status
 
@@ -58,17 +61,19 @@ Additional Resources
 * `Coverage reports by 'codecov' <https://codecov.io/gh/projecthamster/hamster-lib>`_
 * `Dependency monitoring by 'requires.io' <https://requires.io/github/projecthamster/hamster-lib/requirements/?branch=master>`_
 
-News: Version 0.11.0
+News: Version 0.12.0
 ---------------------
-This is the first release of ``hamster-lib`` as official part of
-`projecthamster <https://github.com/projecthamster>`_.
-As such it includes a lot of internal adjustments and minor fixes.
-Besides such housekeeping however, is also offers some genuine new features.
-You can now query ``ActivityManaget.get_all`` to return *all* activities, where
-it previously only returned *all for given category*. We also made
-``Category``, ``Activity`` and ``Fact`` hashable, so you can now use them as
-``dict`` keys or ``set`` elements.
-For a more detailed overview about what new, please refer to the changelog.
+This release features two major functional improvements.
+
+#. Tags are finally here! You can now create tags and attach them to facts as
+   well as use the brand new ``TagManager`` for all your CRUD needS.
+#. Refactored 'raw fact string' parsing. We significantly improved the way
+   parsing is done. Now the supported/required structure is clear and
+   transparent as well as supporting whitespace in activity names.
+
+For a more detailed overview about what new as well as a list of all the
+smaller improvements, please refer to the changelog.
+
 Happy tracking; Eric.
 
 Todo
@@ -78,7 +83,6 @@ It showcases our API as well as our general design decisions.  As such there
 are a few functionalities/details of the original ``projecthamster`` backend
 that we wish to allow for, but are not provided so far.  These are:
 
-* Tags (We accept them but they are not stored in the backend.)
 * Autocomplete related methods
 * Trophies (The jury is still out on if and how we want to support those.)
 * Migrations from old databases.

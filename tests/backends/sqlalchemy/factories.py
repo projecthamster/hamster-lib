@@ -9,7 +9,7 @@ import datetime
 import factory
 from hamster_lib.backends.sqlalchemy.objects import (AlchemyActivity,
                                                      AlchemyCategory,
-                                                     AlchemyFact)
+                                                     AlchemyFact, AlchemyTag)
 
 from . import common
 
@@ -44,6 +44,22 @@ class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
         force_flush = True
 
 
+class AlchemyTagFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """Factory class for generic ``AlchemyTag`` instances."""
+
+    pk = factory.Sequence(lambda n: n)
+
+    @factory.sequence
+    def name(n):  # NOQA
+        """Return a name that is guaranteed to be unique."""
+        return '{name} - {key}'.format(name=factory.Faker('word'), key=n)
+
+    class Meta:
+        model = AlchemyTag
+        sqlalchemy_session = common.Session
+        force_flush = True
+
+
 class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
     """Factory class for generic ``AlchemyFact`` instances."""
 
@@ -52,9 +68,13 @@ class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
     start = factory.Faker('date_time')
     end = factory.LazyAttribute(lambda o: o.start + datetime.timedelta(hours=3))
     description = factory.Faker('paragraph')
-    tags = []
 
     class Meta:
         model = AlchemyFact
         sqlalchemy_session = common.Session
         force_flush = True
+
+    @factory.post_generation
+    def tags(self, create, extracted, **kwargs):
+        """Add new random tags after instance creation."""
+        self.tags = list([AlchemyTagFactory() for i in range(4)])

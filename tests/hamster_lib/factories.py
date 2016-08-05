@@ -41,9 +41,20 @@ class ActivityFactory(factory.Factory):
 
 
 @python_2_unicode_compatible
+class TagFactory(factory.Factory):
+    """Factory providing randomized ``hamster_lib.Category`` instances."""
+
+    pk = None
+    name = factory.Faker('word')
+
+    class Meta:
+        model = objects.Tag
+
+
+@python_2_unicode_compatible
 class FactFactory(factory.Factory):
     """
-    Factory providing randomized ``hamster_lib.Category`` instances.
+    Factory providing randomized ``hamster_lib.Fact`` instances.
 
     Instances have a duration of 3 hours.
     """
@@ -56,3 +67,8 @@ class FactFactory(factory.Factory):
 
     class Meta:
         model = objects.Fact
+
+    @factory.post_generation
+    def tags(self, create, extracted, **kwargs):
+        """Add new random tags after instance creation."""
+        self.tags = set([TagFactory() for i in range(1)])
