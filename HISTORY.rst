@@ -3,6 +3,32 @@
 History
 =======
 
+0.12.0 (2016-07-06)
+--------------------
+* Added support for tags! ``hamster_lib.objects.Tag`` instances can be appended
+  to ``Fact.tags`` and will be stored by the sqlalchemy backend. We also
+  provide comprehensive CRUD methods as part of the brand new
+  ``storage.TagManager``.
+* Major refactoring of *raw fact* parsing. In particular the way timeinfo is
+  extracted from the string. We are now very clear and explicit about the
+  supported timeinfo formats. Anything unmatched before the ``@`` token will be
+  considered the ``activity.name``. This means in particular that our activity
+  names may contain whitespace!
+* Added new ``partial`` parameter to ``time.complete_timeframe`` which defaults
+  to ``False`` which maintains the functions previous behaviour. Setting it to
+  ``True`` however will cause it to only 'complete' those bits of the timeframe
+  where there is at least some partial (time or date) information available.
+* Moved time related helpers to a dedicated submodule:
+  ``hamster_lib.helpers.time``
+* Added ``HamsterControl.update_config`` method to allow config updates at
+  runtime.
+* Renamed ``get_config`` helper to ``load_config`` and limit it to deal just
+  with config retrieval. It no longer ensures a default config is written and
+  returned. Your client will need to handle any such fallback behaviour now.
+* Use ``tox-travis`` to ensure proper multi python version testing on Travis-CI
+* Minor fixes in ``config_helpers._get_config_instance``
+* Renamed requirements/\*.txt to \*.pip
+
 0.11.0 (2016-07-06)
 --------------------
 * Renamed this package to ``hamster-lib`` as it now an offical part of
