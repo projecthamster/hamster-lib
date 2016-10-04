@@ -845,6 +845,43 @@ class BaseFactManager(BaseManager):
             self.store.logger.debug(_("New temporary fact started."))
         return fact
 
+    def update_tmp_fact(self, fact):
+        """
+        Update an ongoing fact.
+
+        Args:
+            fact (hamster_lib.Fact): Fact with new values.
+
+        Returns:
+            fact (hamster_lib.Fact): The updated ``Fact`` instance.
+
+        Raises:
+            TypeError: If passed fact is not an instance of ``hamster_lib.Fact``.
+            ValueError: If passed fact already has an ``end`` value and hence is
+                not a valid *ongoing fact*.
+        """
+        if not isinstance(fact, hamster_lib.Fact):
+            raise TypeError(_(
+                "Passed fact is not a proper instance of 'hamster_lib.Fact'."
+            ))
+
+        if fact.end:
+            raise ValueError(_(
+                "The passed fact seems to have an end and hence is an invalid"
+                " 'ongoing fact'."
+            ))
+        old_fact = self.get_tmp_fact()
+
+        for attribute in ('activity', 'start', 'description', 'tags'):
+            value = getattr(fact, attribute)
+            setattr(old_fact, attribute, value)
+
+        with open(self._get_tmp_fact_path(), 'wb') as fobj:
+            pickle.dump(old_fact, fobj)
+        self.store.logger.debug(_("Temporary fact updated."))
+
+        return old_fact
+
     def stop_tmp_fact(self):
         """
         Stop current 'ongoing fact'.

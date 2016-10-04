@@ -114,12 +114,17 @@ def new_tag_values():
 
 
 @pytest.fixture
-def new_fact_values(tag_factory):
+def new_fact_values(tag_factory, activity_factory):
     """Provide guaranteed different Fact-values for a given Fact-instance."""
     def modify(fact):
+        if fact.end:
+            end = fact.end - datetime.timedelta(days=10)
+        else:
+            end = None
         return {
+            'activity': activity_factory(),
             'start': fact.start - datetime.timedelta(days=10),
-            'end': fact.end - datetime.timedelta(days=10),
+            'end': end,
             'description': fact.description + 'foobar',
             'tags': set([tag_factory() for i in range(5)])
         }
