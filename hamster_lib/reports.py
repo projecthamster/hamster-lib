@@ -332,10 +332,10 @@ class XMLWriter(ReportWriter):
         Once the child is prepared append it to ``fact_list``.
         """
         fact = self.document.createElement("fact")
-        fact.setAttribute('start_time', fact_tuple.start)
-        fact.setAttribute('end_time', fact_tuple.end)
-        fact.setAttribute('name', fact_tuple.activity)
-        fact.setAttribute('duration_minutes', fact_tuple.duration)
+        fact.setAttribute('start', fact_tuple.start)
+        fact.setAttribute('end', fact_tuple.end)
+        fact.setAttribute('activity', fact_tuple.activity)
+        fact.setAttribute('duration', fact_tuple.duration)
         fact.setAttribute('category', fact_tuple.category)
         fact.setAttribute('description', fact_tuple.description)
         self.fact_list.appendChild(fact)
