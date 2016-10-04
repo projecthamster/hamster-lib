@@ -282,10 +282,10 @@ class XMLWriter(ReportWriter):
     """Writer for a basic xml export."""
 
     # This is a straight forward copy of the 'legacy hamster' XMLWriter class
-    # contributet by 'tbaugis' in 11e3f66
+    # contributed by 'tbaugis' in 11e3f66
 
     def __init__(self, path, datetime_format="%Y-%m-%d %H:%M:%S"):
-        """Setúp the writer including a main xml document."""
+        """Setup the writer including a main xml document."""
         self.datetime_format = datetime_format
         self.file = open(path, 'wb')
         self.document = Document()
@@ -295,12 +295,12 @@ class XMLWriter(ReportWriter):
         """
         Convert a ``Fact`` to its normalized tuple.
 
-        This is where all type conversion for ``Fact`` attributes to strings as well
-        as any normalization happens.
+        This is where all type conversion for ``Fact`` attributes to strings as
+        well as any normalization happens.
 
         Note:
-            Because different writers may require different types, we need to so this
-            individualy.
+            Because different writers may require different types, we need to
+            do this individually.
 
         Args:
             fact (hamster_lib.Fact): Fact to be converted.
@@ -326,7 +326,11 @@ class XMLWriter(ReportWriter):
         )
 
     def _write_fact(self, fact_tuple):
-        """Create new fact element and populate attributes before appending to ``fact_list``"""
+        """
+        Create new fact element and populate attributes.
+
+        Once the child is prepared append it to ``fact_list``.
+        """
         fact = self.document.createElement("fact")
         fact.setAttribute('start_time', fact_tuple.start)
         fact.setAttribute('end_time', fact_tuple.end)
@@ -338,7 +342,7 @@ class XMLWriter(ReportWriter):
 
     def _close(self):
         """
-        Append the xml fact list to the main document, write to file and close fileobject.
+        Append the xml fact list to the main document write file and cleanup.
 
         ``toxml`` should take care of encoding everything with UTF-8.
         """
