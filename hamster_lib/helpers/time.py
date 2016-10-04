@@ -319,6 +319,6 @@ def parse_time(time):
         result = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M')
     else:
         raise ValueError(_(
-            "Sting does not seem to be in one of our supported time formats."
+            "String does not seem to be in one of our supported time formats."
         ))
     return result
