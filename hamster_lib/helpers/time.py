@@ -56,7 +56,7 @@ def end_day_to_datetime(end_day, config):
 
     Args:
         end (datetime.date): Raw end date that is to be adjusted.
-        config: Controler config containing information on when a workday starts.
+        config: Controller config containing information on when a workday starts.
 
     Returns:
         datetime.datetime: The endday as a adjusted datetime object.
