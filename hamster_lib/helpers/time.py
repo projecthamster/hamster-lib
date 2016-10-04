@@ -287,7 +287,8 @@ def complete_timeframe(timeframe, config, partial=False):
 
     if any((timeframe.end_date, timeframe.end_time)) or not partial:
         end = complete_end(timeframe.end_date, timeframe.end_time, config)
-    return (start, end)
+
+    return validate_start_end_range((start, end))
 
 
 def parse_time(time):
@@ -322,3 +323,26 @@ def parse_time(time):
             "String does not seem to be in one of our supported time formats."
         ))
     return result
+
+
+def validate_start_end_range(range_tuple):
+    """
+    Perform basic sanity checks on a timeframe.
+
+    Args:
+        range_tuple (tuple): ``(start, end)`` tuple as returned by
+            ``complete_timeframe``.
+
+    Raises:
+        ValueError: If validation fails.
+
+    Returns:
+        tuple: ``(start, end)`` tuple that passed validation.
+    """
+
+    start, end = range_tuple
+
+    if (start and end) and (start > end):
+        raise ValueError(_("Start after end!"))
+
+    return range_tuple

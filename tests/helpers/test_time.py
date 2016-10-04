@@ -289,3 +289,26 @@ class TestParseTime(object):
         """Ensure that invalid times throw an exception."""
         with pytest.raises(ValueError):
             time_helpers.parse_time(time)
+
+
+class TestValidateStartEndRange(object):
+    "Unittests for validation function."""
+
+    @pytest.mark.parametrize('range', (
+        (datetime.datetime(2016, 12, 1, 12, 30), datetime.datetime(2016, 12, 1, 12, 45)),
+        (datetime.datetime(2016, 1, 1, 12, 30), datetime.datetime(2016, 12, 1, 12, 45)),
+        (datetime.datetime(2016, 1, 1, 12, 30), datetime.datetime(2016, 12, 1, 1, 45)),
+    ))
+    def test_valid_ranges(self, range):
+        """Make sure that ranges with end > start pass validation."""
+        result = time_helpers.validate_start_end_range(range)
+        assert result == range
+
+    @pytest.mark.parametrize('range', (
+        (datetime.datetime(2016, 12, 1, 12, 30), datetime.datetime(2016, 12, 1, 10, 45)),
+        (datetime.datetime(2016, 1, 13, 12, 30), datetime.datetime(2016, 1, 1, 12, 45)),
+    ))
+    def test_invalid_ranges(self, range):
+        """Make sure that ranges with start > end fail validation."""
+        with pytest.raises(ValueError):
+            time_helpers.validate_start_end_range(range)
