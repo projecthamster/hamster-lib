@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import datetime
 
 import factory
+import faker
 from hamster_lib.backends.sqlalchemy.objects import (AlchemyActivity,
                                                      AlchemyCategory,
                                                      AlchemyFact, AlchemyTag)
@@ -22,7 +23,7 @@ class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
     @factory.sequence
     def name(n):  # NOQA
         """Return a name that is guaranteed to be unique."""
-        return '{name} - {key}'.format(name=factory.Faker('word'), key=n)
+        return '{name} - {key}'.format(name=faker.Faker().word(), key=n)
 
     class Meta:
         model = AlchemyCategory
@@ -52,7 +53,7 @@ class AlchemyTagFactory(factory.alchemy.SQLAlchemyModelFactory):
     @factory.sequence
     def name(n):  # NOQA
         """Return a name that is guaranteed to be unique."""
-        return '{name} - {key}'.format(name=factory.Faker('word'), key=n)
+        return '{name} - {key}'.format(name=faker.Faker().word(), key=n)
 
     class Meta:
         model = AlchemyTag
