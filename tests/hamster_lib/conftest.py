@@ -35,16 +35,16 @@ def convert_time_to_datetime(time_string):
     )
 
 
-# Controler
+# Controller
 
 
 @pytest.yield_fixture
-def controler(base_config):
-    """Provide a basic controler."""
+def controller(base_config):
+    """Provide a basic controller."""
     # [TODO] Parametrize over all available stores.
-    controler = HamsterControl(base_config)
-    yield controler
-    controler.store.cleanup()
+    controller = HamsterControl(base_config)
+    yield controller
+    controller.store.cleanup()
 
 
 @pytest.fixture

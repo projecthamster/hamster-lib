@@ -50,7 +50,7 @@ class HamsterControl(object):
     """
     All mandatory config options are set as part of the contoler setup.
     Any client may overwrite those values. but we can always asume that the
-    controler does have a value set.
+    controller does have a value set.
 
     We will try hard to get through with at least always returning the object.
     We should be able to change only the internal service code to then
@@ -60,7 +60,7 @@ class HamsterControl(object):
     and fact objects. But as all of those depend on access to the store
     anyway they seem to be best be placed here as a central hub.
 
-    Generic CRUD-actions is to be delegated to our store. The Controler itself
+    Generic CRUD-actions is to be delegated to our store. The Controller itself
     provides general timetracking functions so that our clients do not have to.
     """
 
@@ -80,7 +80,7 @@ class HamsterControl(object):
 
     def _get_store(self):
         """
-        Setup the store used by this controler.
+        Setup the store used by this controller.
 
         This method is in charge off figuring out the store type, its instantiation
         as well as all additional configuration.

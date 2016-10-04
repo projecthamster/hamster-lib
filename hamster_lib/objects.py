@@ -393,7 +393,7 @@ class Fact(object):
 
         Args:
             raw_fact (str): Raw fact to be parsed.
-            config (dict, optional): Controler config provided additional settings
+            config (dict, optional): Controller config provided additional settings
                 relevant for timeframe completion.
 
         Returns:
