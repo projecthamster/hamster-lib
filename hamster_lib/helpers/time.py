@@ -309,10 +309,6 @@ def parse_time(time):
         This parse just a singlular date, time or datetime representation.
     """
 
-    # [TODO]
-    # Propably should enhance error handling for invalid but correctly formated
-    # times such as '30:55' or '2015-15-60'.
-
     length = len(time.strip().split())
     if length == 1:
         try:
