@@ -22,6 +22,7 @@ from __future__ import unicode_literals
 
 import datetime
 from collections import namedtuple
+from operator import attrgetter
 
 from future.utils import python_2_unicode_compatible
 from hamster_lib.helpers import time as time_helpers
@@ -43,7 +44,7 @@ class Category(object):
         Initialize this instance.
 
         Args:
-            name (str): This categories name.
+            name (str): The name of the category. May contain whitespace!
             pk: The unique primary key used by the backend.
         """
 
@@ -130,7 +131,7 @@ class Activity(object):
         Initialize this instance.
 
         Args:
-            name (str): This activities name.
+            name (str): This is the name of the activity. May contain whitespace!
             pk: The unique primary key used by the backend.
             category (Category): ``Category`` instance associated with this ``Activity``.
             deleted (bool): True if this ``Activity`` has been marked as deleted.
@@ -254,7 +255,7 @@ class Tag(object):
         Initialize this instance.
 
         Args:
-            name (str): This tags name.
+            name (str): The name of the tag. May contain whitespace!
             pk: The unique primary key used by the backend.
         """
 
@@ -336,7 +337,7 @@ class Tag(object):
 class Fact(object):
     """Storage agnostic class for facts."""
     # [TODO]
-    # There is some weired black magic still to be integrated from
+    # There is some weird black magic still to be integrated from
     # ``store.db.Storage``. Among it ``__get_facts()``.
     #
 
@@ -604,6 +605,78 @@ class Fact(object):
     def category(self):
         """For convenience only."""
         return self.activity.category
+
+    def get_serialized_string(self):
+        """
+        Provide a canonical 'stringified' version of the fact.
+
+        This is different from ``__str__`` as we may change what information is
+        to be included in ``__str__`` anytime (and we may use localization
+        etc ..) but this property guarantees that all relevant values will be
+        encoded in the returned string in a canonical way. In that regard it
+        is in a way a counterpart to ``Fact.create_from_raw_fact``.
+        This also serves as a go-to reference implementation for 'what does a
+        complete ``raw fact`` looks like'.
+
+        Please be advised though that the ``raw_string`` used to create a
+        ``Fact`` instance is not necessarily identical to this instance's
+        ``serialized_string`` as the ``raw fact`` string may omit certain
+        values which will be autocompleted while this property always returns
+        a *complete* string.
+
+        A complete serialized fact looks like this:
+            ``2016-02-01 17:30 - 2016-02-01 18:10 making plans@world domination
+            #tag 1 #tag 2, description``
+
+            Please note that we are very liberal with allowing whitespace
+            for ``Activity.name`` and ``Category.name``.
+
+        Attention:
+            ``Fact.tags`` is a set and hence unordered. In order to provide
+            a deterministic canonical return string we will sort tags by name
+            and list them alphabetically. This is purely cosmetic and does not
+            imply any actual ordering of those facts on the instance level.
+
+        Returns:
+            text_type: Canonical string encoding all available fact info.
+        """
+        def get_times_string(fact):
+            if fact.start:
+                if fact.end:
+                    result = '{start} - {end} '.format(
+                        start=fact.start.strftime('%Y-%m-%d %H:%M'),
+                        end=fact.end.strftime('%Y-%m-%d %H:%M')
+                    )
+                else:
+                    result = '{} '.format(fact.start.strftime('%Y-%m-%d %H:%M'))
+            else:
+                result = ''
+            return result
+
+        def get_activity_string(fact):
+            if fact.category:
+                result = '{a.name}@{a.category.name}'.format(a=fact.activity)
+            else:
+                result = '{}'.format(fact.activity.name)
+            return result
+
+        tags = ''
+        if self.tags:
+            ordered_tags = sorted(list(self.tags), key=attrgetter('name'))
+            tags = ' {}'.format(' '.join(['#{}'.format(tag.name) for tag in ordered_tags]))
+
+        description = ''
+        if self.description:
+            description = ', {}'.format(self.description)
+
+        result = '{times}{activity}{tags}{description}'.format(
+            times=get_times_string(self),
+            activity=get_activity_string(self),
+            tags=tags,
+            description=description
+        )
+
+        return text_type(result)
 
     def as_tuple(self, include_pk=True):
         """
