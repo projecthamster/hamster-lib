@@ -664,10 +664,10 @@ class Fact(object):
             #                    self.description or "")
 
         if self.start:
-            start = self.start.strftime("%d-%m-%Y %H:%M")
+            start = self.start.strftime("%Y-%m-%d %H:%M")
 
         if self.end:
-            end = self.end.strftime("%d-%m-%Y %H:%M")
+            end = self.end.strftime("%Y-%m-%d %H:%M")
 
         if self.start and self.end:
             result = '{} to {} {}'.format(start, end, result)
@@ -690,10 +690,10 @@ class Fact(object):
             #                    self.description or "")
 
         if self.start:
-            start = repr(self.start.strftime("%d-%m-%Y %H:%M"))
+            start = repr(self.start.strftime("%Y-%m-%d %H:%M"))
 
         if self.end:
-            end = repr(self.end.strftime("%d-%m-%Y %H:%M"))
+            end = repr(self.end.strftime("%Y-%m-%d %H:%M"))
 
         if self.start and self.end:
             result = '{} to {} {}'.format(start, end, result)
