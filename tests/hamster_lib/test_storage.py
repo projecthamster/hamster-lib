@@ -360,6 +360,23 @@ class TestFactManager:
         with pytest.raises(KeyError):
             basestore.facts.get_tmp_fact()
 
+    def test_update_tmp_fact(self, basestore, tmp_fact, new_fact_values):
+        """Make sure the updated fact has the new values."""
+        updated_fact = Fact(**new_fact_values(tmp_fact))
+        result = basestore.facts.update_tmp_fact(updated_fact)
+        assert result == updated_fact
+
+    def test_update_tmp_fact_invalid_type(self, basestore):
+        """Make sure that passing a non-Fact instances raises a ``TypeError``."""
+        with pytest.raises(TypeError):
+            basestore.facts.update_tmp_fact(dict())
+
+    def test_update_tmp_fact_end(self, basestore, fact):
+        """Make sure updating with a fact that has ``Fact.end`` raises ``ValueError."""
+        fact.end = datetime.datetime.now()
+        with pytest.raises(ValueError):
+            basestore.facts.update_tmp_fact(fact)
+
     def test_cancel_tmp_fact(self, basestore, tmp_fact, fact):
         """Make sure we return the 'ongoing_fact'."""
         result = basestore.facts.cancel_tmp_fact()
