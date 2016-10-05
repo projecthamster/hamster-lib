@@ -882,20 +882,52 @@ class BaseFactManager(BaseManager):
 
         return old_fact
 
-    def stop_tmp_fact(self):
+    def stop_tmp_fact(self, end_hint=None):
         """
         Stop current 'ongoing fact'.
+
+        Args:
+            end_hint (datetime.timedelta or datetime.datetime, optional): Hint to be
+                considered when setting ``Fact.end``. If no hint is provided
+                ``Fact.end`` will be ``datetime.datetime.now()``. If a ``datetime`` is
+                provided, this will be used as ``Fact.end`` value. If a ``timedelta``
+                is provided it will be added to ``datetime.datetime.now()``.
+                If you want the computed ``end`` to be *before* ``now()``
+                you can pass negative ``timedelta`` values. Defaults to None.
 
         Returns:
             hamster_lib.Fact: The stored fact.
 
         Raises:
+            TypeError: If ``end_hint`` is not a ``datetime.datetime`` or
+                ``datetime.timedelta`` instance or ``None``.
             ValueError: If there is no currently 'ongoing fact' present.
+            ValueError: If the final end value (due to the hint) is before
+                the fact's start value.
         """
         self.store.logger.debug(_("Stopping 'ongoing fact'."))
+
+        if not ((end_hint is None) or isinstance(end_hint, datetime.datetime) or (
+                isinstance(end_hint, datetime.timedelta))):
+            raise TypeError(_(
+                "The 'end_hint' you passed needs to be either a"
+                "'datetime.datetime' or 'datetime.timedelta' instance."
+            ))
+
+        if end_hint:
+            if isinstance(end_hint, datetime.datetime):
+                end = end_hint
+            else:
+                end = datetime.datetime.now() + end_hint
+        else:
+            end = datetime.datetime.now()
+
         fact = helpers._load_tmp_fact(self._get_tmp_fact_path())
         if fact:
-            fact.end = datetime.datetime.now()
+            if fact.start > end:
+                raise ValueError(_("This fact's 'end' value seem to be before its 'start'."))
+            else:
+                fact.end = end
             result = self.save(fact)
             os.remove(self._get_tmp_fact_path())
             self.store.logger.debug(_("Temporary fact stopped."))
