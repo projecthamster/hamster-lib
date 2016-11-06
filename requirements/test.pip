@@ -13,4 +13,4 @@ tox==2.4.1
 future==0.16.0
 fauxfactory==2.0.9
 pytest-mock==1.4.0
-freezegun==0.3.7
+freezegun==0.3.8
