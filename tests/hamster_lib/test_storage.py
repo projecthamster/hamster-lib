@@ -334,30 +334,29 @@ class TestFactManager:
         with pytest.raises(ValueError):
             basestore.facts._start_tmp_fact(fact)
 
-    @freeze_time('2016-02-01 18:00')
+    @freeze_time('2019-02-01 18:00')
     @pytest.mark.parametrize('hint', (
         None,
         datetime.timedelta(minutes=10),
         datetime.timedelta(minutes=300),
         datetime.timedelta(seconds=-10),
         datetime.timedelta(minutes=-10),
-        datetime.datetime(2016, 2, 1, 19),
-        datetime.datetime(2016, 2, 1, 17, 59),
+        datetime.datetime(2019, 2, 1, 19),
+        datetime.datetime(2019, 2, 1, 17, 59),
     ))
     def test_stop_tmp_fact(self, basestore, base_config, tmp_fact, fact, hint, mocker):
         """
         Make sure we can stop an 'ongoing fact' and that it will have an end set.
 
         Please note that ever so often it may happen that the factory generates
-        a tmp_fact with ``Fact.start`` so close to ``datetime.now()`` that our
-        offset will turn the end invalid. This should happen very rarely and
-        can be fixed with some elbow grease if it ever becomes an issue.
+        a tmp_fact with ``Fact.start`` after our mocked today-date. In order to avoid
+        confusion the easies fix is to make sure the mock-today is well in the future.
         """
         if hint:
             if isinstance(hint, datetime.datetime):
                 expected_end = hint
             else:
-                expected_end = datetime.datetime(2016, 2, 1, 18) + hint
+                expected_end = datetime.datetime(2019, 2, 1, 18) + hint
         else:
             expected_end = datetime.datetime.now()
 

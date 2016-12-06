@@ -26,6 +26,14 @@ class TestAlchemyActivity(object):
         assert activity.facts
 
 
+class TestAlchemyTag(object):
+    """Make sure our custom methods behave properly."""
+    def test_as_hamster(self, alchemy_tag):
+        """Make sure that conversion into a ``hamster_lib.Tag``works as expected."""
+        tag = alchemy_tag.as_hamster()
+        assert tag.equal_fields(alchemy_tag)
+
+
 class TestAlchemyFact(object):
     """Make sure our custom methods behave properly."""
 

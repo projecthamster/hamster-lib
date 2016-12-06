@@ -925,7 +925,7 @@ class BaseFactManager(BaseManager):
         fact = helpers._load_tmp_fact(self._get_tmp_fact_path())
         if fact:
             if fact.start > end:
-                raise ValueError(_("This fact's 'end' value seem to be before its 'start'."))
+                raise ValueError(_("The indicated 'end' value seem to be before its 'start'."))
             else:
                 fact.end = end
             result = self.save(fact)
