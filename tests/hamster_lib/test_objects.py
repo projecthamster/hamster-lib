@@ -287,18 +287,15 @@ class TestFact(object):
         assert fact.end == start_end_datetimes[1]
         assert fact.tags == tag_list_valid_parametrized
 
-    def test_create_from_raw_fact_valid(self, raw_fact_parametrized):
-        """Make sure the constructed ``Fact``s anatomy reflects our expectations."""
-        raw_fact, expectation = raw_fact_parametrized
+    @pytest.mark.parametrize('raw_fact', (
+        '12:00 - 14:00 foo@bar, rumpelratz',
+        '12:00 - 14:00 foo',
+    ))
+    def test_create_from_raw_fact_valid(self, raw_fact):
+        """Make sure that a valid raw fact creates a proper Fact."""
+        #raw_fact = '12:00 - 14:00 foo@bar.com, rumpelratz'
         fact = Fact.create_from_raw_fact(raw_fact)
-        assert fact.start == expectation['start']
-        assert fact.end == expectation['end']
-        assert fact.activity.name == expectation['activity']
-        if fact.activity.category:
-            assert fact.activity.category.name == expectation['category']
-        else:
-            assert expectation['category'] is None
-        assert fact.description == expectation['description']
+        assert fact
 
     def test_create_from_raw_fact_invalid(self, invalid_raw_fact_parametrized):
         """Make sure invalid string raises an exception."""

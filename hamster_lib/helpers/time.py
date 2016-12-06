@@ -288,7 +288,7 @@ def complete_timeframe(timeframe, config, partial=False):
     if any((timeframe.end_date, timeframe.end_time)) or not partial:
         end = complete_end(timeframe.end_date, timeframe.end_time, config)
 
-    return validate_start_end_range((start, end))
+    return (start, end)
 
 
 def parse_time(time):
@@ -341,6 +341,9 @@ def validate_start_end_range(range_tuple):
     """
 
     start, end = range_tuple
+
+    if not start:
+        raise ValueError(_("Start missing."))
 
     if (start and end) and (start > end):
         raise ValueError(_("Start after end!"))

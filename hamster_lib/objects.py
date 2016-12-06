@@ -26,6 +26,7 @@ from operator import attrgetter
 
 from future.utils import python_2_unicode_compatible
 from hamster_lib.helpers import time as time_helpers
+from hamster_lib.helpers.helpers import parse_raw_fact
 from six import text_type
 
 # Named tuples used  to 'serialize' our object instances.
@@ -384,12 +385,6 @@ class Fact(object):
         Once any such raw fact has been turned in to a proper ``hamster_lib.Fact``
         we can rely on it having encapsulated all.
 
-        See serialized_name for details on the raw_fact format.
-        As far as we can tell right now there are a couple of clear separators
-        for our raw-string.
-        '@' --> [time-info] activity @ remains
-        ',' --> @category',' description remains
-
         As a consequence extra care has to be taken to mask/escape them.
 
         Args:
@@ -400,83 +395,33 @@ class Fact(object):
         Returns:
             hamster_lib.Fact: ``Fact`` object with data parsed from raw fact.
 
-        Note:
-            * The resulting fact just contains any information stored in the ``raw_fact`` string.
-                If normalization/completion is desired, it needs to be done postprocessing this
-                newly generated ``Fact`` instance.
+        Raises:
+            ValueError: If we fail to extract at least ``start`` or ``activity.name``.
+            ValueError: If ``end <= start``.
+
         """
-
-        def at_split(string):
-            """
-            Return everything in front of the (leftest) '@'-symbol, if it was used.
-
-            Args:
-                string (str):  The string to be parsed.
-
-            Returns:
-                tuple: (front, back) representing the substrings before and after the
-                    most left ``@`` symbol. If no such symbol was present at all,
-                    ``back=None``. Both substrings have been trimmed of any leading
-                    and tailing whitespace.
-
-            Note:
-                If our string contains multiple ``@`` symbols, all but the most left
-                one will be treated as part of the regular ``back`` string.
-                This allows for usage of the symbol in descriptions, categories and tags.
-            """
-            result = string.split('@', 1)
-            length = len(result)
-            if length == 1:
-                front, back = result[0].strip(), None
-            else:
-                front, back = result
-                front, back = front.strip(), back.strip()
-            return (front, back)
-
-        def comma_split(string):
-            """
-            Split string at the most left comma.
-
-            Args:
-                string (str): String to be processed. At this stage this should
-                    look something like ``<Category>, <Description>
-
-
-            Returns
-                tuple: (category_and_tags, description). Both substrings have their
-                    leading/tailing whitespace removed.
-                    ``category_and_tags`` may include >=0 tags indicated by a leading ``#``.
-                    As we have used the most left ``,`` to separate both substrings that
-                    means that categories and tags can not contain any ``,`` but the
-                    description text may contain as many as wished.
-            """
-
-            result = tuple(string.split(',', 1))
-            length = len(result)
-            if length == 1:
-                category, description = result[0].strip(), None
-            else:
-                category, description = tuple(result)
-                category, description = category.strip(), description.strip()
-            return (category.strip(), description)
 
         if not config:
             config = {'day_start': datetime.time(0, 0, 0)}
 
-        time_info, rest = time_helpers.extract_time_info(raw_fact)
-        start, end = time_helpers.complete_timeframe(time_info, config, partial=True)
-        activity_name, back = at_split(rest)
+        extracted_components = parse_raw_fact(raw_fact)
 
-        if back:
-            category_name, description = comma_split(back)
-            if category_name:
-                category = Category(category_name)
-            else:
-                category = None
+        start, end = time_helpers.complete_timeframe(extracted_components['timeinfo'],
+            config, partial=True)
+        start, end = time_helpers.validate_start_end_range((start, end))
+
+        activity_name = extracted_components.get('activity')
+        if activity_name:
+            activity = Activity(activity_name)
         else:
-            category, description = None, None
+            raise ValueError(_("Unable to extract activity name"))
 
-        activity = Activity(activity_name, category=category)
+        category_name = extracted_components.get('category')
+        if category_name:
+            activity.category = Category(category_name)
+
+        description = extracted_components['description']
+
         return cls(activity, start, end=end, description=description)
 
     @property

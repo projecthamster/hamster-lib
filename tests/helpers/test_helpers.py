@@ -25,3 +25,14 @@ class TestLoadTmpFact(object):
         """Make sure that we return the stored 'ongoing fact' as expected."""
         result = helpers._load_tmp_fact(base_config['tmpfile_path'])
         assert result == tmp_fact
+
+
+class TestParseRawFact(object):
+    def test_parsing(self, raw_fact_parametrized):
+        """Make sure extracted components match our expectations."""
+        raw_fact, expectation = raw_fact_parametrized
+        result = helpers.parse_raw_fact(raw_fact)
+        assert result['timeinfo'] == expectation['timeinfo']
+        assert result['activity'] == expectation['activity']
+        assert result['category'] == expectation['category']
+        assert result['description'] == expectation['description']
