@@ -19,7 +19,7 @@
 
 
 """
-This module provides several convinience and intermediate functions to perform common tasks.
+This module provides several convenience and intermediate functions to perform common tasks.
 """
 
 
@@ -67,14 +67,14 @@ def parse_raw_fact(raw_fact):
     Extract semantically meaningful sub-components from a ``raw fact`` text.
 
     Args:
-        raw_fact (text_type): ``raw fact`` text to be parsed.abs
+        raw_fact (text_type): ``raw fact`` text to be parsed.
 
     Returns:
         dict: dict with sub-components as values.
     """
     def at_split(string):
         """
-        Return everything in front of the (leftest) '@'-symbol, if it was used.
+        Return everything in front of the (leftmost) '@'-symbol, if it was used.
 
         Args:
             string (str):  The string to be parsed.
@@ -83,7 +83,7 @@ def parse_raw_fact(raw_fact):
             tuple: (front, back) representing the substrings before and after the
                 most left ``@`` symbol. If no such symbol was present at all,
                 ``back=None``. Both substrings have been trimmed of any leading
-                and tailing whitespace.
+                and trailing whitespace.
 
         Note:
             If our string contains multiple ``@`` symbols, all but the most left
@@ -105,12 +105,12 @@ def parse_raw_fact(raw_fact):
 
         Args:
             string (str): String to be processed. At this stage this should
-                look something like ``<Category>, <Description>
+                look something like ``<Category> and <tags>, <Description>
 
 
         Returns
             tuple: (category_and_tags, description). Both substrings have their
-                leading/tailing whitespace removed.
+                leading/trailing whitespace removed.
                 ``category_and_tags`` may include >=0 tags indicated by a leading ``#``.
                 As we have used the most left ``,`` to separate both substrings that
                 means that categories and tags can not contain any ``,`` but the
