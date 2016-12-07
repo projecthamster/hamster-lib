@@ -410,13 +410,13 @@ class Fact(object):
             config, partial=True)
         start, end = time_helpers.validate_start_end_range((start, end))
 
-        activity_name = extracted_components.get('activity')
+        activity_name = extracted_components['activity']
         if activity_name:
             activity = Activity(activity_name)
         else:
             raise ValueError(_("Unable to extract activity name"))
 
-        category_name = extracted_components.get('category')
+        category_name = extracted_components['category']
         if category_name:
             activity.category = Category(category_name)
 
