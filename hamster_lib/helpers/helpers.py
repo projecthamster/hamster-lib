@@ -89,6 +89,11 @@ def parse_raw_fact(raw_fact):
             If our string contains multiple ``@`` symbols, all but the most left
             one will be treated as part of the regular ``back`` string.
             This allows for usage of the symbol in descriptions, categories and tags.
+
+            Also note that *no tags are extracted* any tags included will be considered
+            part of the ``category`` string. We are likely to remove this parsing function
+            in ``0.14.0`` in favour of a regex based solution so we will not spend
+            time on tags for now
         """
         result = string.split('@', 1)
         length = len(result)
@@ -117,7 +122,7 @@ def parse_raw_fact(raw_fact):
                 description text may contain as many as wished.
         """
 
-        result = tuple(string.split(',', 1))
+        result = string.split(',', 1)
         length = len(result)
         if length == 1:
             category, description = result[0].strip(), None

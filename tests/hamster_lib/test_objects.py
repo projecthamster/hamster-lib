@@ -293,9 +293,7 @@ class TestFact(object):
     ))
     def test_create_from_raw_fact_valid(self, raw_fact):
         """Make sure that a valid raw fact creates a proper Fact."""
-        #raw_fact = '12:00 - 14:00 foo@bar.com, rumpelratz'
-        fact = Fact.create_from_raw_fact(raw_fact)
-        assert fact
+        assert Fact.create_from_raw_fact(raw_fact)
 
     def test_create_from_raw_fact_invalid(self, invalid_raw_fact_parametrized):
         """Make sure invalid string raises an exception."""
