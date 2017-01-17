@@ -366,9 +366,10 @@ class Fact(object):
         self.start = start
         self.end = end
         self.description = description
-        self.tags = set()
+        self.tags = []
         if tags:
-            self.tags = set(tags)
+            tags = set(tags)
+            self.tags = [Tag(name = x) for x in tags]
 
     @classmethod
     def create_from_raw_fact(cls, raw_fact, config=None):
@@ -433,6 +434,16 @@ class Fact(object):
                 front, back = front.strip(), back.strip()
             return (front, back)
 
+
+        def hashtag_split(string):
+            """ Return a list of tags marked with the hashtag.
+            """
+            result = string.split('#')
+            result = [x.strip() for x in result]
+            result = [x.strip() for x in result if x != '']
+            return result
+
+
         def comma_split(string):
             """
             Split string at the most left comma.
@@ -468,7 +479,18 @@ class Fact(object):
         activity_name, back = at_split(rest)
 
         if back:
-            category_name, description = comma_split(back)
+            # Check for an existing hashtag.
+            hashtag_pos = back.find('#')
+            if hashtag_pos >= 0:
+                category_name = back[:hashtag_pos].strip()
+                back = back[hashtag_pos:]
+                tag_string, description = comma_split(back)
+                tags = hashtag_split(tag_string)
+            else:
+                category_name, description = comma_split(back)
+                tags = []
+
+
             if category_name:
                 category = Category(category_name)
             else:
@@ -477,7 +499,7 @@ class Fact(object):
             category, description = None, None
 
         activity = Activity(activity_name, category=category)
-        return cls(activity, start, end=end, description=description)
+        return cls(activity, start, end=end, description=description, tags = tags)
 
     @property
     def start(self):
