@@ -579,10 +579,10 @@ class Fact(object):
         """
         seconds = int(self.delta.total_seconds())
         if format == '%M':
-            result = text_type(int(seconds / 60))
+            result = text_type(int(round(seconds / 60.)))
         elif format == '%H:%M':
-            result = '{hours:02d}:{minutes:02d}'.format(hours=int(seconds / 3600),
-                minutes=int((seconds % 3600) / 60))
+            result = '{hours:02d}:{minutes:02d}'.format(hours=int(round(seconds / 3600.)),
+                minutes=int(round((seconds % 3600.) / 60.)))
         else:
             raise ValueError(_("Got invalid format argument."))
         return result
