@@ -993,6 +993,12 @@ class FactManager(storage.BaseFactManager):
             self.store.logger.error(message)
             raise ValueError(message)
 
+        # Check for valid time range.
+        if fact.start >= fact.end:
+            message = _('Invalid time range of {!r}. The start is large or equal than the end.'.format(fact))
+            self.store.logger.error(message)
+            raise ValueError(message)
+
         facts_in_timeframe = self._get_all(fact.start, fact.end, partial=True)
         # This works because the conditional gets evaluated from left to right.
         # If ``facts_in_timeframe`` would be empty and hence would throw an
