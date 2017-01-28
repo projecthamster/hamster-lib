@@ -13,6 +13,7 @@ import pytest
 from backports.configparser import SafeConfigParser
 from hamster_lib.helpers import config_helpers
 from hamster_lib.helpers.time import TimeFrame
+from six import text_type
 
 
 @pytest.fixture
@@ -25,12 +26,6 @@ def filename():
 def filepath(tmpdir, filename):
     """Provide a fully qualified pathame within our tmp-dir."""
     return os.path.join(tmpdir.strpath, filename)
-
-
-@pytest.fixture
-def config_instance(request):
-    """A dummy instance of ``SafeConfigParse``."""
-    return SafeConfigParser()
 
 
 @pytest.fixture
@@ -53,10 +48,58 @@ def appdirs(mocker, tmpdir):
 
 
 @pytest.fixture
-def config_file(config_instance, appdirs):
+def backend_config(appdirs):
+    """Provide generic backend config."""
+    appdir = appdirs(config_helpers.DEFAULT_APP_NAME)
+    return config_helpers.get_default_backend_config(appdir)
+
+
+@pytest.fixture
+def configparser_instance(request):
+    """Provide a ``ConfigParser`` instance and its expected config dict."""
+    config = SafeConfigParser()
+    config.add_section('Backend')
+    config.set('Backend', 'store', 'sqlalchemy')
+    config.set('Backend', 'day_start', '05:00:00')
+    config.set('Backend', 'fact_min_delta', '60')
+    config.set('Backend', 'tmpfile_path', '/tmp')
+    config.set('Backend', 'db_engine', 'sqlite')
+    config.set('Backend', 'db_path', '/tmp/hamster.db')
+    config.set('Backend', 'db_host', 'www.example.com')
+    config.set('Backend', 'db_port', '22')
+    config.set('Backend', 'db_name', 'hamster')
+    config.set('Backend', 'db_user', 'hamster')
+    config.set('Backend', 'db_password', 'hamster')
+
+    expectation = {
+        'store': text_type('sqlalchemy'),
+        'day_start': datetime.datetime.strptime('05:00:00', '%H:%M:%S').time(),
+        'fact_min_delta': 60,
+        'tmpfile_path': text_type('/tmp'),
+        'db_engine': text_type('sqlite'),
+        'db_path': text_type('/tmp/hamster.db'),
+        'db_host': text_type('www.example.com'),
+        'db_port': 22,
+        'db_name': text_type('hamster'),
+        'db_user': text_type('hamster'),
+        'db_password': text_type('hamster'),
+    }
+
+    return config, expectation
+
+
+@pytest.fixture
+def config_instance(request):
+    """A dummy instance of ``SafeConfigParser``."""
+    return SafeConfigParser()
+
+
+@pytest.fixture
+def config_file(backend_config, appdirs):
     """Provide a config file stored under our fake config dir."""
     with codecs.open(os.path.join(appdirs.user_config_dir, 'config.conf'),
             'w', encoding='utf-8') as fobj:
+        config_helpers.backend_config_to_configparser(backend_config).write(fobj)
         config_instance.write(fobj)
 
 
