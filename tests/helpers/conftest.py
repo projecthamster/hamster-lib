@@ -60,7 +60,6 @@ def config_file(config_instance, appdirs):
         config_instance.write(fobj)
 
 
-# We assume now=2016-05-03 14:00
 @pytest.fixture(params=[
     ('foobar', {
         'timeinfo': TimeFrame(None, None, None, None, None),
