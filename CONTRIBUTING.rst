@@ -103,7 +103,7 @@ Ready to contribute? Here's how to set up `hamster-lib` for local development.
 
 7. Submit a pull request through the GitHub website.
 
-Pull Request Guidelines
+Pull Request Guidelines
 -----------------------
 
 Before you submit a pull request, check that it meets these guidelines:
