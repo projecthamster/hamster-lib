@@ -200,6 +200,79 @@ class TSVWriter(ReportWriter):
             results.append(data)
         self.csv_writer.writerow(results)
 
+@python_2_unicode_compatible
+class CSVWriter(ReportWriter):
+    def __init__(self, path):
+        """
+        Initialize a new instance.
+
+        Besides our default behaviour we create a localized heading.
+        Also, we need to make sure that our heading is UTF-8 encoded on python 2!
+        In that case ``self.file`` will be openend in binary mode and ready to accept
+        those encoded headings.
+        """
+        super(CSVWriter, self).__init__(path)
+        self.csv_writer = csv.writer(self.file, delimiter = str(','), quoting = csv.QUOTE_MINIMAL)
+        headers = (
+            _("start time"),
+            _("end time"),
+            _("activity"),
+            _("category"),
+            _("description"),
+            _("duration minutes"),
+        )
+        results = []
+        for h in headers:
+            data = text_type(h)
+            if sys.version_info < (3, 0):
+                data = data.encode('utf-8')
+            results.append(data)
+        self.csv_writer.writerow(results)
+
+    def _fact_to_tuple(self, fact):
+        """
+        Convert a ``Fact`` to its normalized tuple.
+
+        This is where all type conversion for ``Fact`` attributes to strings as well
+        as any normalization happens.
+
+        Args:
+            fact (hamster_lib.Fact): Fact to be converted.
+
+        Returns:
+            FactTuple: Tuple representing the original ``Fact``.
+        """
+        # Fields that may have ``None`` value will be represented by ''
+        if fact.category:
+            category = fact.category.name
+        else:
+            category = ''
+
+        description = fact.description or ''
+
+        return FactTuple(
+            start=fact.start.strftime(self.datetime_format),
+            end=fact.end.strftime(self.datetime_format),
+            activity=fact.activity.name,
+            duration=fact.get_string_delta('%M'),
+            category=text_type(category),
+            description=description,
+        )
+
+    def _write_fact(self, fact_tuple):
+        """
+        Write a single fact.
+
+        On python 2 we need to make sure we encode our data accordingly so we can feed it to our
+        file object which in this case needs to be opened in binary mode.
+        """
+        results = []
+        for value in fact_tuple:
+            data = text_type(value)
+            if sys.version_info < (3, 0):
+                data = data.encode('utf-8')
+            results.append(data)
+        self.csv_writer.writerow(results)
 
 @python_2_unicode_compatible
 class ICALWriter(ReportWriter):
