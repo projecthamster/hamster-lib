@@ -61,15 +61,17 @@ Additional Resources
 * `Coverage reports by 'codecov' <https://codecov.io/gh/projecthamster/hamster-lib>`_
 * `Dependency monitoring by 'requires.io' <https://requires.io/github/projecthamster/hamster-lib/requirements/?branch=master>`_
 
-News: Version 0.12.0
+News: Version 0.13.0
 ---------------------
-This release features two major functional improvements.
+This release features only few public functional changes:
 
-#. Tags are finally here! You can now create tags and attach them to facts as
-   well as use the brand new ``TagManager`` for all your CRUD needS.
-#. Refactored 'raw fact string' parsing. We significantly improved the way
-   parsing is done. Now the supported/required structure is clear and
-   transparent as well as supporting whitespace in activity names.
+#. Raw fact parsing has been moved to a helper method. This should make it easier
+   for clients to parse raw fact strings even if they do not qualify as valid
+   Fact instances.
+#. Facts now provide a ``serialied_string`` method that encodes all relevant data.
+#. We now ship ``config helpers`` that provide a baseline config that can easily be
+   extended instead of each client having to implement this all over
+   again.
 
 For a more detailed overview about what new as well as a list of all the
 smaller improvements, please refer to the changelog.
