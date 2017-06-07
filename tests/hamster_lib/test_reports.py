@@ -212,10 +212,10 @@ class TestXMLWriter(object):
         xml_writer.fact_list.appendChild = mocker.MagicMock()
         xml_writer._write_fact(fact_tuple)
         result = xml_writer.fact_list.appendChild.call_args[0][0]
-        assert result.getAttribute('start_time') == fact_tuple.start
-        assert result.getAttribute('end_time') == fact_tuple.end
-        assert result.getAttribute('duration_minutes') == fact_tuple.duration
-        assert result.getAttribute('name') == fact_tuple.activity
+        assert result.getAttribute('start') == fact_tuple.start
+        assert result.getAttribute('end') == fact_tuple.end
+        assert result.getAttribute('duration') == fact_tuple.duration
+        assert result.getAttribute('activity') == fact_tuple.activity
         assert result.getAttribute('category') == fact_tuple.category
         assert result.getAttribute('description') == fact_tuple.description
 

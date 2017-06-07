@@ -3,7 +3,18 @@
 History
 =======
 
-0.12.0 (2016-07-06)
+0.13.0 (2017-06-07)
+--------------------
+* ``helpers.time.extract_time_info`` checks that ``end > start``. [LIB-30]
+* Some attributes of the internal ``XMLWriter`` class have been renamed. [LIB-109]
+* ``stop_tmp_fact`` now accepts hints about the end (date-)time. [LIB-129]
+* A new method ``update_tmp_fact`` has been added. [LIB-132]
+* Added ``Fact.serialized_string``. [LIB-216]
+* Raw fact parsing has been moved to a separate helper method. [LIB-230]
+* Added backend related config helpers. [LIB-235]
+* We now use the built-in ``configparser`` module under python 3. [LIB-236]
+
+0.12.0 (2016-08-05)
 --------------------
 * Added support for tags! ``hamster_lib.objects.Tag`` instances can be appended
   to ``Fact.tags`` and will be stored by the sqlalchemy backend. We also

@@ -334,16 +334,57 @@ class TestFactManager:
         with pytest.raises(ValueError):
             basestore.facts._start_tmp_fact(fact)
 
-    def test_stop_tmp_fact(self, basestore, base_config, tmp_fact, fact, mocker):
-        """Make sure we can stop an 'ongoing fact' and that it will have an end set."""
+    @freeze_time('2019-02-01 18:00')
+    @pytest.mark.parametrize('hint', (
+        None,
+        datetime.timedelta(minutes=10),
+        datetime.timedelta(minutes=300),
+        datetime.timedelta(seconds=-10),
+        datetime.timedelta(minutes=-10),
+        datetime.datetime(2019, 2, 1, 19),
+        datetime.datetime(2019, 2, 1, 17, 59),
+    ))
+    def test_stop_tmp_fact(self, basestore, base_config, tmp_fact, fact, hint, mocker):
+        """
+        Make sure we can stop an 'ongoing fact' and that it will have an end set.
+
+        Please note that ever so often it may happen that the factory generates
+        a tmp_fact with ``Fact.start`` after our mocked today-date. In order to avoid
+        confusion the easies fix is to make sure the mock-today is well in the future.
+        """
+        if hint:
+            if isinstance(hint, datetime.datetime):
+                expected_end = hint
+            else:
+                expected_end = datetime.datetime(2019, 2, 1, 18) + hint
+        else:
+            expected_end = datetime.datetime.now()
+
         basestore.facts._add = mocker.MagicMock()
-        basestore.facts.stop_tmp_fact()
+        basestore.facts.stop_tmp_fact(hint)
         assert basestore.facts._add.called
         fact_to_be_added = basestore.facts._add.call_args[0][0]
-        assert fact_to_be_added.end
+        assert fact_to_be_added.end == expected_end
         fact_to_be_added.end = None
         assert fact_to_be_added == tmp_fact
         assert os.path.exists(basestore.facts._get_tmp_fact_path()) is False
+
+    def test_stop_tmp_fact_invalid_offset_hint(self, basestore, tmp_fact):
+        """Make sure that stopping with an offset hint that results in end>start raises error."""
+        offset = (datetime.datetime.now() - tmp_fact.start).total_seconds() + 100
+        offset = datetime.timedelta(seconds=-1 * offset)
+        with pytest.raises(ValueError):
+            basestore.facts.stop_tmp_fact(offset)
+
+    def test_stop_tmp_fact_invalid_datetime_hint(self, basestore, tmp_fact):
+        """Make sure that stopping with a datetime hint that results in end>start raises error."""
+        with pytest.raises(ValueError):
+            basestore.facts.stop_tmp_fact(tmp_fact.start - datetime.timedelta(minutes=30))
+
+    def test_stop_tmp_fact_invalid_hint_type(self, basestore, tmp_fact):
+        """Make sure that passing an invalid hint type raises an error."""
+        with pytest.raises(TypeError):
+            basestore.facts.stop_tmp_fact(str())
 
     def test_stop_tmp_fact_non_existing(self, basestore):
         """Make sure that trying to call stop when there is no 'ongoing fact' raises error."""
@@ -359,6 +400,23 @@ class TestFactManager:
         """Make sure that we raise a KeyError if ther is no 'ongoing fact'."""
         with pytest.raises(KeyError):
             basestore.facts.get_tmp_fact()
+
+    def test_update_tmp_fact(self, basestore, tmp_fact, new_fact_values):
+        """Make sure the updated fact has the new values."""
+        updated_fact = Fact(**new_fact_values(tmp_fact))
+        result = basestore.facts.update_tmp_fact(updated_fact)
+        assert result == updated_fact
+
+    def test_update_tmp_fact_invalid_type(self, basestore):
+        """Make sure that passing a non-Fact instances raises a ``TypeError``."""
+        with pytest.raises(TypeError):
+            basestore.facts.update_tmp_fact(dict())
+
+    def test_update_tmp_fact_end(self, basestore, fact):
+        """Make sure updating with a fact that has ``Fact.end`` raises ``ValueError."""
+        fact.end = datetime.datetime.now()
+        with pytest.raises(ValueError):
+            basestore.facts.update_tmp_fact(fact)
 
     def test_cancel_tmp_fact(self, basestore, tmp_fact, fact):
         """Make sure we return the 'ongoing_fact'."""

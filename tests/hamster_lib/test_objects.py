@@ -5,11 +5,13 @@ from __future__ import unicode_literals
 import copy
 import datetime
 from builtins import str as text
+from operator import attrgetter
 
 import faker as faker_
 import pytest
 from freezegun import freeze_time
 from hamster_lib import Activity, Category, Fact, Tag
+from six import text_type
 
 faker = faker_.Faker()
 
@@ -285,18 +287,13 @@ class TestFact(object):
         assert fact.end == start_end_datetimes[1]
         assert fact.tags == tag_list_valid_parametrized
 
-    def test_create_from_raw_fact_valid(self, raw_fact_parametrized):
-        """Make sure the constructed ``Fact``s anatomy reflects our expectations."""
-        raw_fact, expectation = raw_fact_parametrized
-        fact = Fact.create_from_raw_fact(raw_fact)
-        assert fact.start == expectation['start']
-        assert fact.end == expectation['end']
-        assert fact.activity.name == expectation['activity']
-        if fact.activity.category:
-            assert fact.activity.category.name == expectation['category']
-        else:
-            assert expectation['category'] is None
-        assert fact.description == expectation['description']
+    @pytest.mark.parametrize('raw_fact', (
+        '12:00 - 14:00 foo@bar, rumpelratz',
+        '12:00 - 14:00 foo',
+    ))
+    def test_create_from_raw_fact_valid(self, raw_fact):
+        """Make sure that a valid raw fact creates a proper Fact."""
+        assert Fact.create_from_raw_fact(raw_fact)
 
     def test_create_from_raw_fact_invalid(self, invalid_raw_fact_parametrized):
         """Make sure invalid string raises an exception."""
@@ -379,6 +376,92 @@ class TestFact(object):
         """Make sure the property returns this facts category."""
         assert fact.category == fact.activity.category
 
+    def test_serialized_string(self, fact):
+        """Make sure that a serialized string with full information matches our expectation."""
+        expectation = '{start} - {end} {activity}@{category} #{tag}, {description}'.format(
+            start=fact.start.strftime('%Y-%m-%d %H:%M'),
+            end=fact.end.strftime('%Y-%m-%d %H:%M'),
+            activity=fact.activity.name,
+            category=fact.category.name,
+            tag=sorted(list(fact.tags), key=attrgetter('name'))[0].name,
+            description=fact.description
+        )
+        result = fact.get_serialized_string()
+        assert isinstance(result, text_type)
+        assert result == expectation
+
+    @pytest.mark.parametrize(('values', 'expectation'), (
+        ({'start': datetime.datetime(2016, 1, 1, 18),
+          'end': datetime.datetime(2016, 1, 1, 19),
+          'activity': Activity('homework', category=Category('school')),
+          'tags': set([Tag('math'), Tag('science')]),
+          'description': 'something clever ...',
+          },
+         '2016-01-01 18:00 - 2016-01-01 19:00 homework@school #math #science, something clever ...'
+         ),
+        ({'start': datetime.datetime(2016, 1, 1, 18),
+          'end': datetime.datetime(2016, 1, 1, 19),
+          'activity': Activity('homework', category=None),
+          'tags': set([Tag('math'), Tag('science'), Tag('science fiction')]),
+          'description': 'something',
+          },
+         '2016-01-01 18:00 - 2016-01-01 19:00 homework #math #science #science fiction, something'
+         ),
+        ({'start': datetime.datetime(2016, 1, 1, 18),
+          'end': datetime.datetime(2016, 1, 1, 19),
+          'activity': Activity('homework', category=Category('school')),
+          'tags': set(),
+          'description': 'something clever ...',
+          },
+         '2016-01-01 18:00 - 2016-01-01 19:00 homework@school, something clever ...'
+         ),
+        ({'start': datetime.datetime(2016, 1, 1, 18),
+          'end': datetime.datetime(2016, 1, 1, 19),
+          'activity': Activity('homework', category=Category('school')),
+          'tags': set([Tag('science'), Tag('math')]),
+          'description': '',
+          },
+         '2016-01-01 18:00 - 2016-01-01 19:00 homework@school #math #science'
+         ),
+        ({'start': datetime.datetime(2016, 1, 1, 18),
+          'end': datetime.datetime(2016, 1, 1, 19),
+          'activity': Activity('homework', category=Category('school')),
+          'tags': set(),
+          'description': '',
+          },
+         '2016-01-01 18:00 - 2016-01-01 19:00 homework@school'
+         ),
+        ({'start': None,
+          'end': datetime.datetime(2016, 1, 1, 19),
+          'activity': Activity('homework', category=Category('school')),
+          'tags': set([Tag('math'), Tag('science')]),
+          'description': 'something clever ...',
+          },
+         'homework@school #math #science, something clever ...'
+         ),
+        ({'start': None,
+          'end': None,
+          'activity': Activity('homework', category=Category('school')),
+          'tags': set([Tag('math'), Tag('science')]),
+          'description': 'something clever ...',
+          },
+         'homework@school #math #science, something clever ...'
+         ),
+        ({'start': datetime.datetime(2016, 1, 1, 18),
+          'end': None,
+          'activity': Activity('homework', category=Category('school')),
+          'tags': set([Tag('math'), Tag('science')]),
+          'description': 'something clever ...',
+          },
+         '2016-01-01 18:00 homework@school #math #science, something clever ...'
+         ),
+    ))
+    def test_serialized_string_various_missing_values(self, fact, values, expectation):
+        """Make sure the serialized string is correct even if some information is missing."""
+        for attribute, value in values.items():
+            setattr(fact, attribute, value)
+        assert fact.get_serialized_string() == expectation
+
     def test_as_tuple_include_pk(self, fact):
         """Make sure that conversion to a tuple matches our expectations."""
         assert fact.as_tuple() == (fact.pk, fact.activity.as_tuple(include_pk=True),
@@ -435,8 +518,8 @@ class TestFact(object):
 
     def test__str__(self, fact):
         expectation = '{start} to {end} {activity}@{category}, {description}'.format(
-            start=fact.start.strftime('%d-%m-%Y %H:%M'),
-            end=fact.end.strftime('%d-%m-%Y %H:%M'),
+            start=fact.start.strftime('%Y-%m-%d %H:%M'),
+            end=fact.end.strftime('%Y-%m-%d %H:%M'),
             activity=fact.activity.name,
             category=fact.category.name,
             description=fact.description
@@ -446,7 +529,7 @@ class TestFact(object):
     def test__str__no_end(self, fact):
         fact.end = None
         expectation = '{start} {activity}@{category}, {description}'.format(
-            start=fact.start.strftime('%d-%m-%Y %H:%M'),
+            start=fact.start.strftime('%Y-%m-%d %H:%M'),
             activity=fact.activity.name,
             category=fact.category.name,
             description=fact.description
@@ -466,8 +549,8 @@ class TestFact(object):
     def test__repr__(self, fact):
         """Make sure our debugging representation matches our expectations."""
         expectation = '{start} to {end} {activity}@{category}, {description}'.format(
-            start=repr(fact.start.strftime('%d-%m-%Y %H:%M')),
-            end=repr(fact.end.strftime('%d-%m-%Y %H:%M')),
+            start=repr(fact.start.strftime('%Y-%m-%d %H:%M')),
+            end=repr(fact.end.strftime('%Y-%m-%d %H:%M')),
             activity=repr(fact.activity.name),
             category=repr(fact.category.name),
             description=repr(fact.description)
@@ -482,7 +565,7 @@ class TestFact(object):
         assert isinstance(result, str)
         fact.end = None
         expectation = '{start} {activity}@{category}, {description}'.format(
-            start=repr(fact.start.strftime('%d-%m-%Y %H:%M')),
+            start=repr(fact.start.strftime('%Y-%m-%d %H:%M')),
             activity=repr(fact.activity.name),
             category=repr(fact.category.name),
             description=repr(fact.description)

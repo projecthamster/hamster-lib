@@ -845,20 +845,89 @@ class BaseFactManager(BaseManager):
             self.store.logger.debug(_("New temporary fact started."))
         return fact
 
-    def stop_tmp_fact(self):
+    def update_tmp_fact(self, fact):
+        """
+        Update an ongoing fact.
+
+        Args:
+            fact (hamster_lib.Fact): Fact with new values.
+
+        Returns:
+            fact (hamster_lib.Fact): The updated ``Fact`` instance.
+
+        Raises:
+            TypeError: If passed fact is not an instance of ``hamster_lib.Fact``.
+            ValueError: If passed fact already has an ``end`` value and hence is
+                not a valid *ongoing fact*.
+        """
+        if not isinstance(fact, hamster_lib.Fact):
+            raise TypeError(_(
+                "Passed fact is not a proper instance of 'hamster_lib.Fact'."
+            ))
+
+        if fact.end:
+            raise ValueError(_(
+                "The passed fact seems to have an end and hence is an invalid"
+                " 'ongoing fact'."
+            ))
+        old_fact = self.get_tmp_fact()
+
+        for attribute in ('activity', 'start', 'description', 'tags'):
+            value = getattr(fact, attribute)
+            setattr(old_fact, attribute, value)
+
+        with open(self._get_tmp_fact_path(), 'wb') as fobj:
+            pickle.dump(old_fact, fobj)
+        self.store.logger.debug(_("Temporary fact updated."))
+
+        return old_fact
+
+    def stop_tmp_fact(self, end_hint=None):
         """
         Stop current 'ongoing fact'.
+
+        Args:
+            end_hint (datetime.timedelta or datetime.datetime, optional): Hint to be
+                considered when setting ``Fact.end``. If no hint is provided
+                ``Fact.end`` will be ``datetime.datetime.now()``. If a ``datetime`` is
+                provided, this will be used as ``Fact.end`` value. If a ``timedelta``
+                is provided it will be added to ``datetime.datetime.now()``.
+                If you want the computed ``end`` to be *before* ``now()``
+                you can pass negative ``timedelta`` values. Defaults to None.
 
         Returns:
             hamster_lib.Fact: The stored fact.
 
         Raises:
+            TypeError: If ``end_hint`` is not a ``datetime.datetime`` or
+                ``datetime.timedelta`` instance or ``None``.
             ValueError: If there is no currently 'ongoing fact' present.
+            ValueError: If the final end value (due to the hint) is before
+                the fact's start value.
         """
         self.store.logger.debug(_("Stopping 'ongoing fact'."))
+
+        if not ((end_hint is None) or isinstance(end_hint, datetime.datetime) or (
+                isinstance(end_hint, datetime.timedelta))):
+            raise TypeError(_(
+                "The 'end_hint' you passed needs to be either a"
+                "'datetime.datetime' or 'datetime.timedelta' instance."
+            ))
+
+        if end_hint:
+            if isinstance(end_hint, datetime.datetime):
+                end = end_hint
+            else:
+                end = datetime.datetime.now() + end_hint
+        else:
+            end = datetime.datetime.now()
+
         fact = helpers._load_tmp_fact(self._get_tmp_fact_path())
         if fact:
-            fact.end = datetime.datetime.now()
+            if fact.start > end:
+                raise ValueError(_("The indicated 'end' value seem to be before its 'start'."))
+            else:
+                fact.end = end
             result = self.save(fact)
             os.remove(self._get_tmp_fact_path())
             self.store.logger.debug(_("Temporary fact stopped."))

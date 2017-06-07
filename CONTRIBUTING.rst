@@ -4,8 +4,6 @@ Contributing
 
 Contributions are welcome, and they are greatly appreciated! Every
 little bit helps, and credit will always be given.
-Further details on labels and their respective meaning can be found in the
-`wiki <https://github.com/projecthamster/hamster-lib/wiki/Labels,-and-how-to-use-them>`_.
 
 You can contribute in many ways:
 
@@ -15,7 +13,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/projecthamster/hamster-lib/issues.
+Report bugs at https://projecthamster.atlassian.net/secure/CreateIssue!default.jspa.
 
 If you are reporting a bug, please include:
 
@@ -45,7 +43,7 @@ articles, and such.
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/projecthamster/hamster-lib/issues.
+The best way to send feedback is to file an issue at https://projecthamster.atlassian.net/secure/CreateIssue!default.jspa.
 
 If you are proposing a feature:
 

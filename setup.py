@@ -26,7 +26,7 @@ requirements = [
 
 setup(
     name='hamster-lib',
-    version='0.12.0',
+    version='0.13.0',
     description="A library for common timetracking functionality.",
     long_description=readme + '\n\n' + history,
     author="Eric Goller",

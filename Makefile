@@ -66,13 +66,14 @@ lint:
 	flake8 hamster_lib tests
 
 test:
-	py.test $(TEST_ARGS) tests/
+	@echo "Use the PYTEST_ADDOPTS environment variable to add extra command line options."
+	py.test tests/
 
 test-all:
 	tox
 
 coverage:
-	coverage run -m pytest $(TEST_ARGS) tests
+	coverage run -m pytest tests
 	coverage report
 
 coverage-html: coverage

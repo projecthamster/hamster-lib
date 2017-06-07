@@ -7,7 +7,7 @@ To use hamsterlib in a project::
     import hamsterlib
 
 The main point of entry is ``hamsterlib.HamsterControl``. Your friendly timetracking
-controler. All that is required to initialize it is that you pass it a ``dict`` with basic
+controller. All that is required to initialize it is that you pass it a ``dict`` with basic
 configuration information. Right now, all that is needed are the following key/value
 pairs::
 
@@ -40,7 +40,7 @@ have to each time anew.  Of cause they are always free to overload them in
 order to implement solutions optimized to their concrete backend
 infrastructure.
 
-Besides this general controler ``hamsterlib.helpers`` provides convinience
+Besides this general controller ``hamsterlib.helpers`` provides convenience
 functions that help with normalization and general intermediate computation
 clients may have need for.
 

@@ -120,9 +120,9 @@ class TestHamsterAppDirs(object):
 class TestGetConfigPath(object):
     """Test config pathj retrieval."""
 
-    def test_get_config_path(self, appdirs, mocker):
+    def test_get_config_path(self, appdirs):
         """Make sure the config target path is constructed to our expectations."""
-        expectation = os.path.join(appdirs.user_config_dir, 'config.conf')
+        expectation = os.path.join(appdirs.user_config_dir, config_helpers.DEFAULT_CONFIG_FILENAME)
         result = config_helpers.get_config_path()
         assert result == expectation
 
@@ -149,12 +149,27 @@ class TestWriteConfigFile(object):
 class TestLoadConfigFile(object):
     """Make sure file retrival works as expected."""
 
-    def test_no_file_present(self, appdirs, config_instance, mocker):
-        """Make sure we return ``None``."""
-        result = config_helpers.load_config_file()
-        assert result is None
+    def test_no_file_present(self, appdirs, config_instance):
+        """
+        Make sure we return ``None``.
 
-    def test_file_present(self, config_instance, config_file):
+        Notw:
+            We use the ``appdirs`` fixture to make sure the required dirs exist.
+        """
+        result = config_helpers.load_config_file(fallback_config_instance=config_instance)
+        assert result == config_instance
+
+    def test_file_present(self, config_instance, backend_config):
         """Make sure we try parsing a found config file."""
         result = config_helpers.load_config_file()
-        assert result == config_instance
+        assert result == config_helpers.backend_config_to_configparser(backend_config)
+
+
+class TestConfigParserToBackendConfig(object):
+    """Make sure that conversion works expected."""
+
+    def test_regular_usecase(self, configparser_instance):
+        """Make sure basic mechanics work and int/time types are created."""
+        cp_instance, expectation = configparser_instance
+        result = config_helpers.configparser_to_backend_config(cp_instance)
+        assert result == expectation

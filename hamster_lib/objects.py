@@ -22,9 +22,11 @@ from __future__ import unicode_literals
 
 import datetime
 from collections import namedtuple
+from operator import attrgetter
 
 from future.utils import python_2_unicode_compatible
 from hamster_lib.helpers import time as time_helpers
+from hamster_lib.helpers.helpers import parse_raw_fact
 from six import text_type
 
 # Named tuples used  to 'serialize' our object instances.
@@ -43,7 +45,7 @@ class Category(object):
         Initialize this instance.
 
         Args:
-            name (str): This categories name.
+            name (str): The name of the category. May contain whitespace!
             pk: The unique primary key used by the backend.
         """
 
@@ -130,7 +132,7 @@ class Activity(object):
         Initialize this instance.
 
         Args:
-            name (str): This activities name.
+            name (str): This is the name of the activity. May contain whitespace!
             pk: The unique primary key used by the backend.
             category (Category): ``Category`` instance associated with this ``Activity``.
             deleted (bool): True if this ``Activity`` has been marked as deleted.
@@ -254,7 +256,7 @@ class Tag(object):
         Initialize this instance.
 
         Args:
-            name (str): This tags name.
+            name (str): The name of the tag. May contain whitespace!
             pk: The unique primary key used by the backend.
         """
 
@@ -336,7 +338,7 @@ class Tag(object):
 class Fact(object):
     """Storage agnostic class for facts."""
     # [TODO]
-    # There is some weired black magic still to be integrated from
+    # There is some weird black magic still to be integrated from
     # ``store.db.Storage``. Among it ``__get_facts()``.
     #
 
@@ -383,99 +385,43 @@ class Fact(object):
         Once any such raw fact has been turned in to a proper ``hamster_lib.Fact``
         we can rely on it having encapsulated all.
 
-        See serialized_name for details on the raw_fact format.
-        As far as we can tell right now there are a couple of clear separators
-        for our raw-string.
-        '@' --> [time-info] activity @ remains
-        ',' --> @category',' description remains
-
         As a consequence extra care has to be taken to mask/escape them.
 
         Args:
             raw_fact (str): Raw fact to be parsed.
-            config (dict, optional): Controler config provided additional settings
+            config (dict, optional): Controller config provided additional settings
                 relevant for timeframe completion.
 
         Returns:
             hamster_lib.Fact: ``Fact`` object with data parsed from raw fact.
 
-        Note:
-            * The resulting fact just contains any information stored in the ``raw_fact`` string.
-                If normalization/completion is desired, it needs to be done postprocessing this
-                newly generated ``Fact`` instance.
+        Raises:
+            ValueError: If we fail to extract at least ``start`` or ``activity.name``.
+            ValueError: If ``end <= start``.
+
         """
-
-        def at_split(string):
-            """
-            Return everything in front of the (leftest) '@'-symbol, if it was used.
-
-            Args:
-                string (str):  The string to be parsed.
-
-            Returns:
-                tuple: (front, back) representing the substrings before and after the
-                    most left ``@`` symbol. If no such symbol was present at all,
-                    ``back=None``. Both substrings have been trimmed of any leading
-                    and tailing whitespace.
-
-            Note:
-                If our string contains multiple ``@`` symbols, all but the most left
-                one will be treated as part of the regular ``back`` string.
-                This allows for usage of the symbol in descriptions, categories and tags.
-            """
-            result = string.split('@', 1)
-            length = len(result)
-            if length == 1:
-                front, back = result[0].strip(), None
-            else:
-                front, back = result
-                front, back = front.strip(), back.strip()
-            return (front, back)
-
-        def comma_split(string):
-            """
-            Split string at the most left comma.
-
-            Args:
-                string (str): String to be processed. At this stage this should
-                    look something like ``<Category>, <Description>
-
-
-            Returns
-                tuple: (category_and_tags, description). Both substrings have their
-                    leading/tailing whitespace removed.
-                    ``category_and_tags`` may include >=0 tags indicated by a leading ``#``.
-                    As we have used the most left ``,`` to separate both substrings that
-                    means that categories and tags can not contain any ``,`` but the
-                    description text may contain as many as wished.
-            """
-
-            result = tuple(string.split(',', 1))
-            length = len(result)
-            if length == 1:
-                category, description = result[0].strip(), None
-            else:
-                category, description = tuple(result)
-                category, description = category.strip(), description.strip()
-            return (category.strip(), description)
 
         if not config:
             config = {'day_start': datetime.time(0, 0, 0)}
 
-        time_info, rest = time_helpers.extract_time_info(raw_fact)
-        start, end = time_helpers.complete_timeframe(time_info, config, partial=True)
-        activity_name, back = at_split(rest)
+        extracted_components = parse_raw_fact(raw_fact)
 
-        if back:
-            category_name, description = comma_split(back)
-            if category_name:
-                category = Category(category_name)
-            else:
-                category = None
+        start, end = time_helpers.complete_timeframe(extracted_components['timeinfo'],
+            config, partial=True)
+        start, end = time_helpers.validate_start_end_range((start, end))
+
+        activity_name = extracted_components['activity']
+        if activity_name:
+            activity = Activity(activity_name)
         else:
-            category, description = None, None
+            raise ValueError(_("Unable to extract activity name"))
 
-        activity = Activity(activity_name, category=category)
+        category_name = extracted_components['category']
+        if category_name:
+            activity.category = Category(category_name)
+
+        description = extracted_components['description']
+
         return cls(activity, start, end=end, description=description)
 
     @property
@@ -605,6 +551,78 @@ class Fact(object):
         """For convenience only."""
         return self.activity.category
 
+    def get_serialized_string(self):
+        """
+        Provide a canonical 'stringified' version of the fact.
+
+        This is different from ``__str__`` as we may change what information is
+        to be included in ``__str__`` anytime (and we may use localization
+        etc ..) but this property guarantees that all relevant values will be
+        encoded in the returned string in a canonical way. In that regard it
+        is in a way a counterpart to ``Fact.create_from_raw_fact``.
+        This also serves as a go-to reference implementation for 'what does a
+        complete ``raw fact`` looks like'.
+
+        Please be advised though that the ``raw_string`` used to create a
+        ``Fact`` instance is not necessarily identical to this instance's
+        ``serialized_string`` as the ``raw fact`` string may omit certain
+        values which will be autocompleted while this property always returns
+        a *complete* string.
+
+        A complete serialized fact looks like this:
+            ``2016-02-01 17:30 - 2016-02-01 18:10 making plans@world domination
+            #tag 1 #tag 2, description``
+
+            Please note that we are very liberal with allowing whitespace
+            for ``Activity.name`` and ``Category.name``.
+
+        Attention:
+            ``Fact.tags`` is a set and hence unordered. In order to provide
+            a deterministic canonical return string we will sort tags by name
+            and list them alphabetically. This is purely cosmetic and does not
+            imply any actual ordering of those facts on the instance level.
+
+        Returns:
+            text_type: Canonical string encoding all available fact info.
+        """
+        def get_times_string(fact):
+            if fact.start:
+                if fact.end:
+                    result = '{start} - {end} '.format(
+                        start=fact.start.strftime('%Y-%m-%d %H:%M'),
+                        end=fact.end.strftime('%Y-%m-%d %H:%M')
+                    )
+                else:
+                    result = '{} '.format(fact.start.strftime('%Y-%m-%d %H:%M'))
+            else:
+                result = ''
+            return result
+
+        def get_activity_string(fact):
+            if fact.category:
+                result = '{a.name}@{a.category.name}'.format(a=fact.activity)
+            else:
+                result = '{}'.format(fact.activity.name)
+            return result
+
+        tags = ''
+        if self.tags:
+            ordered_tags = sorted(list(self.tags), key=attrgetter('name'))
+            tags = ' {}'.format(' '.join(['#{}'.format(tag.name) for tag in ordered_tags]))
+
+        description = ''
+        if self.description:
+            description = ', {}'.format(self.description)
+
+        result = '{times}{activity}{tags}{description}'.format(
+            times=get_times_string(self),
+            activity=get_activity_string(self),
+            tags=tags,
+            description=description
+        )
+
+        return text_type(result)
+
     def as_tuple(self, include_pk=True):
         """
         Provide a tuple representation of this facts relevant attributes.
@@ -664,10 +682,10 @@ class Fact(object):
             #                    self.description or "")
 
         if self.start:
-            start = self.start.strftime("%d-%m-%Y %H:%M")
+            start = self.start.strftime("%Y-%m-%d %H:%M")
 
         if self.end:
-            end = self.end.strftime("%d-%m-%Y %H:%M")
+            end = self.end.strftime("%Y-%m-%d %H:%M")
 
         if self.start and self.end:
             result = '{} to {} {}'.format(start, end, result)
@@ -690,10 +708,10 @@ class Fact(object):
             #                    self.description or "")
 
         if self.start:
-            start = repr(self.start.strftime("%d-%m-%Y %H:%M"))
+            start = repr(self.start.strftime("%Y-%m-%d %H:%M"))
 
         if self.end:
-            end = repr(self.end.strftime("%d-%m-%Y %H:%M"))
+            end = repr(self.end.strftime("%Y-%m-%d %H:%M"))
 
         if self.start and self.end:
             result = '{} to {} {}'.format(start, end, result)

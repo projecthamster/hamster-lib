@@ -35,16 +35,16 @@ def convert_time_to_datetime(time_string):
     )
 
 
-# Controler
+# Controller
 
 
 @pytest.yield_fixture
-def controler(base_config):
-    """Provide a basic controler."""
+def controller(base_config):
+    """Provide a basic controller."""
     # [TODO] Parametrize over all available stores.
-    controler = HamsterControl(base_config)
-    yield controler
-    controler.store.cleanup()
+    controller = HamsterControl(base_config)
+    yield controller
+    controller.store.cleanup()
 
 
 @pytest.fixture
@@ -157,77 +157,10 @@ def current_fact(fact_factory):
 
 
 @pytest.fixture(params=[
-    ('foobar', {
-        'start': None,
-        'end': None,
-        'activity': 'foobar',
-        'category': None,
-        'description': None,
-    }),
-    ('11:00 12:00 foo@bar', {
-        'start': convert_time_to_datetime('11:00'),
-        'end': None,
-        'activity': '12:00 foo',
-        'category': 'bar',
-        'description': None,
-    }),
-    ('rumpelratz foo@bar', {
-        'start': None,
-        'end': None,
-        'activity': 'rumpelratz foo',
-        'category': 'bar',
-        'description': None,
-    }),
-    ('foo@bar', {
-        'start': None,
-        'end': None,
-        'activity': 'foo',
-        'category': 'bar',
-        'description': None,
-    }),
-    ('foo@bar, palimpalum', {
-        'start': None,
-        'end': None,
-        'activity': 'foo',
-        'category': 'bar',
-        'description': 'palimpalum',
-    }),
-    ('12:00 foo@bar, palimpalum', {
-        'start': convert_time_to_datetime('12:00'),
-        'end': None, 'activity': 'foo',
-        'category': 'bar',
-        'description': 'palimpalum',
-    }),
-    ('12:00 foo@, palimpalum', {
-        'start': convert_time_to_datetime('12:00'),
-        'end': None, 'activity': 'foo',
-        'activity': 'foo',
-        'category': None,
-        'description': 'palimpalum',
-    }),
-    ('12:00 - 14:14 foo@bar, palimpalum', {
-        'start': convert_time_to_datetime('12:00'),
-        'end': convert_time_to_datetime('14:14'),
-        'activity': 'foo',
-        'category': 'bar',
-        'description': 'palimpalum',
-    }),
-    # Missing whitespace around ``-`` will prevent timeinfo from beeing parsed.
-    ('12:00-14:14 foo@bar, palimpalum', {
-        'start': None,
-        'end': None,
-        'activity': '12:00-14:14 foo',
-        'category': 'bar',
-        'description': 'palimpalum',
-    }),
-])
-def raw_fact_parametrized(request):
-    """Provide a variety of valid raw facts as well as a dict of its proper components."""
-    return request.param
-
-
-@pytest.fixture(params=[
     '',
+    '12:00-14:00 foo@bar',
+    '14:00 - 12:00 foo@bar',
+    '12:00 - 14:00 @bar',
 ])
 def invalid_raw_fact_parametrized(request):
     """Return various invalid ``raw fact`` strings."""

@@ -8,32 +8,32 @@ import pytest
 from hamster_lib.storage import BaseStore
 
 
-class TestControler:
+class TestController:
     @pytest.mark.parametrize('storetype', ['sqlalchemy'])
-    def test_get_store_valid(self, controler, storetype):
+    def test_get_store_valid(self, controller, storetype):
         """Make sure  we recieve a valid ``store`` instance."""
         # [TODO]
         # Once we got backend registration up and running this should be
         # improved to check actual store type for that backend.
-        controler.config['store'] = storetype
-        assert isinstance(controler._get_store(), BaseStore)
+        controller.config['store'] = storetype
+        assert isinstance(controller._get_store(), BaseStore)
 
-    def test_get_store_invalid(self, controler):
+    def test_get_store_invalid(self, controller):
         """Make sure we get an exception if store retrieval fails."""
-        controler.config['store'] = None
+        controller.config['store'] = None
         with pytest.raises(KeyError):
-            controler._get_store()
+            controller._get_store()
 
-    def test_update_config(self, controler, base_config, mocker):
+    def test_update_config(self, controller, base_config, mocker):
         """Make sure we assign new config and get a new store."""
-        controler._get_store = mocker.MagicMock()
-        controler.update_config({})
-        assert controler.config == {}
-        assert controler._get_store.called
+        controller._get_store = mocker.MagicMock()
+        controller.update_config({})
+        assert controller.config == {}
+        assert controller._get_store.called
 
-    def test_get_logger(self, controler):
+    def test_get_logger(self, controller):
         """Make sure we recieve a logger that maches our expectations."""
-        logger = controler._get_logger()
+        logger = controller._get_logger()
         assert isinstance(logger, logging.Logger)
         assert logger.name == 'hamster-lib.log'
         # [FIXME]
