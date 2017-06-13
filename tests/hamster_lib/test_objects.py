@@ -290,6 +290,7 @@ class TestFact(object):
     @pytest.mark.parametrize('raw_fact', (
         '12:00 - 14:00 foo@bar, rumpelratz',
         '12:00 - 14:00 foo',
+        'foo@bar',
     ))
     def test_create_from_raw_fact_valid(self, raw_fact):
         """Make sure that a valid raw fact creates a proper Fact."""
