@@ -408,6 +408,8 @@ class Fact(object):
 
         start, end = time_helpers.complete_timeframe(extracted_components['timeinfo'],
             config, partial=True)
+        # Please note that start/end may very well be ``None`` due to the
+        # partial completion!
         start, end = time_helpers.validate_start_end_range((start, end))
 
         activity_name = extracted_components['activity']
