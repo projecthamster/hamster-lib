@@ -3,6 +3,11 @@
 History
 =======
 
+0.13.1 (2017-06-19)
+--------------------
+* Remove check for ``start`` info when validating timeframes with with
+  ``helpers.time.validate_start_end_range``. [LIB-250]
+
 0.13.0 (2017-06-07)
 --------------------
 * ``helpers.time.extract_time_info`` checks that ``end > start``. [LIB-30]
