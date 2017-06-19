@@ -157,8 +157,22 @@ def current_fact(fact_factory):
 
 
 @pytest.fixture(params=[
-    '',
+    '12:00 - 14:00 foo@bar, rumpelratz',
+    '12:00 - 14:00 foo',
+    'foo@bar',
+    # For the following there should not be successful start/end parsing but
+    # instead just one big "activity.name, but it still constitutes a formally
+    # valid fact. If we want to be more accurate we need to work with clear
+    # expectations.
     '12:00-14:00 foo@bar',
+])
+def valid_raw_fact_parametrized(request):
+    """Return various invalid ``raw fact`` strings."""
+    return request.param
+
+
+@pytest.fixture(params=[
+    '',
     '14:00 - 12:00 foo@bar',
     '12:00 - 14:00 @bar',
 ])

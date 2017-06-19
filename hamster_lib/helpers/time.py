@@ -334,16 +334,17 @@ def validate_start_end_range(range_tuple):
             ``complete_timeframe``.
 
     Raises:
-        ValueError: If validation fails.
+        ValueError: If start > end.
 
     Returns:
         tuple: ``(start, end)`` tuple that passed validation.
+
+    Note:
+        ``timeframes`` may be incomplete, especially if ``complete_timeframe(partial=True)`` has
+        been used to construct them.
     """
 
     start, end = range_tuple
-
-    if not start:
-        raise ValueError(_("Start missing."))
 
     if (start and end) and (start > end):
         raise ValueError(_("Start after end!"))
