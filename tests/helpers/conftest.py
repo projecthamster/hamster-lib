@@ -10,7 +10,7 @@ import os
 
 import fauxfactory
 import pytest
-from backports.configparser import SafeConfigParser
+from configparser import SafeConfigParser
 from hamster_lib.helpers import config_helpers
 from hamster_lib.helpers.time import TimeFrame
 from six import text_type
