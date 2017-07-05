@@ -620,6 +620,16 @@ class TestFactManager():
         with pytest.raises(ValueError):
             alchemy_store.facts._add(fact)
 
+    # Testcase for Bug LIB-253
+    def test_add_occupied_timewindow2(self, alchemy_store, fact, alchemy_fact):
+        """
+        Make sure that passing a fact with a timewindow that already has a fact raises error.
+        """
+        fact.start = alchemy_fact.start + datetime.timedelta(minutes=1)
+        fact.end = alchemy_fact.end - datetime.timedelta(minutes=1)
+        with pytest.raises(ValueError):
+            alchemy_store.facts._add(fact)
+
     def test_update_respects_tags(self, alchemy_store, alchemy_fact, new_fact_values):
         """Make sure that updating sets tags as expected."""
         fact = alchemy_fact.as_hamster()
