@@ -576,6 +576,76 @@ class TestTagManager():
 
 
 class TestFactManager():
+    def test_timeframe_available_existing_fact_overlaps_start_only(self, alchemy_store, fact,
+            alchemy_fact):
+        """
+        Make sure that passing a fact with only start overlaping an existing one raises error.
+        """
+        fact.start = alchemy_fact.start - datetime.timedelta(days=4)
+        fact.end = alchemy_fact.start + datetime.timedelta(minutes=15)
+        with pytest.raises(ValueError):
+            alchemy_store.facts._add(fact)
+
+    def test_timeframe_available_existing_fact_overlaps_end_only(self, alchemy_store, fact,
+            alchemy_fact):
+        """
+        Make sure that passing a fact with only start overlaping an existing one raises error.
+        """
+        fact.start = alchemy_fact.end - datetime.timedelta(minutes=1)
+        fact.end = alchemy_fact.end + datetime.timedelta(minutes=15)
+        with pytest.raises(ValueError):
+            alchemy_store.facts._add(fact)
+
+    # Testcase for Bug LIB-253
+    def test_timeframe_available_fact_completely_with_existing_timeframe(self, alchemy_store, fact,
+            alchemy_fact):
+        """
+        Make sure that passing a fact that is comepletly within an existing ones raises an error.
+        """
+        fact.start = alchemy_fact.start + datetime.timedelta(minutes=1)
+        fact.end = alchemy_fact.end - datetime.timedelta(minutes=1)
+        with pytest.raises(ValueError):
+            alchemy_store.facts._add(fact)
+
+    def test_timeframe_available_existing_fact_completly_spans_existing_timeframe(self,
+            alchemy_store, fact, alchemy_fact):
+        """
+        Make sure that passing a fact that completly spans an existing fact raises an error.
+        """
+        fact.start = alchemy_fact.start - datetime.timedelta(minutes=1)
+        fact.end = alchemy_fact.end + datetime.timedelta(minutes=15)
+        with pytest.raises(ValueError):
+            alchemy_store.facts._add(fact)
+    #####################
+
+    def test_timeframe_available_fact_new_valid_timeframe(self, alchemy_store, alchemy_fact,
+            new_fact_values):
+        """Make sure updating an existing fact works as expected."""
+        fact = alchemy_fact.as_hamster()
+        new_values = new_fact_values(fact)
+        fact.pk = alchemy_fact.pk
+        fact.start = new_values['start']
+        fact.end = new_values['end']
+        old_fact_count = alchemy_store.session.query(AlchemyFact).count()
+        old_alchemy_activity_count = alchemy_store.session.query(AlchemyCategory).count()
+        result = alchemy_store.facts._update(fact)
+        db_instance = alchemy_store.session.query(AlchemyFact).get(result.pk)
+        new_fact_count = alchemy_store.session.query(AlchemyFact).count()
+        new_alchemy_activity_count = alchemy_store.session.query(AlchemyActivity).count()
+        assert old_fact_count == new_fact_count
+        assert old_alchemy_activity_count == new_alchemy_activity_count
+        assert db_instance.as_hamster().equal_fields(fact)
+
+    def test_timeframe_available_fact_with_same_timeframe(self, alchemy_store, alchemy_fact):
+        """Make sure we can update a fact with unchanged start/end times."""
+        fact = alchemy_fact.as_hamster()
+        fact.description = 'foobar'
+        assert isinstance(fact, hamster_lib.Fact)
+        result = alchemy_store.facts._update(fact)
+        assert result.description == fact.description
+
+    #############
+
     def test_add_tags(self, alchemy_store, fact):
         """Make sure that adding a new valid fact will also save its tags."""
         result = alchemy_store.facts._add(fact)
@@ -611,25 +681,6 @@ class TestFactManager():
         with pytest.raises(ValueError):
             alchemy_store.facts._add(fact)
 
-    def test_add_occupied_timewindow(self, alchemy_store, fact, alchemy_fact):
-        """
-        Make sure that passing a fact with a timewindow that already has a fact raises error.
-        """
-        fact.start = alchemy_fact.start - datetime.timedelta(days=4)
-        fact.end = alchemy_fact.start + datetime.timedelta(minutes=15)
-        with pytest.raises(ValueError):
-            alchemy_store.facts._add(fact)
-
-    # Testcase for Bug LIB-253
-    def test_add_occupied_timewindow2(self, alchemy_store, fact, alchemy_fact):
-        """
-        Make sure that passing a fact with a timewindow that already has a fact raises error.
-        """
-        fact.start = alchemy_fact.start + datetime.timedelta(minutes=1)
-        fact.end = alchemy_fact.end - datetime.timedelta(minutes=1)
-        with pytest.raises(ValueError):
-            alchemy_store.facts._add(fact)
-
     def test_update_respects_tags(self, alchemy_store, alchemy_fact, new_fact_values):
         """Make sure that updating sets tags as expected."""
         fact = alchemy_fact.as_hamster()
@@ -658,31 +709,6 @@ class TestFactManager():
         fact.pk = None
         with pytest.raises(ValueError):
             alchemy_store.facts._update(fact)
-
-    def test_update_fact_new_valid_timeframe(self, alchemy_store, alchemy_fact, new_fact_values):
-        """Make sure updating an existing fact works as expected."""
-        fact = alchemy_fact.as_hamster()
-        new_values = new_fact_values(fact)
-        fact.pk = alchemy_fact.pk
-        fact.start = new_values['start']
-        fact.end = new_values['end']
-        old_fact_count = alchemy_store.session.query(AlchemyFact).count()
-        old_alchemy_activity_count = alchemy_store.session.query(AlchemyCategory).count()
-        result = alchemy_store.facts._update(fact)
-        db_instance = alchemy_store.session.query(AlchemyFact).get(result.pk)
-        new_fact_count = alchemy_store.session.query(AlchemyFact).count()
-        new_alchemy_activity_count = alchemy_store.session.query(AlchemyActivity).count()
-        assert old_fact_count == new_fact_count
-        assert old_alchemy_activity_count == new_alchemy_activity_count
-        assert db_instance.as_hamster().equal_fields(fact)
-
-    def test_update_fact_with_same_timeframe(self, alchemy_store, alchemy_fact):
-        """Make sure we can update a fact with unchanged start/end times."""
-        fact = alchemy_fact.as_hamster()
-        fact.description = 'foobar'
-        assert isinstance(fact, hamster_lib.Fact)
-        result = alchemy_store.facts._update(fact)
-        assert result.description == fact.description
 
     def test_save_new(self, fact, alchemy_store):
         count_before = alchemy_store.session.query(AlchemyFact).count()
