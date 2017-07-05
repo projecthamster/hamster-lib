@@ -926,6 +926,32 @@ class TagManager(storage.BaseTagManager):
 
 @python_2_unicode_compatible
 class FactManager(storage.BaseFactManager):
+
+    def _timeframe_available_for_fact(self, fact):
+        """
+        Determine if a timeframe given by the passed fact is already occupied.abs
+
+        Args:
+            fact (Fact): The fact to check.
+
+        Returns:
+            bool: ``True`` if the timeframe is available, ``False`` if not.
+
+        Note:
+            If  the given fact is the only fact instance within the given timeframe
+            the timeframe is considered available (for this fact)!
+        """
+        facts_in_timeframe = self._get_all(fact.start, fact.end, partial=True)
+        # Check if passed fact is the only element of the returned list.
+        result = not bool(facts_in_timeframe)
+        if fact.pk and len(facts_in_timeframe) == 1:
+            if facts_in_timeframe[0].pk == fact.pk:
+                result = True
+            else:
+                result = False
+
+        return result
+
     def _add(self, fact, raw=False):
         """
         Add a new fact to the database.
@@ -952,7 +978,7 @@ class FactManager(storage.BaseFactManager):
             self.store.logger.error(message)
             raise ValueError(message)
 
-        if self._get_all(fact.start, fact.end, partial=True):
+        if not self._timeframe_available_for_fact(fact):
             message = _("Our database already contains facts for this facts timewindow."
                         "There can ever only be one fact at any given point in time")
             self.store.logger.error(message)
@@ -993,12 +1019,7 @@ class FactManager(storage.BaseFactManager):
             self.store.logger.error(message)
             raise ValueError(message)
 
-        facts_in_timeframe = self._get_all(fact.start, fact.end, partial=True)
-        # This works because the conditional gets evaluated from left to right.
-        # If ``facts_in_timeframe`` would be empty and hence would throw an
-        # index error, we wouldn't reach the offending part ...
-        if facts_in_timeframe and not (len(facts_in_timeframe) == 1 and
-                                       facts_in_timeframe[0].pk == fact.pk):
+        if not self._timeframe_available_for_fact(fact):
             message = _("Our database already contains facts for this facts timewindow."
                         " There can ever only be one fact at any given point in time")
             self.store.logger.error(message)
@@ -1125,6 +1146,8 @@ class FactManager(storage.BaseFactManager):
                 query = query.filter(or_(
                     and_(AlchemyFact.start >= start, AlchemyFact.start <= end),
                     and_(AlchemyFact.end >= start, AlchemyFact.end <= end),
+                    and_(AlchemyFact.start <= start, AlchemyFact.end >= start),
+                    and_(AlchemyFact.start <= end, AlchemyFact.end >= end),
                 ))
             else:
                 pass
