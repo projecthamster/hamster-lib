@@ -932,7 +932,8 @@ class FactManager(storage.BaseFactManager):
         Determine if a timeframe given by the passed fact is already occupied.abs
 
         Args:
-            fact (Fact): The fact to check.
+            fact (Fact): The fact to check. Please note that the fact is expected to
+                have a ``start`` and ``end``.
 
         Returns:
             bool: ``True`` if the timeframe is available, ``False`` if not.
@@ -941,7 +942,14 @@ class FactManager(storage.BaseFactManager):
             If  the given fact is the only fact instance within the given timeframe
             the timeframe is considered available (for this fact)!
         """
-        facts_in_timeframe = self._get_all(fact.start, fact.end, partial=True)
+        start, end = fact.start, fact.end
+        query = self.store.session.query(AlchemyFact)
+        query = query.filter(or_(
+            and_(AlchemyFact.start >= start, AlchemyFact.start <= end),
+            and_(AlchemyFact.end >= start, AlchemyFact.end <= end),
+            and_(AlchemyFact.start <= start, AlchemyFact.end >= start),
+        ))
+        facts_in_timeframe = query.all()
         # Check if passed fact is the only element of the returned list.
         result = not bool(facts_in_timeframe)
         if fact.pk and len(facts_in_timeframe) == 1:
@@ -1116,10 +1124,15 @@ class FactManager(storage.BaseFactManager):
             search_term (text_type): Cases insensitive strings to match
                 ``Activity.name`` or ``Category.name``.
             partial (bool): If ``False`` only facts which start *and* end
-                within the timeframe will be considered.
+                within the timeframe will be considered. If ``False`` facts
+                either ``start``, ``end`` or both will be returned.
 
         Returns:
             list: List of ``hamster_lib.Facts`` instances.
+
+        Note:
+            This method will *NOT* return facts that start before and end after
+            (e.g. that span more than) the specified timeframe.
         """
 
         def get_complete_overlaps(query, start, end):
@@ -1146,8 +1159,6 @@ class FactManager(storage.BaseFactManager):
                 query = query.filter(or_(
                     and_(AlchemyFact.start >= start, AlchemyFact.start <= end),
                     and_(AlchemyFact.end >= start, AlchemyFact.end <= end),
-                    and_(AlchemyFact.start <= start, AlchemyFact.end >= start),
-                    and_(AlchemyFact.start <= end, AlchemyFact.end >= end),
                 ))
             else:
                 pass
