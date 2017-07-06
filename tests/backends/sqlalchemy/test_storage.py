@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import datetime
 
-import hamster_lib
 import pytest
 from hamster_lib.backends.sqlalchemy import (AlchemyActivity, AlchemyCategory,
                                              AlchemyFact, AlchemyTag,
@@ -597,8 +596,8 @@ class TestFactManager():
             alchemy_store.facts._add(fact)
 
     # Testcase for Bug LIB-253
-    def test_timeframe_available_fact_completely_within_existing_timeframe(self, alchemy_store, fact,
-            alchemy_fact):
+    def test_timeframe_available_fact_completely_within_existing_timeframe(self, alchemy_store,
+            fact, alchemy_fact):
         """
         Make sure that passing a fact that is comepletly within an existing ones raises an error.
         """
