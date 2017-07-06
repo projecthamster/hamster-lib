@@ -597,7 +597,7 @@ class TestFactManager():
             alchemy_store.facts._add(fact)
 
     # Testcase for Bug LIB-253
-    def test_timeframe_available_fact_completely_with_existing_timeframe(self, alchemy_store, fact,
+    def test_timeframe_available_fact_completely_within_existing_timeframe(self, alchemy_store, fact,
             alchemy_fact):
         """
         Make sure that passing a fact that is comepletly within an existing ones raises an error.
@@ -616,35 +616,6 @@ class TestFactManager():
         fact.end = alchemy_fact.end + datetime.timedelta(minutes=15)
         with pytest.raises(ValueError):
             alchemy_store.facts._add(fact)
-    #####################
-
-    def test_timeframe_available_fact_new_valid_timeframe(self, alchemy_store, alchemy_fact,
-            new_fact_values):
-        """Make sure updating an existing fact works as expected."""
-        fact = alchemy_fact.as_hamster()
-        new_values = new_fact_values(fact)
-        fact.pk = alchemy_fact.pk
-        fact.start = new_values['start']
-        fact.end = new_values['end']
-        old_fact_count = alchemy_store.session.query(AlchemyFact).count()
-        old_alchemy_activity_count = alchemy_store.session.query(AlchemyCategory).count()
-        result = alchemy_store.facts._update(fact)
-        db_instance = alchemy_store.session.query(AlchemyFact).get(result.pk)
-        new_fact_count = alchemy_store.session.query(AlchemyFact).count()
-        new_alchemy_activity_count = alchemy_store.session.query(AlchemyActivity).count()
-        assert old_fact_count == new_fact_count
-        assert old_alchemy_activity_count == new_alchemy_activity_count
-        assert db_instance.as_hamster().equal_fields(fact)
-
-    def test_timeframe_available_fact_with_same_timeframe(self, alchemy_store, alchemy_fact):
-        """Make sure we can update a fact with unchanged start/end times."""
-        fact = alchemy_fact.as_hamster()
-        fact.description = 'foobar'
-        assert isinstance(fact, hamster_lib.Fact)
-        result = alchemy_store.facts._update(fact)
-        assert result.description == fact.description
-
-    #############
 
     def test_add_tags(self, alchemy_store, fact):
         """Make sure that adding a new valid fact will also save its tags."""

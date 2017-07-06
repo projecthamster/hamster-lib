@@ -929,7 +929,11 @@ class FactManager(storage.BaseFactManager):
 
     def _timeframe_available_for_fact(self, fact):
         """
-        Determine if a timeframe given by the passed fact is already occupied.abs
+        Determine if a timeframe given by the passed fact is already occupied.
+
+        This method takes also such facts into account that start before and end
+        after the fact in question. In that regard it exceeds what ``_get_all``
+        would return.
 
         Args:
             fact (Fact): The fact to check. Please note that the fact is expected to
@@ -1125,7 +1129,8 @@ class FactManager(storage.BaseFactManager):
                 ``Activity.name`` or ``Category.name``.
             partial (bool): If ``False`` only facts which start *and* end
                 within the timeframe will be considered. If ``False`` facts
-                either ``start``, ``end`` or both will be returned.
+                with either ``start``, ``end`` or both within the timeframe
+                will be returned.
 
         Returns:
             list: List of ``hamster_lib.Facts`` instances.
