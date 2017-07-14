@@ -578,7 +578,7 @@ class TestFactManager():
     def test_timeframe_available_existing_fact_overlaps_start_only(self, alchemy_store, fact,
             alchemy_fact):
         """
-        Make sure that passing a fact with only start overlaping an existing one raises error.
+        Make sure that passing a fact with only start overlapping an existing one raises error.
         """
         fact.start = alchemy_fact.start - datetime.timedelta(days=4)
         fact.end = alchemy_fact.start + datetime.timedelta(minutes=15)
@@ -588,7 +588,7 @@ class TestFactManager():
     def test_timeframe_available_existing_fact_overlaps_end_only(self, alchemy_store, fact,
             alchemy_fact):
         """
-        Make sure that passing a fact with only start overlaping an existing one raises error.
+        Make sure that passing a fact with only end overlapping an existing one raises error.
         """
         fact.start = alchemy_fact.end - datetime.timedelta(minutes=1)
         fact.end = alchemy_fact.end + datetime.timedelta(minutes=15)
@@ -599,7 +599,7 @@ class TestFactManager():
     def test_timeframe_available_fact_completely_within_existing_timeframe(self, alchemy_store,
             fact, alchemy_fact):
         """
-        Make sure that passing a fact that is comepletly within an existing ones raises an error.
+        Make sure that passing a fact that is completely within an existing ones raises error.
         """
         fact.start = alchemy_fact.start + datetime.timedelta(minutes=1)
         fact.end = alchemy_fact.end - datetime.timedelta(minutes=1)
@@ -609,7 +609,7 @@ class TestFactManager():
     def test_timeframe_available_existing_fact_completly_spans_existing_timeframe(self,
             alchemy_store, fact, alchemy_fact):
         """
-        Make sure that passing a fact that completly spans an existing fact raises an error.
+        Make sure that passing a fact that completely spans an existing fact raises an error.
         """
         fact.start = alchemy_fact.start - datetime.timedelta(minutes=1)
         fact.end = alchemy_fact.end + datetime.timedelta(minutes=15)
