@@ -948,21 +948,15 @@ class FactManager(storage.BaseFactManager):
         """
         start, end = fact.start, fact.end
         query = self.store.session.query(AlchemyFact)
-        query = query.filter(or_(
-            and_(AlchemyFact.start >= start, AlchemyFact.start <= end),
-            and_(AlchemyFact.end >= start, AlchemyFact.end <= end),
-            and_(AlchemyFact.start <= start, AlchemyFact.end >= start),
-        ))
-        facts_in_timeframe = query.all()
-        # Check if passed fact is the only element of the returned list.
-        result = not bool(facts_in_timeframe)
-        if fact.pk and len(facts_in_timeframe) == 1:
-            if facts_in_timeframe[0].pk == fact.pk:
-                result = True
-            else:
-                result = False
 
-        return result
+        condition = and_(AlchemyFact.start < end, AlchemyFact.end > start)
+
+        if fact.pk:
+            condition = and_(condition, AlchemyFact.pk != fact.pk)
+
+        query = query.filter(condition)
+
+        return not bool(query.count())
 
     def _add(self, fact, raw=False):
         """
