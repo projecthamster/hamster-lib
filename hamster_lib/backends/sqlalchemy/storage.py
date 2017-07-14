@@ -926,6 +926,38 @@ class TagManager(storage.BaseTagManager):
 
 @python_2_unicode_compatible
 class FactManager(storage.BaseFactManager):
+
+    def _timeframe_available_for_fact(self, fact):
+        """
+        Determine if a timeframe given by the passed fact is already occupied.
+
+        This method takes also such facts into account that start before and end
+        after the fact in question. In that regard it exceeds what ``_get_all``
+        would return.
+
+        Args:
+            fact (Fact): The fact to check. Please note that the fact is expected to
+                have a ``start`` and ``end``.
+
+        Returns:
+            bool: ``True`` if the timeframe is available, ``False`` if not.
+
+        Note:
+            If  the given fact is the only fact instance within the given timeframe
+            the timeframe is considered available (for this fact)!
+        """
+        start, end = fact.start, fact.end
+        query = self.store.session.query(AlchemyFact)
+
+        condition = and_(AlchemyFact.start < end, AlchemyFact.end > start)
+
+        if fact.pk:
+            condition = and_(condition, AlchemyFact.pk != fact.pk)
+
+        query = query.filter(condition)
+
+        return not bool(query.count())
+
     def _add(self, fact, raw=False):
         """
         Add a new fact to the database.
@@ -952,7 +984,7 @@ class FactManager(storage.BaseFactManager):
             self.store.logger.error(message)
             raise ValueError(message)
 
-        if self._get_all(fact.start, fact.end, partial=True):
+        if not self._timeframe_available_for_fact(fact):
             message = _("Our database already contains facts for this facts timewindow."
                         "There can ever only be one fact at any given point in time")
             self.store.logger.error(message)
@@ -993,12 +1025,7 @@ class FactManager(storage.BaseFactManager):
             self.store.logger.error(message)
             raise ValueError(message)
 
-        facts_in_timeframe = self._get_all(fact.start, fact.end, partial=True)
-        # This works because the conditional gets evaluated from left to right.
-        # If ``facts_in_timeframe`` would be empty and hence would throw an
-        # index error, we wouldn't reach the offending part ...
-        if facts_in_timeframe and not (len(facts_in_timeframe) == 1 and
-                                       facts_in_timeframe[0].pk == fact.pk):
+        if not self._timeframe_available_for_fact(fact):
             message = _("Our database already contains facts for this facts timewindow."
                         " There can ever only be one fact at any given point in time")
             self.store.logger.error(message)
@@ -1095,10 +1122,16 @@ class FactManager(storage.BaseFactManager):
             search_term (text_type): Cases insensitive strings to match
                 ``Activity.name`` or ``Category.name``.
             partial (bool): If ``False`` only facts which start *and* end
-                within the timeframe will be considered.
+                within the timeframe will be considered. If ``False`` facts
+                with either ``start``, ``end`` or both within the timeframe
+                will be returned.
 
         Returns:
             list: List of ``hamster_lib.Facts`` instances.
+
+        Note:
+            This method will *NOT* return facts that start before and end after
+            (e.g. that span more than) the specified timeframe.
         """
 
         def get_complete_overlaps(query, start, end):
