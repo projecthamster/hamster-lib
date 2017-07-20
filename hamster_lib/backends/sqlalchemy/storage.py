@@ -931,13 +931,13 @@ class FactManager(storage.BaseFactManager):
         """
         Determine if a timeframe given by the passed fact is already occupied.
 
-        This method takes also such facts into account that start before and end
-        after the fact in question. In that regard it exceeds what ``_get_all``
-        would return.
+        This method also takes into account such facts that start before and end
+        after the fact in question. In that regard, it is a superset of what
+        _get_all would return.
 
         Args:
             fact (Fact): The fact to check. Please note that the fact is expected to
-                have a ``start`` and ``end``.
+                have a ``start`` and an ``end``.
 
         Returns:
             bool: ``True`` if the timeframe is available, ``False`` if not.
@@ -1131,7 +1131,7 @@ class FactManager(storage.BaseFactManager):
 
         Note:
             This method will *NOT* return facts that start before and end after
-            (e.g. that span more than) the specified timeframe.
+            (i.e. that span more than) the specified timeframe.
         """
 
         def get_complete_overlaps(query, start, end):
