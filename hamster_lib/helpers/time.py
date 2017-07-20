@@ -23,9 +23,8 @@
 from __future__ import absolute_import, unicode_literals
 
 import datetime
-from collections import namedtuple
-
 import re
+from collections import namedtuple
 
 TimeFrame = namedtuple('Timeframe', ('start_date', 'start_time',
     'end_date', 'end_time', 'offset'))
