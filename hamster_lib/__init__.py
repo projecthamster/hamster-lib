@@ -22,4 +22,4 @@
 from .lib import REGISTERED_BACKENDS, HamsterControl  # NOQA
 from .objects import Activity, Category, Fact, Tag  # NOQA
 
-__version__ = '0.13.1'
+__version__ = '0.13.2'

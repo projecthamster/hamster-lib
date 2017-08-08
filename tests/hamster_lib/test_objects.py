@@ -514,8 +514,8 @@ class TestFact(object):
 
     def test__str__(self, fact):
         expectation = '{start} to {end} {activity}@{category}, {description}'.format(
-            start=fact.start.strftime('%Y-%m-%d %H:%M'),
-            end=fact.end.strftime('%Y-%m-%d %H:%M'),
+            start=fact.start.strftime('%Y-%m-%d %H:%M:%S'),
+            end=fact.end.strftime('%Y-%m-%d %H:%M:%S'),
             activity=fact.activity.name,
             category=fact.category.name,
             description=fact.description
@@ -525,7 +525,7 @@ class TestFact(object):
     def test__str__no_end(self, fact):
         fact.end = None
         expectation = '{start} {activity}@{category}, {description}'.format(
-            start=fact.start.strftime('%Y-%m-%d %H:%M'),
+            start=fact.start.strftime('%Y-%m-%d %H:%M:%S'),
             activity=fact.activity.name,
             category=fact.category.name,
             description=fact.description
@@ -545,8 +545,8 @@ class TestFact(object):
     def test__repr__(self, fact):
         """Make sure our debugging representation matches our expectations."""
         expectation = '{start} to {end} {activity}@{category}, {description}'.format(
-            start=repr(fact.start.strftime('%Y-%m-%d %H:%M')),
-            end=repr(fact.end.strftime('%Y-%m-%d %H:%M')),
+            start=repr(fact.start.strftime('%Y-%m-%d %H:%M:%S')),
+            end=repr(fact.end.strftime('%Y-%m-%d %H:%M:%S')),
             activity=repr(fact.activity.name),
             category=repr(fact.category.name),
             description=repr(fact.description)
@@ -561,7 +561,7 @@ class TestFact(object):
         assert isinstance(result, str)
         fact.end = None
         expectation = '{start} {activity}@{category}, {description}'.format(
-            start=repr(fact.start.strftime('%Y-%m-%d %H:%M')),
+            start=repr(fact.start.strftime('%Y-%m-%d %H:%M:%S')),
             activity=repr(fact.activity.name),
             category=repr(fact.category.name),
             description=repr(fact.description)
