@@ -3,6 +3,19 @@
 History
 =======
 
+0.13.2 (2017-08-08)
+--------------------
+- Fix a bug that would not always return all partial overlaps for
+  ``actManager._get_all``. This in effect fixes broken "timeframe availability"
+  tests. [LIB-253]
+- Remove obsolete references to ``backports.ConfigParser``. [LIB-255]
+- Properly deal with raw fact that do/do-not include seconds. [LIB-254]
+
+0.13.1 (2017-06-19)
+--------------------
+* Remove check for ``start`` info when validating timeframes with with
+  ``helpers.time.validate_start_end_range``. [LIB-250]
+
 0.13.0 (2017-06-07)
 --------------------
 * ``helpers.time.extract_time_info`` checks that ``end > start``. [LIB-30]

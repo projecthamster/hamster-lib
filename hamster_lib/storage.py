@@ -38,8 +38,8 @@ import pickle
 import hamster_lib
 from future.utils import python_2_unicode_compatible
 from hamster_lib import objects
-from hamster_lib.helpers import time as time_helpers
 from hamster_lib.helpers import helpers
+from hamster_lib.helpers import time as time_helpers
 
 
 @python_2_unicode_compatible
@@ -726,6 +726,8 @@ class BaseFactManager(BaseManager):
                 backend query is handled by ``_get_all``.
             * ``search_term`` should be prefixable with ``not`` in order to invert matching.
             * This does only return proper facts and does not include any existing 'ongoing fact'.
+            * This method will *NOT* return facts that start before and end after
+              (e.g. that span more than) the specified timeframe.
         """
         self.store.logger.debug(_(
             "Start: '{start}', end: {end} with filter: {filter} has been received.".format(

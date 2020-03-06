@@ -7,10 +7,10 @@ from __future__ import absolute_import, unicode_literals
 import codecs
 import datetime
 import os
+from configparser import ConfigParser
 
 import fauxfactory
 import pytest
-from backports.configparser import SafeConfigParser
 from hamster_lib.helpers import config_helpers
 from hamster_lib.helpers.time import TimeFrame
 from six import text_type
@@ -57,7 +57,7 @@ def backend_config(appdirs):
 @pytest.fixture
 def configparser_instance(request):
     """Provide a ``ConfigParser`` instance and its expected config dict."""
-    config = SafeConfigParser()
+    config = ConfigParser()
     config.add_section('Backend')
     config.set('Backend', 'store', 'sqlalchemy')
     config.set('Backend', 'day_start', '05:00:00')
@@ -90,8 +90,8 @@ def configparser_instance(request):
 
 @pytest.fixture
 def config_instance(request):
-    """A dummy instance of ``SafeConfigParser``."""
-    return SafeConfigParser()
+    """A dummy instance of ``ConfigParser``."""
+    return ConfigParser()
 
 
 @pytest.fixture

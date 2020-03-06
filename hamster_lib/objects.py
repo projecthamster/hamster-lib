@@ -408,6 +408,8 @@ class Fact(object):
 
         start, end = time_helpers.complete_timeframe(extracted_components['timeinfo'],
             config, partial=True)
+        # Please note that start/end may very well be ``None`` due to the
+        # partial completion!
         start, end = time_helpers.validate_start_end_range((start, end))
 
         activity_name = extracted_components['activity']
@@ -682,10 +684,10 @@ class Fact(object):
             #                    self.description or "")
 
         if self.start:
-            start = self.start.strftime("%Y-%m-%d %H:%M")
+            start = self.start.strftime("%Y-%m-%d %H:%M:%S")
 
         if self.end:
-            end = self.end.strftime("%Y-%m-%d %H:%M")
+            end = self.end.strftime("%Y-%m-%d %H:%M:%S")
 
         if self.start and self.end:
             result = '{} to {} {}'.format(start, end, result)
@@ -708,10 +710,10 @@ class Fact(object):
             #                    self.description or "")
 
         if self.start:
-            start = repr(self.start.strftime("%Y-%m-%d %H:%M"))
+            start = repr(self.start.strftime("%Y-%m-%d %H:%M:%S"))
 
         if self.end:
-            end = repr(self.end.strftime("%Y-%m-%d %H:%M"))
+            end = repr(self.end.strftime("%Y-%m-%d %H:%M:%S"))
 
         if self.start and self.end:
             result = '{} to {} {}'.format(start, end, result)

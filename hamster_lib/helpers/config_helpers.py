@@ -57,7 +57,7 @@ from __future__ import absolute_import, unicode_literals
 
 import datetime
 import os
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 
 import appdirs
 import hamster_lib
@@ -168,7 +168,7 @@ def write_config_file(config_instance, appdirs=DEFAULT_APPDIRS,
         ``DEFAULT_CONFIG_FILENAME``.
 
     Returns:
-        SafeConfigParser: Instance written to file.
+        ConfigParser: Instance written to file.
     """
 
     path = get_config_path(appdirs, file_name)
@@ -194,7 +194,7 @@ def load_config_file(appdirs=DEFAULT_APPDIRS, file_name=DEFAULT_CONFIG_FILENAME,
             config file that is created if no pre-existing one can be found.
 
     Returns:
-        SafeConfigParser: Config loaded from file, either from the the  pre-existing config
+        ConfigParser: Config loaded from file, either from the the  pre-existing config
             file or the one created with fallback values.
     """
     if not fallback_config_instance:
@@ -202,7 +202,7 @@ def load_config_file(appdirs=DEFAULT_APPDIRS, file_name=DEFAULT_CONFIG_FILENAME,
             get_default_backend_config(appdirs)
         )
 
-    config = SafeConfigParser()
+    config = ConfigParser()
     path = get_config_path(appdirs, file_name)
     if not config.read(path):
         config = write_config_file(
@@ -244,7 +244,7 @@ def backend_config_to_configparser(config):
         config (dict): Dictionary of config key/value pairs.
 
     Returns:
-        SafeConfigParser: SafeConfigParser instance representing config.
+        ConfigParser: ConfigParser instance representing config.
 
     Note:
         We do not provide *any* validation about mandatory values what so ever.
@@ -285,7 +285,7 @@ def backend_config_to_configparser(config):
     def get_db_password():
         return text_type(config.get('db_password'))
 
-    cp_instance = SafeConfigParser()
+    cp_instance = ConfigParser()
     cp_instance.add_section('Backend')
     cp_instance.set('Backend', 'store', get_store())
     cp_instance.set('Backend', 'day_start', get_day_start())

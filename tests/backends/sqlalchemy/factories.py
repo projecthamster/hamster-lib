@@ -28,7 +28,7 @@ class AlchemyCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = AlchemyCategory
         sqlalchemy_session = common.Session
-        force_flush = True
+        sqlalchemy_session_persistence = 'flush'
 
 
 class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -42,7 +42,7 @@ class AlchemyActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = AlchemyActivity
         sqlalchemy_session = common.Session
-        force_flush = True
+        sqlalchemy_session_persistence = 'flush'
 
 
 class AlchemyTagFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -58,7 +58,7 @@ class AlchemyTagFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = AlchemyTag
         sqlalchemy_session = common.Session
-        force_flush = True
+        sqlalchemy_session_persistence = 'flush'
 
 
 class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -73,7 +73,7 @@ class AlchemyFactFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = AlchemyFact
         sqlalchemy_session = common.Session
-        force_flush = True
+        sqlalchemy_session_persistence = 'flush'
 
     @factory.post_generation
     def tags(self, create, extracted, **kwargs):
