@@ -38,8 +38,8 @@ import pickle
 import hamster_lib
 from future.utils import python_2_unicode_compatible
 from hamster_lib import objects
-from hamster_lib.helpers import time as time_helpers
 from hamster_lib.helpers import helpers
+from hamster_lib.helpers import time as time_helpers
 
 
 @python_2_unicode_compatible
