@@ -4,9 +4,9 @@
 from __future__ import absolute_import, unicode_literals
 
 import os
+from configparser import ConfigParser
 
 import pytest
-from configparser import SafeConfigParser
 from hamster_lib.helpers import config_helpers
 from hamster_lib.helpers.config_helpers import HamsterAppDirs
 
@@ -141,9 +141,9 @@ class TestWriteConfigFile(object):
         assert os.path.lexists(expected_location)
 
     def test_return_config_instance(self, config_instance, appdirs):
-        """Make sure we return a ``SafeConfigParser`` instance."""
+        """Make sure we return a ``ConfigParser`` instance."""
         result = config_helpers.write_config_file(config_instance)
-        assert isinstance(result, SafeConfigParser)
+        assert isinstance(result, ConfigParser)
 
 
 class TestLoadConfigFile(object):
@@ -162,7 +162,7 @@ class TestLoadConfigFile(object):
     def test_file_present(self, config_instance, backend_config):
         """Make sure we try parsing a found config file."""
         result = config_helpers.load_config_file()
-        assert isinstance(result, SafeConfigParser)
+        assert isinstance(result, ConfigParser)
 
 
 class TestConfigParserToBackendConfig(object):
