@@ -107,11 +107,17 @@ def extract_time_info(text):
 
     # [TODO] Add a list of supported formats.
 
-    def get_time(time):
+    def get_time(time, seconds=None):
         """Convert a times string representation to datetime.time instance."""
-        if time:
-            time = datetime.datetime.strptime(time.strip(), "%H:%M").time()
-        return time
+        if time is None:
+            return time
+
+        if seconds:
+            time_format = '%H:%M:%S'
+        else:
+            time_format = '%H:%M'
+
+        return datetime.datetime.strptime(time.strip(), time_format).time()
 
     def get_date(date):
         """Convert a dates string representation to datetime.date instance."""
@@ -126,8 +132,8 @@ def extract_time_info(text):
             time = dt.time()
             date = dt.date()
         else:
-            date = get_date(groupdict.get('date', None))
-            time = get_time(groupdict.get('time', None))
+            date = get_date(groupdict.get('date'))
+            time = get_time(groupdict.get('time'), groupdict.get('seconds'))
         return (date, time)
 
     # Baseline/default values.
@@ -142,9 +148,9 @@ def extract_time_info(text):
 
     # Individual patterns for time/date  substrings.
     relative_pattern = '(?P<relative>-\d+)'
-    time_pattern = '(?P<time>\d{2}:\d{2})'
+    time_pattern = '(?P<time>\d{2}:\d{2}(?P<seconds>:\d{2})?)'
     date_pattern = '(?P<date>\d{4}-\d{2}-\d{2})'
-    datetime_pattern = '(?P<datetime>\d{4}-\d{2}-\d{2} \d{2}:\d{2})'
+    datetime_pattern = '(?P<datetime>\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?)'
 
     start = re.match('^({}|{}|{}|{}) (?P<rest>.+)'.format(relative_pattern, datetime_pattern,
         date_pattern, time_pattern), text)
@@ -313,11 +319,17 @@ def parse_time(time):
     length = len(time.strip().split())
     if length == 1:
         try:
-            result = datetime.datetime.strptime(time, '%H:%M').time()
+            result = datetime.datetime.strptime(time, '%H:%M:%S').time()
         except ValueError:
-            result = datetime.datetime.strptime(time, '%Y-%m-%d').date()
+            try:
+                result = datetime.datetime.strptime(time, '%H:%M').time()
+            except ValueError:
+                result = datetime.datetime.strptime(time, '%Y-%m-%d').date()
     elif length == 2:
-        result = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M')
+        try:
+            result = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            result = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M')
     else:
         raise ValueError(_(
             "String does not seem to be in one of our supported time formats."
@@ -334,16 +346,17 @@ def validate_start_end_range(range_tuple):
             ``complete_timeframe``.
 
     Raises:
-        ValueError: If validation fails.
+        ValueError: If start > end.
 
     Returns:
         tuple: ``(start, end)`` tuple that passed validation.
+
+    Note:
+        ``timeframes`` may be incomplete, especially if ``complete_timeframe(partial=True)`` has
+        been used to construct them.
     """
 
     start, end = range_tuple
-
-    if not start:
-        raise ValueError(_("Start missing."))
 
     if (start and end) and (start > end):
         raise ValueError(_("Start after end!"))

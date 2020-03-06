@@ -57,10 +57,10 @@ from __future__ import absolute_import, unicode_literals
 
 import datetime
 import os
-from configparser import SafeConfigParser
 
 import appdirs
 import hamster_lib
+from configparser import SafeConfigParser
 from six import text_type
 
 

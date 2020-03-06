@@ -277,8 +277,10 @@ class TestEndDayToDaytime(object):
 class TestParseTime(object):
     @pytest.mark.parametrize(('time', 'expectation'), [
         ('18:55', datetime.time(18, 55)),
+        ('18:55:34', datetime.time(18, 55, 34)),
         ('2014-12-10', datetime.date(2014, 12, 10)),
         ('2015-10-02 18:12', datetime.datetime(2015, 10, 2, 18, 12)),
+        ('2015-10-02 18:12:33', datetime.datetime(2015, 10, 2, 18, 12, 33)),
     ])
     def test_various_times(self, time, expectation):
         """Make sure that given times are parsed as expected."""
