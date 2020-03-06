@@ -69,7 +69,7 @@ Documentation
 * Docstrings should be provided for all public and private classes, methods and
   functions. Simple local functions may go without. They should elaborate the
   methods signature and use.
-* Use `google-style <http://www.sphinx-doc.org/en/stable/ext/example_google.html#example-google>`_
+* Use `google-style <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
   docstrings. Sphinx's `napoleon <http://www.sphinx-doc.org/en/stable/ext/napoleon.html#module-sphinx.ext.napoleon>`_
   extension will make turn this into valid ``rst``.
 * use block comments to explain implementation
