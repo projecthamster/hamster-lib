@@ -27,5 +27,5 @@ suitable ``virtualenv`` running or specify our test environment in one central
 location.  If for example you wanted to package ``hamsterlib`` for
 ``debian-stable``, it would be mighty convenient to just provide another
 requirements.txt with all the relevant dependencies pinned to what your target
-distro would provide. Now you can run the entire test suit against a reliable
+distro would provide. Now you can run the entire test suite against a reliable
 representation of said target system.
