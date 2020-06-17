@@ -21,8 +21,12 @@ requirements = [
     'sqlalchemy',
     'icalendar',
     'six',
-    'configparser >= 3.5.0b2',
 ]
+
+try:
+    import configparser # noqa
+except ImportError:
+    requirements.append('configparser >= 3.5.0b2')
 
 setup(
     name='hamster-lib',
